@@ -18,7 +18,7 @@ def main(in_file, out_file, hs_nr):
 
     with open(out_file, "a") as ff:
         for index, val in enumerate(names[hs_idx:], start=hs_idx):
-            retries, max_retries = 0, 5
+            retries, max_retries = 0, 3
             while retries < max_retries:
                 try:
                     csv = lookup(val).split(b'\n')
@@ -40,7 +40,7 @@ def main(in_file, out_file, hs_nr):
                     print(err)
                     print(f"Error occurred at index {index}: {type(err)}. Retrying...")
                     retries += 1
-                    sleep(30 * retries)
+                    sleep(10)
                     if retries == max_retries:
                         with open(out_file + '.err', "a") as fff:
                             fff.write('COULD NOT FIND %s:%s\n' % (index + 1, val))

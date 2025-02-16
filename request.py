@@ -13,6 +13,11 @@ def lookup(name, type = HSLookup.csv):
     csv = https_request(type.value, params)
     return csv
     
+def lookup_scrape(name, type = HSLookup.regular):
+    params = {'user1': name }
+    page = https_request(type.value, params)
+    return page
+    
 def https_request(url, params) :
     headers = {
        "Access-Control-Allow-Origin": "*",
@@ -27,6 +32,36 @@ def https_request(url, params) :
         return content
 
     raise RequestFailed(content, code=resp.status_code)
+    
+def extract_stats(page) :
+    soup = BeautifulSoup(page, "html.parser")
+    body = soup.find(id='contentHiscores')
+    result = {}
+    
+    categories = body.find_all('tr')
+    categories = categories[3:]
+    
+    skills = True
+    for category in categories :
+        soup = category.find_all('td')
+        if len(soup) == 0 :
+            skills = False
+            continue
+            
+        name = category.find('a').text.strip()
+        if skills :
+            result[name] = { 
+                'rank': int(soup[-3].text.replace(',', '').strip()), 
+                'lvl': int(soup[-2].text.replace(',', '').strip()),
+                'xp': int(soup[-1].text.replace(',', '').strip())
+            }
+        else :
+            result[name] = {
+                'rank': int(soup[-2].text.replace(',', '').strip()), 
+                'score': int(soup[-1].text.replace(',', '').strip())
+            }
+    
+    return result
     
 def extract_usernames(page) :
     soup = BeautifulSoup(page, "html.parser")

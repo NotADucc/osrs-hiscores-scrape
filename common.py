@@ -24,6 +24,8 @@ class HSType(Enum):
     hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall'
 
 class HSLookup(Enum):
+    regular = 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
+    pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
     csv = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
     json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
 
