@@ -1,4 +1,15 @@
+import math
+
 from enum import Enum
+
+def calc_cmb(att, de, st, hp, ra, pr, ma) :
+    base = 0.25 * (de + hp + pr // 2)
+    melee = 0.325 * (att + st)
+    ranged = 0.325 * (ra // 2 + ra)
+    mage = 0.325 * (ma // 2 + ma)
+    mx = melee if melee > ranged else ranged
+    mx = mx if mx > mage else mage
+    return base + mx
 
 class DoneScraping(Exception):
     pass
@@ -11,8 +22,10 @@ class HSType(Enum):
     im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/overall'
     uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/overall'
     hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall'
-    lookup = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
-    lookup_json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
+
+class HSLookup(Enum):
+    csv = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
+    json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
 
 class HSTableMapper(Enum):
     overall = (0, 0)
