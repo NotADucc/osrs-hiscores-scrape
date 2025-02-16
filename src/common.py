@@ -1,5 +1,10 @@
 from enum import Enum
 
+class DoneScraping(Exception):
+    pass
+class RequestFailed(Exception):
+    pass
+
 class HSType(Enum):
     regular = 'https://secure.runescape.com/m=hiscore_oldschool/overall'
     pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/overall'
