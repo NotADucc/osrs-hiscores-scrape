@@ -31,7 +31,7 @@ def extract_usernames(page) :
     result = {}
     
     for score in scores :
-        rank = int(score.find_all('td', class_='right')[0].text.strip())
+        rank = int(score.find_all('td', class_='right')[0].text.replace(',', '').strip())
         username = score.find('td', class_='left').a.text.strip()
         result[rank] = username.replace('Ā', ' ')
     
