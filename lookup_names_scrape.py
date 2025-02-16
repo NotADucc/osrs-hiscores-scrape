@@ -4,12 +4,13 @@ import sys
 from time import sleep
 from common import HSLookup, calc_cmb
 from request import lookup_scrape, extract_stats
+from run import retry
 
 def main(in_file, out_file, hs_nr):
     names = []
     with open(in_file, "r") as f:
         for line in f:
-            idx, name = line.strip().split(":", 1)
+            idx, name = line.strip().split(",", 1)
             names.append((idx, name))
             
     hs_idx = hs_nr - 1     
@@ -18,6 +19,7 @@ def main(in_file, out_file, hs_nr):
 
     with open(out_file, "a") as ff:
         for index, (idx, name) in enumerate(names[hs_idx:], start=hs_idx):
+            retry
             retries, max_retries = 0, 3
             while retries < max_retries:
                 try:
@@ -38,7 +40,7 @@ def main(in_file, out_file, hs_nr):
                     
                     cmb_lvl = calc_cmb(att, de, st, hp, ra, pr, ma)
                     if cmb_lvl < 40:
-                        ff.write('%s:%s cmb %s\n' % (idx, name, cmb_lvl))
+                        ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))
 
                     print(f'finished nr: {idx} - {name}')
                     break 

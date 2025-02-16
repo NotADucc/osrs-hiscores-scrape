@@ -16,7 +16,7 @@ def main(out_file, page_nr):
                 break
   
             for key, value in extracted_names.items():  
-                f.write('%s:%s\n' % (key, value))
+                f.write('%s,%s\n' % (key, value))
             print(f'finished page: {page_nr}')
             page_nr += 1
             

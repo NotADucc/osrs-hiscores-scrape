@@ -9,7 +9,7 @@ def main(in_file, out_file, hs_nr):
     names = []
     with open(in_file, "r") as f:
         for line in f:
-            idx, name = line.strip().split(":", 1)
+            idx, name = line.strip().split(",", 1)
             names.append((idx, name))
             
     hs_idx = hs_nr - 1     
@@ -31,7 +31,7 @@ def main(in_file, out_file, hs_nr):
                     ma = int(csv[HSCSVMapper.magic.value].split(b',')[1])
                     cmb_lvl = calc_cmb(att, de, st, hp, ra, pr, ma)
                     if cmb_lvl < 40:
-                        ff.write('%s:%s cmb %s\n' % (idx, name, cmb_lvl))
+                        ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))
 
                     print(f'finished nr: {idx} - {name}')
                     break 
