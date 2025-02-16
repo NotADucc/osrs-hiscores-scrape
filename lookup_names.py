@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from common import HSCSVMapper, calc_cmb
+from common import HSApiCsvMapper, calc_cmb
 from request import lookup
 from run import retry
 
@@ -21,13 +21,13 @@ def main(in_file, out_file, hs_nr):
                         
 def transform_user(name, idx, out_file) :
     csv = lookup(name).split(b'\n')
-    att = int(csv[HSCSVMapper.attack.value].split(b',')[1])
-    de = int(csv[HSCSVMapper.defence.value].split(b',')[1])
-    st = int(csv[HSCSVMapper.strength.value].split(b',')[1])
-    hp = int(csv[HSCSVMapper.hitpoints.value].split(b',')[1])
-    ra = int(csv[HSCSVMapper.ranged.value].split(b',')[1])
-    pr = int(csv[HSCSVMapper.prayer.value].split(b',')[1])
-    ma = int(csv[HSCSVMapper.magic.value].split(b',')[1])
+    att = int(csv[HSApiCsvMapper.attack.value].split(b',')[1])
+    de = int(csv[HSApiCsvMapper.defence.value].split(b',')[1])
+    st = int(csv[HSApiCsvMapper.strength.value].split(b',')[1])
+    hp = int(csv[HSApiCsvMapper.hitpoints.value].split(b',')[1])
+    ra = int(csv[HSApiCsvMapper.ranged.value].split(b',')[1])
+    pr = int(csv[HSApiCsvMapper.prayer.value].split(b',')[1])
+    ma = int(csv[HSApiCsvMapper.magic.value].split(b',')[1])
     cmb_lvl = calc_cmb(att, de, st, hp, ra, pr, ma)
     if cmb_lvl < 40:
         with open(out_file, "a") as ff:

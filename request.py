@@ -1,14 +1,14 @@
-from common import HSType, HSCSVMapper, HSTableMapper, RequestFailed, HSLookup, calc_cmb
+from common import calc_cmb, RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper, HSApiCsvMapper
 
 import requests
 from bs4 import BeautifulSoup
 
-def get_hs_page(type = HSType.regular, table = HSTableMapper.overall, page_num = 1) :
+def get_hs_page(type = HSOverall.regular, table = HSOverallTableMapper.overall, page_num = 1) :
     params = {'category_type': table.value[0], 'table': table.value[1], 'page': page_num, }
     page = https_request(type.value, params)
     return page
     
-def lookup(name, type = HSLookup.csv):
+def lookup(name, type = HSApi.regular_csv):
     params = {'player': name }
     csv = https_request(type.value, params)
     return csv

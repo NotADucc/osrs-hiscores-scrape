@@ -1,14 +1,14 @@
 import argparse
 import sys
 
-from common import HSType, HSTableMapper
+from common import HSOverall, HSOverallTableMapper
 from request import get_hs_page, extract_usernames
 
 def main(out_file, page_nr):
     names = {}
     with open(out_file, "a") as f:
         while True :
-            page = get_hs_page(HSType.pure, HSTableMapper.zuk, page_nr)
+            page = get_hs_page(HSOverall.pure, HSOverallTableMapper.zuk, page_nr)
             extracted_names = extract_usernames(page)
             name_cnt = len(names)
             names.update(extracted_names)

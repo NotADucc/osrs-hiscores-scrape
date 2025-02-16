@@ -11,12 +11,10 @@ def calc_cmb(att, de, st, hp, ra, pr, ma) :
     mx = mx if mx > mage else mage
     return base + mx
 
-class DoneScraping(Exception):
-    pass
 class RequestFailed(Exception):
     pass
 
-class HSType(Enum):
+class HSOverall(Enum):
     regular = 'https://secure.runescape.com/m=hiscore_oldschool/overall'
     pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/overall'
     im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/overall'
@@ -26,10 +24,23 @@ class HSType(Enum):
 class HSLookup(Enum):
     regular = 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
     pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
-    csv = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
-    json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
+    im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
+    uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
+    hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
 
-class HSTableMapper(Enum):
+class HSApi(Enum):
+    regular_csv = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
+    regular_json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
+    pure_csv = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws'
+    pure_json = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json'
+    im_csv = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws'
+    im_json = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json'
+    uim_csv = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
+    uim_json = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json'
+    hc_csv = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws'
+    hc_json = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json'
+
+class HSOverallTableMapper(Enum):
     overall = (0, 0)
     attack = (0, 1)
     defence = (0, 2)
@@ -139,7 +150,7 @@ class HSTableMapper(Enum):
     zalcano = (1, 82)
     zulrah = (1, 83)
     
-class HSCSVMapper(Enum):
+class HSApiCsvMapper(Enum):
     overall = 0
     attack = 1
     defence = 2
