@@ -1,15 +1,13 @@
-import argparse
-import sys
-
+from time import sleep
 from common import HSType, HSTableMapper
 from request import get_hs_page, extract_usernames
 
-def retry(out_file, hs_nr, func):           
+def retry(callback, name, idx, out_file): 
     retries, max_retries = 0, 3
     while retries < max_retries:
         try:
-        func()
-        break
+            callback(name, idx, out_file)
+            break
         except Exception as err:
             print(err)
             print(f"Error occurred at nr {hs_nr}: {type(err)}. Retrying...")
