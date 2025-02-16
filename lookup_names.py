@@ -15,10 +15,10 @@ def main(in_file, out_file, hs_nr):
     hs_idx = hs_nr - 1     
     if hs_idx < 0 or hs_idx > len(names) :
         return
-        
+
     with open(out_file, "a") as ff:
-        for index, val in enumerate(names, start=hs_idx):
-            retries, max_retries = 0, 3
+        for index, val in enumerate(names[hs_idx:], start=hs_idx):
+            retries, max_retries = 0, 5
             while retries < max_retries:
                 try:
                     csv = lookup(val).split(b'\n')
@@ -32,17 +32,20 @@ def main(in_file, out_file, hs_nr):
 
                     cmb_lvl = calc_cmb(att, de, st, hp, ra, pr, ma)
                     if cmb_lvl < 40:
-                        ff.write('%s:%s cmb %s\n' % (index, val, cmb_lvl))
+                        ff.write('%s:%s cmb %s\n' % (index + 1, val, cmb_lvl))
 
-                    print(f'finished idx: {index}')
+                    print(f'finished nr: {index + 1} - {val}')
                     break 
-                except Exception as inst:
-                    print(f"Error occurred at index {index}: {type(inst)}. Retrying...")
+                except Exception as err:
+                    print(err)
+                    print(f"Error occurred at index {index}: {type(err)}. Retrying...")
                     retries += 1
-                    sleep(10)
+                    sleep(30 * retries)
                     if retries == max_retries:
+                        with open(out_file + '.err', "a") as fff:
+                            fff.write('COULD NOT FIND %s:%s\n' % (index + 1, val))
                         print('max retries reached')
-                        sys.exit(0)
+                        break
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Scrape data from the OSRS hiscores.")

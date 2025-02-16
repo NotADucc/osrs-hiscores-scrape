@@ -25,7 +25,7 @@ def https_request(url, params) :
     
     if resp.status_code == 200 :
         return content
-        
+
     raise RequestFailed(content, code=resp.status_code)
     
 def extract_usernames(page) :
