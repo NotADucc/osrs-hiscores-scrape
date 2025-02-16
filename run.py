@@ -1,6 +1,4 @@
 from time import sleep
-from common import HSType, HSTableMapper
-from request import get_hs_page, extract_usernames
 
 def retry(callback, name, idx, out_file): 
     retries, max_retries = 0, 3

@@ -1,7 +1,6 @@
 import argparse
 import sys
 
-from time import sleep
 from common import HSCSVMapper, calc_cmb
 from request import lookup
 from run import retry

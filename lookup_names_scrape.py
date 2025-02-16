@@ -1,7 +1,6 @@
 import argparse
 import sys
 
-from time import sleep
 from common import HSLookup, calc_cmb
 from request import lookup_scrape, extract_stats
 from run import retry
