@@ -4,8 +4,7 @@ def retry(callback, name, idx, out_file):
     retries, max_retries = 0, 3
     while retries < max_retries:
         try:
-            callback(name, idx, out_file)
-            break
+            return callback(name, idx, out_file)
         except Exception as err:
             print(err)
             print(f"Error occurred at nr {hs_nr}: {type(err)}. Retrying...")
