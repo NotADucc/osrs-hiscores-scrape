@@ -1,17 +1,17 @@
 from time import sleep
 
-def retry(callback, name, idx, out_file): 
-    retries, max_retries = 0, 3
+def retry(callback, *args, max_retries = 3, delay = 10, out_file = "error_log"):
+    retries = 0
     while retries < max_retries:
         try:
-            return callback(name, idx, out_file)
+            return callback(*args)
         except Exception as err:
-            print(err)
-            print(f"Error occurred at nr {hs_nr}: {type(err)}. Retrying...")
             retries += 1
-            sleep(10)
-            if retries == max_retries:
-                with open(out_file + '.err', "a") as fff:
-                    fff.write('COULD NOT FIND %s,%s\n' % (idx, name))
-                print('max retries reached')
-                break
+            if retries < max_retries:
+                print(f"Attempt {retries} failed: {err}")
+                sleep(delay)
+            else:
+                with open(out_file + '.err', "a") as f:
+                    f.write(f"{','.join(args)}\n")
+                print("Max retries reached. Error logged.")
+                return None
