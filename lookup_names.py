@@ -18,13 +18,13 @@ def main(in_file, out_file, hs_nr, method):
         
     transform_user = transform_user_api if method == 'api' else transform_user_scrape
     for index, (idx, name) in enumerate(names[hs_idx:], start=hs_idx):
-        cmb_lvl = retry(transform_user, name, idx, out_file)
+        cmb_lvl = retry(transform_user, idx, name)
         if cmb_lvl and cmb_lvl < 40:
             with open(out_file, "a") as ff:
                 ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))
         print(f'finished nr: {idx} - {name}')
         
-def transform_user_api(name, idx, out_file) :
+def transform_user_api(_, name) :
     csv = lookup(name).split(b'\n')
     att = int(csv[HSApiCsvMapper.attack.value].split(b',')[1])
     de = int(csv[HSApiCsvMapper.defence.value].split(b',')[1])
@@ -35,7 +35,7 @@ def transform_user_api(name, idx, out_file) :
     ma = int(csv[HSApiCsvMapper.magic.value].split(b',')[1])
     return calc_cmb(att, de, st, hp, ra, pr, ma)
     
-def transform_user_scrape(name, idx, out_file) :
+def transform_user_scrape(_, name) :
     page = lookup_scrape(name, HSLookup.pure)
     extracted_stats = extract_stats(page)
     
@@ -49,7 +49,6 @@ def transform_user_scrape(name, idx, out_file) :
     ra = extracted_stats.get('Ranged', {'lvl': 1})['lvl']
     pr = extracted_stats.get('Prayer', {'lvl': 1})['lvl']
     ma = extracted_stats.get('Magic', {'lvl': 1})['lvl']
-    
     return calc_cmb(att, de, st, hp, ra, pr, ma)
     
 if __name__ == '__main__':
