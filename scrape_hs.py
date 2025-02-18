@@ -5,19 +5,27 @@ from common import HSOverall, HSOverallTableMapper
 from request import get_hs_page, extract_usernames
 
 def main(out_file, acc_type, hs_type, page_nr):
-    names = {}
+    page_size = 25
     with open(out_file, "a") as f:
         while True :
             page = get_hs_page(acc_type, hs_type, page_nr)
             extracted_names = extract_usernames(page)
-            name_cnt = len(names)
-            names.update(extracted_names)
-            if (name_cnt == len(names)) :
-                break
-  
-            for key, value in extracted_names.items():  
+            
+            finished = False
+            for key, value in extracted_names.items():
+                if page_nr - 1 * page_size > key :
+                    finished = True
+                    break
                 f.write('%s,%s\n' % (key, value))
+            
+            if finished :
+                break
+            
             print(f'finished page: {page_nr}')
+            
+            if len(extracted_names) < page_size :
+                break
+            
             page_nr += 1
             
         
