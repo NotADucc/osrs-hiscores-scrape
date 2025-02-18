@@ -4,11 +4,11 @@ import sys
 from common import HSOverall, HSOverallTableMapper
 from request import get_hs_page, extract_usernames
 
-def main(out_file, page_nr):
+def main(out_file, acc_type, hs_type, page_nr):
     names = {}
     with open(out_file, "a") as f:
         while True :
-            page = get_hs_page(HSOverall.pure, HSOverallTableMapper.zuk, page_nr)
+            page = get_hs_page(acc_type, hs_type, page_nr)
             extracted_names = extract_usernames(page)
             name_cnt = len(names)
             names.update(extracted_names)
@@ -23,12 +23,14 @@ def main(out_file, page_nr):
         
         
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Scrape data from the OSRS hiscores.")
-    parser.add_argument('--out-file', required=True, help="dump scraped data to this CSV file in append mode")
-    parser.add_argument('--page_nr', default=1, type=int, help="start page nr")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--out-file', required=True)
+    parser.add_argument('--account_type', default='regular', type=HSOverall.from_string, choices=list(HSOverall))
+    parser.add_argument('--hs_type', default='overall', type=HSOverallTableMapper.from_string, choices=list(HSOverallTableMapper))
+    parser.add_argument('--page_nr', default=1, type=int)
     args = parser.parse_args()
 
-    main(args.out_file, args.page_nr)
+    main(args.out_file, args.account_type, args.hs_type, args.page_nr)
     
     print("done")
     sys.exit(0)

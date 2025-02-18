@@ -52,10 +52,10 @@ def transform_user_scrape(_, name) :
     return calc_cmb(att, de, st, hp, ra, pr, ma)
     
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Scrape data from the OSRS hiscores.")
-    parser.add_argument('--in-file', required=True, help="read names to lookup")
-    parser.add_argument('--out-file', required=True, help="write result")
-    parser.add_argument('--start_hs_nr', default=1, type=int, help="start hs nr")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--in-file', required=True)
+    parser.add_argument('--out-file', required=True)
+    parser.add_argument('--start_hs_nr', default=1, type=int)
     parser.add_argument('--method', default='api', choices=['api', 'scrape'])
     args = parser.parse_args()
 
