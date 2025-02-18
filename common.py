@@ -20,14 +20,25 @@ class HSOverall(Enum):
     im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/overall'
     uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/overall'
     hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall'
-
+    def __str__(self):
+        return self.name
+        
+    @staticmethod
+    def from_string(s):
+        try:
+            return HSOverall[s]
+        except KeyError:
+            raise ValueError()
+       
 class HSLookup(Enum):
     regular = 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
     pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
     im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
     uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
     hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
-
+    def __str__(self):
+        return self.name
+        
 class HSApi(Enum):
     regular_csv = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
     regular_json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
@@ -39,7 +50,9 @@ class HSApi(Enum):
     uim_json = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json'
     hc_csv = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws'
     hc_json = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json'
-
+    def __str__(self):
+        return self.name
+        
 class HSOverallTableMapper(Enum):
     overall = (0, 0)
     attack = (0, 1)
@@ -149,7 +162,16 @@ class HSOverallTableMapper(Enum):
     wt = (1, 81)
     zalcano = (1, 82)
     zulrah = (1, 83)
-    
+    def __str__(self):
+        return self.name
+        
+    @staticmethod
+    def from_string(s):
+        try:
+            return HSOverallTableMapper[s]
+        except KeyError:
+            raise ValueError()
+
 class HSApiCsvMapper(Enum):
     overall = 0
     attack = 1
@@ -259,4 +281,6 @@ class HSApiCsvMapper(Enum):
     wt = 106
     zalcano = 107
     zulrah = 108
+    def __str__(self):
+        return self.name
     
