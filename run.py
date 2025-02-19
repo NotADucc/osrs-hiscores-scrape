@@ -1,6 +1,7 @@
 from time import sleep
 
-def retry(callback, *args, max_retries = 3, delay = 10, out_file = "error_log"):
+
+def retry(callback, *args, max_retries=3, delay=10, out_file="error_log"):
     retries = 0
     while retries < max_retries:
         try:
