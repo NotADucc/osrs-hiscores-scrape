@@ -1,8 +1,8 @@
 import argparse
 import sys
 
-from common import HSOverall, HSOverallTableMapper
-from request import get_hs_page, extract_usernames
+from request.common import HSOverall, HSOverallTableMapper
+from request.request import get_hs_page, extract_usernames
 
 
 def main(out_file, acc_type, hs_type, page_nr):
