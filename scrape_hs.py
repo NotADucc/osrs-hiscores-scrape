@@ -33,9 +33,9 @@ def main(out_file, acc_type, hs_type, page_nr):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--out-file', required=True)
-    parser.add_argument('--account_type', default='regular', type=HSOverall.from_string, choices=list(HSOverall))
-    parser.add_argument('--hs_type', default='overall', type=HSOverallTableMapper.from_string, choices=list(HSOverallTableMapper))
-    parser.add_argument('--page_nr', default=1, type=int)
+    parser.add_argument('--account-type', default='regular', type=HSOverall.from_string, choices=list(HSOverall))
+    parser.add_argument('--hs-type', default='overall', type=HSOverallTableMapper.from_string, choices=list(HSOverallTableMapper))
+    parser.add_argument('--page-nr', default=1, type=int)
     args = parser.parse_args()
 
     main(args.out_file, args.account_type, args.hs_type, args.page_nr)

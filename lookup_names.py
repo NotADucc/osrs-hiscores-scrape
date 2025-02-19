@@ -55,7 +55,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-file', required=True)
     parser.add_argument('--out-file', required=True)
-    parser.add_argument('--start_hs_nr', default=1, type=int)
+    parser.add_argument('--start-nr', default=1, type=int)
     parser.add_argument('--method', default='api', choices=['api', 'scrape'])
     args = parser.parse_args()
 
