@@ -8,7 +8,7 @@ def get_hs_page(type = HSOverall.regular, table = HSOverallTableMapper.overall, 
     page = https_request(type.value, params)
     return page
     
-def lookup(name, type = HSApi.regular_csv):
+def lookup(name, type = HSApi.regular):
     params = {'player': name }
     csv = https_request(type.value, params)
     return csv

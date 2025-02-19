@@ -1,11 +1,11 @@
 import argparse
 import sys
 
-from common import HSApiCsvMapper, calc_cmb
+from common import HSApiCsvMapper, HSApi, HSLookup, calc_cmb
 from request import lookup
 from run import retry
 
-def main(in_file, out_file, hs_nr, method):
+def main(in_file, out_file, hs_nr, method, acc_type):
     names = []
     with open(in_file, "r") as f:
         for line in f:
@@ -18,14 +18,15 @@ def main(in_file, out_file, hs_nr, method):
         
     transform_user = transform_user_api if method == 'api' else transform_user_scrape
     for index, (idx, name) in enumerate(names[hs_idx:], start=hs_idx):
-        cmb_lvl = retry(transform_user, idx, name)
+        cmb_lvl = retry(transform_user, idx, name, acc_type)
         if cmb_lvl and cmb_lvl < 40:
             with open(out_file, "a") as ff:
                 ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))
         print(f'finished nr: {idx} - {name}')
         
-def transform_user_api(_, name) :
-    csv = lookup(name).split(b'\n')
+def transform_user_api(_, name, acc_type) :
+    csv = lookup(name,HSApi[acc_type]).split(b'\n')
+
     att = int(csv[HSApiCsvMapper.attack.value].split(b',')[1])
     de = int(csv[HSApiCsvMapper.defence.value].split(b',')[1])
     st = int(csv[HSApiCsvMapper.strength.value].split(b',')[1])
@@ -35,13 +36,10 @@ def transform_user_api(_, name) :
     ma = int(csv[HSApiCsvMapper.magic.value].split(b',')[1])
     return calc_cmb(att, de, st, hp, ra, pr, ma)
     
-def transform_user_scrape(_, name) :
-    page = lookup_scrape(name, HSLookup.pure)
+def transform_user_scrape(_, name, acc_type) :
+    page = lookup_scrape(name, HSLookup[acc_type])
     extracted_stats = extract_stats(page)
-    
-    if extracted_stats.get('TzKal-Zuk', 0) == 0 :
-        return None
-        
+            
     att = extracted_stats.get('Attack', {'lvl': 1})['lvl']
     de = extracted_stats.get('Defence', {'lvl': 1})['lvl']
     st = extracted_stats.get('Strength', {'lvl': 1})['lvl']
@@ -57,9 +55,10 @@ if __name__ == '__main__':
     parser.add_argument('--out-file', required=True)
     parser.add_argument('--start-nr', default=1, type=int)
     parser.add_argument('--method', default='api', choices=['api', 'scrape'])
+    parser.add_argument('--account-type', default='regular', type=HSLookup.from_string, choices=list(HSLookup))
     args = parser.parse_args()
 
-    main(args.in_file, args.out_file, args.start_hs_nr, args.method)
+    main(args.in_file, args.out_file, args.start_nr, args.method, str(args.account_type))
     
     print("done")
     sys.exit(0)

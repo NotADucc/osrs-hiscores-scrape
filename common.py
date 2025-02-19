@@ -31,24 +31,31 @@ class HSOverall(Enum):
             raise ValueError()
        
 class HSLookup(Enum):
-    regular = 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
-    pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
-    im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
-    uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
-    hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
-    def __str__(self):
-        return self.name
+	regular = 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
+	pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
+	im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
+	uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
+	hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
+	def __str__(self):
+		return self.name
+	
+	@staticmethod
+	def from_string(s):
+		try:
+			return HSLookup[s]
+		except KeyError:
+			raise ValueError()
         
 class HSApi(Enum):
-    regular_csv = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
+    regular = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
+    pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws'
+    im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws'
+    uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
+    hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws'
     regular_json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
-    pure_csv = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws'
     pure_json = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json'
-    im_csv = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws'
     im_json = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json'
-    uim_csv = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
     uim_json = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json'
-    hc_csv = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws'
     hc_json = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json'
     def __str__(self):
         return self.name
