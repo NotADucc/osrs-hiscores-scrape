@@ -4,7 +4,7 @@ import sys
 from request.common import HSLookup
 from request.request import lookup
 from util.retry_handler import retry
-from util.get_combat import transform_user_api, transform_user_scrape
+from util.combat_lvl_handler import get_combat_lvl_api, get_combat_lvl_scrape
 
 
 def main(in_file, out_file, hs_nr, method, acc_type):
@@ -18,9 +18,9 @@ def main(in_file, out_file, hs_nr, method, acc_type):
     if hs_idx < 0 or hs_idx > len(names):
         return
 
-    transform_user = transform_user_api if method == 'api' else transform_user_scrape
+    get_combat_lvl = get_combat_lvl_api if method == 'api' else get_combat_lvl_scrape
     for index, (idx, name) in enumerate(names[hs_idx:], start=hs_idx):
-        cmb_lvl = retry(transform_user, idx, name, acc_type)
+        cmb_lvl = retry(get_combat_lvl, idx, name, acc_type)
         if cmb_lvl and cmb_lvl < 40:
             with open(out_file, "a") as ff:
                 ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))

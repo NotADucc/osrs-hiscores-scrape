@@ -3,7 +3,7 @@ from request.request import lookup
 from util.common import calc_cmb
 
 
-def transform_user_api(_, name, acc_type):
+def get_combat_lvl_api(_, name, acc_type):
     csv = lookup(name, HSApi[acc_type]).split(b'\n')
 
     att = int(csv[HSApiCsvMapper.attack.value].split(b',')[1])
@@ -16,7 +16,7 @@ def transform_user_api(_, name, acc_type):
     return calc_cmb(att, de, st, hp, ra, pr, ma)
 
 
-def transform_user_scrape(_, name, acc_type):
+def get_combat_lvl_scrape(_, name, acc_type):
     page = lookup_scrape(name, HSLookup[acc_type])
     extracted_stats = extract_stats(page)
 
