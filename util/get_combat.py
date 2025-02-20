@@ -1,5 +1,6 @@
-from request.common import HSApiCsvMapper, HSApi, HSLookup, calc_cmb
+from request.common import HSApiCsvMapper, HSApi, HSLookup
 from request.request import lookup
+from util.common import calc_cmb
 
 
 def transform_user_api(_, name, acc_type):

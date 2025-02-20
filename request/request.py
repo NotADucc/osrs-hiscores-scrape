@@ -1,4 +1,4 @@
-from request.common import calc_cmb, RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper, HSApiCsvMapper
+from request.common import RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper, HSApiCsvMapper
 
 import requests
 from bs4 import BeautifulSoup
