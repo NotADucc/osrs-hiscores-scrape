@@ -1,5 +1,5 @@
 from request.common import HSApiCsvMapper, HSApi, HSLookup
-from request.request import lookup
+from request.request import lookup, lookup_scrape, extract_stats
 from util.common import calc_cmb
 
 
