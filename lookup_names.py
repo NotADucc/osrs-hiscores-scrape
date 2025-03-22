@@ -1,12 +1,13 @@
 import argparse
 import sys
+import concurrent.futures
+import threading
 
 from request.common import HSLookup
-from request.request import lookup
 from util.retry_handler import retry
 from util.combat_lvl_handler import get_combat_lvl_api, get_combat_lvl_scrape
 
-
+file_lock = threading.Lock()
 def main(in_file, out_file, hs_nr, method, acc_type):
     names = []
     with open(in_file, "r") as f:
@@ -19,12 +20,18 @@ def main(in_file, out_file, hs_nr, method, acc_type):
         return
 
     get_combat_lvl = get_combat_lvl_api if method == 'api' else get_combat_lvl_scrape
-    for index, (idx, name) in enumerate(names[hs_idx:], start=hs_idx):
+
+    def process(args) :
+        idx, name = args
         cmb_lvl = retry(get_combat_lvl, idx, name, acc_type)
-        if cmb_lvl and cmb_lvl < 40:
-            with open(out_file, "a") as ff:
-                ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))
+        if cmb_lvl and cmb_lvl < 40 :
+            with file_lock:
+                with open(out_file, "a") as ff:
+                    ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))
         print(f'finished nr: {idx} - {name}')
+
+    with concurrent.futures.ThreadPoolExecutor() as executor :
+        executor.map(process, names)
 
 
 if __name__ == '__main__':
