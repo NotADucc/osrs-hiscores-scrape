@@ -1,36 +1,60 @@
 import argparse
 import sys
+import concurrent.futures
+import threading
 
+from util.retry_handler import retry
 from request.common import HSOverall, HSOverallTableMapper
 from request.request import get_hs_page, extract_usernames
 
 
-def main(out_file, acc_type, hs_type, page_nr):
-    page_size = 25
-    with open(out_file, "a") as f:
-        while True:
-            try:
-                page = get_hs_page(acc_type, hs_type, page_nr)
-                extracted_names = extract_usernames(page)
+file_lock = threading.Lock()
+def main(out_file, acc_type, hs_type, page_nr, page_size=25):
+    max_page = find_max_page(acc_type, hs_type, page_size)
+ 
+    def process(page_nr) :
+        try:
+            page = get_hs_page(acc_type, hs_type, page_nr)
+            extracted_names = extract_usernames(page)
 
-                finished = False
-                for key, value in extracted_names.items():
-                    if page_nr - 1 * page_size > key:
-                        finished = True
-                        break
-                    f.write('%s,%s\n' % (key, value))
+            with file_lock:
+                with open(out_file, "a") as f:
+                    for key, value in extracted_names.items():
+                        f.write('%s,%s\n' % (key, value))
 
-                if finished:
-                    break
+            print(f'finished page: {page_nr}')
+        except Exception as err:
+            print(err)
+    
+    page_nrs = range(page_nr, max_page + 1)
 
-                print(f'finished page: {page_nr}')
+    print(f'scraping range({page_nr}-{max_page})')
 
-                if len(extracted_names) < page_size:
-                    break
+    with concurrent.futures.ThreadPoolExecutor() as executor :
+        executor.map(process, page_nrs)
 
-                page_nr += 1
-            except Exception as err:
-                print(err)
+
+def find_max_page(acc_type, hs_type, page_size) :
+    # max on hs is currently 80_000 pages
+    l, r, res = 1, 100_000, -1
+
+    def give_first_idx(acc_type, hs_type, middle) :
+        page = get_hs_page(acc_type, hs_type, middle)
+        extracted_names = extract_usernames(page)
+        return list(extracted_names.keys())[0]
+    
+    while l <= r :
+        middle = (l + r) >> 1
+        first_idx = retry(give_first_idx, acc_type, hs_type, middle)
+        expected_idx = (middle - 1) * page_size + 1
+
+        if first_idx == expected_idx :
+            res = middle
+            l = middle + 1
+        else :
+            r = middle - 1
+
+    return res
 
 
 if __name__ == '__main__':
