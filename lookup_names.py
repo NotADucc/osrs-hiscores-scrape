@@ -8,16 +8,13 @@ from util.retry_handler import retry
 from util.combat_lvl_handler import get_combat_lvl_api, get_combat_lvl_scrape
 
 file_lock = threading.Lock()
-def main(in_file, out_file, hs_nr, method, acc_type):
+def main(in_file, out_file, start_nr, method, acc_type):
     names = []
     with open(in_file, "r") as f:
         for line in f:
             idx, name = line.strip().split(",", 1)
-            names.append((idx, name))
-
-    hs_idx = hs_nr - 1
-    if hs_idx < 0 or hs_idx > len(names):
-        return
+            if idx >= start_nr :
+                names.append((idx, name))
 
     get_combat_lvl = get_combat_lvl_api if method == 'api' else get_combat_lvl_scrape
 
