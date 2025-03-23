@@ -41,7 +41,7 @@ def find_max_page(acc_type, hs_type, page_size) :
     def give_first_idx(acc_type, hs_type, middle) :
         page = get_hs_page(acc_type, hs_type, middle)
         extracted_names = extract_usernames(page)
-        return list(extracted_names.keys())[0]
+        return -1 if not extracted_names else list(extracted_names.keys())[0]
     
     while l <= r :
         middle = (l + r) >> 1
@@ -53,7 +53,7 @@ def find_max_page(acc_type, hs_type, page_size) :
             l = middle + 1
         else :
             r = middle - 1
-
+        print(f'looking for max page size: ({l}-{r})')
     return res
 
 
