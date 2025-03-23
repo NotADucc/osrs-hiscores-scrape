@@ -1,4 +1,4 @@
-from request.common import RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper, HSApiCsvMapper
+from request.common import IsRateLimited, RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper, HSApiCsvMapper
 
 import requests
 from bs4 import BeautifulSoup
@@ -33,11 +33,16 @@ def https_request(url, params):
 
     content = resp.content
 
+    if is_rate_limited(content) :
+        raise IsRateLimited(content, url=url, params=params)
+
     if resp.status_code == 200:
         return content
 
-    raise RequestFailed(content, code=resp.status_code)
+    raise RequestFailed(content, code=resp.status_code, url=url, params=params)
 
+def is_rate_limited(page) :
+    return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
 
 def extract_stats(page):
     soup = BeautifulSoup(page, "html.parser")
