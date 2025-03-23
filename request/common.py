@@ -3,6 +3,8 @@ from enum import Enum
 class RequestFailed(Exception):
     pass
 
+class IsRateLimited(Exception):
+    pass
 
 class HSOverall(Enum):
     regular = 'https://secure.runescape.com/m=hiscore_oldschool/overall'
