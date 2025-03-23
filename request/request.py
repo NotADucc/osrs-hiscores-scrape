@@ -75,7 +75,7 @@ def extract_stats(page):
     return result
 
 
-def extract_usernames(page):
+def extract_highscore_records(page):
     soup = BeautifulSoup(page, "html.parser")
     scores = soup.find_all(class_='personal-hiscores__row')
 
