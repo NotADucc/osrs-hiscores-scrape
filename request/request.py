@@ -33,16 +33,20 @@ def https_request(url, params):
 
     content = resp.content
 
-    if is_rate_limited(content) :
-        raise IsRateLimited(f"limited on \'{url}\'", details={"params":params})
+    if is_rate_limited(content):
+        raise IsRateLimited(
+            f"limited on \'{url}\'", details={"params": params})
 
     if resp.status_code == 200:
         return content
-    
-    raise RequestFailed(f"failed on \'{url}\'", details={"code":resp.status_code, "params":params})
 
-def is_rate_limited(page) :
+    raise RequestFailed(f"failed on \'{url}\'", details={
+                        "code": resp.status_code, "params": params})
+
+
+def is_rate_limited(page):
     return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
+
 
 def extract_stats(page):
     soup = BeautifulSoup(page, "html.parser")

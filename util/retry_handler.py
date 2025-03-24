@@ -3,6 +3,8 @@ import threading
 from time import sleep
 
 file_lock = threading.Lock()
+
+
 def retry(callback, *args, max_retries=5, initial_delay=10, out_file="error_log"):
     retries = 1
     while retries <= max_retries:

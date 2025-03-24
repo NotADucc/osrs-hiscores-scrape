@@ -1,6 +1,7 @@
 import argparse
 import sys
 
+
 def main(in_file):
     with open(in_file, "r") as file:
         lines = file.readlines()

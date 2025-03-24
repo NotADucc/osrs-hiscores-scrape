@@ -1,14 +1,17 @@
 from enum import Enum
 
+
 class RequestFailed(Exception):
     def __init__(self, message, details=None):
         self.details = details
         super().__init__(message)
 
+
 class IsRateLimited(Exception):
     def __init__(self, message, details=None):
         self.details = details
         super().__init__(message)
+
 
 class HSOverall(Enum):
     regular = 'https://secure.runescape.com/m=hiscore_oldschool/overall'
@@ -61,25 +64,32 @@ class HSApi(Enum):
     def __str__(self):
         return self.name
 
-hs_overall_table_mapper_skills = 0  
+
+hs_overall_table_mapper_skills = 0
 hs_overall_table_mapper_rest = 0
-def hs_overall_table_mapper_increment(cat_type) :
+
+
+def hs_overall_table_mapper_increment(cat_type):
     global hs_overall_table_mapper_skills, hs_overall_table_mapper_rest
 
-    if cat_type == 0 :
+    if cat_type == 0:
         res = hs_overall_table_mapper_skills
         hs_overall_table_mapper_skills += 1
-    else :
+    else:
         res = hs_overall_table_mapper_rest
         hs_overall_table_mapper_rest += 1
 
     return (cat_type, res)
 
+
 hs_api_csv_mapper_value = 0
-def hs_api_csv_mapper_increment() :
+
+
+def hs_api_csv_mapper_increment():
     global hs_api_csv_mapper_value
     hs_api_csv_mapper_value += 1
     return hs_api_csv_mapper_value - 1
+
 
 class HSOverallTableMapper(Enum):
     overall = hs_overall_table_mapper_increment(0)
