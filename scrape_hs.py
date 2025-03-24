@@ -15,7 +15,7 @@ def main(out_file, acc_type, hs_type, page_nr, page_size=25):
  
     def process(page_nr, acc_type, hs_type, out_file) :
         try:
-            page = get_hs_page(acc_type, hs_type, page_nr)
+            page = retry(get_hs_page, acc_type, hs_type, page_nr)
             extracted_records = extract_highscore_records(page)
 
             with file_lock:
