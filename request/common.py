@@ -1,10 +1,14 @@
 from enum import Enum
 
 class RequestFailed(Exception):
-    pass
+    def __init__(self, message, details=None):
+        self.details = details
+        super().__init__(message)
 
 class IsRateLimited(Exception):
-    pass
+    def __init__(self, message, details=None):
+        self.details = details
+        super().__init__(message)
 
 class HSOverall(Enum):
     regular = 'https://secure.runescape.com/m=hiscore_oldschool/overall'

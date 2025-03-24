@@ -34,12 +34,12 @@ def https_request(url, params):
     content = resp.content
 
     if is_rate_limited(content) :
-        raise IsRateLimited(content, url=url, params=params)
+        raise IsRateLimited(f"limited on \'{url}\'", details={"params":params})
 
     if resp.status_code == 200:
         return content
-
-    raise RequestFailed(content, code=resp.status_code, url=url, params=params)
+    
+    raise RequestFailed(f"failed on \'{url}\'", details={"code":resp.status_code, "params":params})
 
 def is_rate_limited(page) :
     return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
