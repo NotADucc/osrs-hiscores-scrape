@@ -7,7 +7,9 @@ from util.retry_handler import retry
 from util.threading_handler import spawn_threads
 from request.common import HSOverall, HSOverallTableMapper
 from request.request import get_hs_page, extract_highscore_records
+from util.log import get_logger
 
+logger = get_logger()
 file_lock = threading.Lock()
 
 
@@ -24,7 +26,7 @@ def process(page_nr, **args):
                 for key, value in extracted_records.items():
                     f.write('%s,%s\n' % (key, value))
 
-        logging.info(f'finished page: {page_nr}')
+        logger.info(f'finished page: {page_nr}')
     except Exception as err:
         print(err)
 
@@ -34,7 +36,7 @@ def main(out_file, acc_type, hs_type, page_nr, page_size=25):
 
     page_nrs = range(page_nr, max_page + 1)
 
-    logging.info(f'scraping range({page_nr}-{max_page})')
+    logger.info(f'scraping range({page_nr}-{max_page})')
 
     spawn_threads(process, page_nrs, acc_type=acc_type, hs_type=hs_type, out_file=out_file)
 
@@ -58,7 +60,7 @@ def find_max_page(acc_type, hs_type, page_size):
             l = middle + 1
         else:
             r = middle - 1
-        logging.info(f'looking for max page size: ({l}-{r})')
+        logger.info(f'looking for max page size: ({l}-{r})')
     return res
 
 
@@ -74,5 +76,5 @@ if __name__ == '__main__':
 
     main(args.out_file, args.account_type, args.hs_type, args.page_nr)
 
-    logging.info("done")
+    logger.info("done")
     sys.exit(0)

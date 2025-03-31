@@ -2,7 +2,9 @@ import threading
 import logging
 
 from time import sleep
+from util.log import get_logger
 
+logger = get_logger()
 file_lock = threading.Lock()
 
 
@@ -12,7 +14,7 @@ def retry(callback, *args, max_retries=5, initial_delay=10, out_file="error_log"
         try:
             return callback(*args)
         except Exception as err:
-            logging.error(f"Attempt {retries} failed: {err}", exc_info=True)
+            logger.error(f"Attempt {retries} failed: {err}", exc_info=True)
             sleep(retries * initial_delay)
             retries += 1
 
@@ -21,5 +23,5 @@ def retry(callback, *args, max_retries=5, initial_delay=10, out_file="error_log"
     with file_lock:
         with open(f"{out_file}.err", "a") as f:
             f.write(f'{message}\n')
-    logging.error(f"Max retries reached for '{message}'.")
+    logger.error(f"Max retries reached for '{message}'.")
     return None

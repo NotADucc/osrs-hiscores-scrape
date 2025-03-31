@@ -1,13 +1,14 @@
 import argparse
 import sys
 import threading
-import logging
 
 from request.common import HSLookup
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
 from util.combat_lvl_handler import get_combat_lvl_api, get_combat_lvl_scrape
+from util.log import get_logger
 
+logger = get_logger()
 file_lock = threading.Lock()
 
 
@@ -21,7 +22,7 @@ def process(hs_record, **args):
         with file_lock:
             with open(out_file, "a") as ff:
                 ff.write('%s,%s,%s\n' % (idx, name, cmb_lvl))
-    print(f'finished nr: {idx} - {name}')
+    logger.info(f'finished nr: {idx} - {name}')
 
 
 def main(in_file, out_file, start_nr, method, acc_type):
@@ -51,5 +52,5 @@ if __name__ == '__main__':
     main(args.in_file, args.out_file, args.start_nr,
          args.method, str(args.account_type))
 
-    print("done")
+    logger.info("done")
     sys.exit(0)
