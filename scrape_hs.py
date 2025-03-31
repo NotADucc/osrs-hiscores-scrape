@@ -1,42 +1,41 @@
 import argparse
 import sys
-import concurrent.futures
-import threading
 import functools
+import threading
 
 from util.retry_handler import retry
+from util.threading_handler import spawn_threads
 from request.common import HSOverall, HSOverallTableMapper
 from request.request import get_hs_page, extract_highscore_records
 
-
 file_lock = threading.Lock()
+
+
+def process(page_nr, acc_type, hs_type, out_file):
+    try:
+        page = retry(get_hs_page, acc_type, hs_type, page_nr)
+        extracted_records = extract_highscore_records(page)
+
+        with file_lock:
+            with open(out_file, "a") as f:
+                for key, value in extracted_records.items():
+                    f.write('%s,%s\n' % (key, value))
+
+        print(f'finished page: {page_nr}')
+    except Exception as err:
+        print(err)
 
 
 def main(out_file, acc_type, hs_type, page_nr, page_size=25):
     max_page = find_max_page(acc_type, hs_type, page_size)
 
-    def process(page_nr, acc_type, hs_type, out_file):
-        try:
-            page = retry(get_hs_page, acc_type, hs_type, page_nr)
-            extracted_records = extract_highscore_records(page)
-
-            with file_lock:
-                with open(out_file, "a") as f:
-                    for key, value in extracted_records.items():
-                        f.write('%s,%s\n' % (key, value))
-
-            print(f'finished page: {page_nr}')
-        except Exception as err:
-            print(err)
-
     page_nrs = range(page_nr, max_page + 1)
 
     print(f'scraping range({page_nr}-{max_page})')
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        process_with_args = functools.partial(
-            process, acc_type=acc_type, hs_type=hs_type, out_file=out_file)
-        executor.map(process_with_args, page_nrs)
+    process_with_args = functools.partial(
+        process, acc_type=acc_type, hs_type=hs_type, out_file=out_file)
+    spawn_threads(process_with_args, page_nrs)
 
 
 def find_max_page(acc_type, hs_type, page_size):
