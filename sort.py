@@ -1,5 +1,6 @@
 import argparse
 import sys
+import logging
 
 
 def main(in_file):
@@ -19,5 +20,5 @@ if __name__ == '__main__':
 
     main(args.in_file)
 
-    print("done")
+    logging.info("done")
     sys.exit(0)

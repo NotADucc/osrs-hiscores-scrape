@@ -1,6 +1,7 @@
 import argparse
 import sys
 import threading
+import logging
 
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
@@ -23,7 +24,7 @@ def process(page_nr, **args):
                 for key, value in extracted_records.items():
                     f.write('%s,%s\n' % (key, value))
 
-        print(f'finished page: {page_nr}')
+        logging.info(f'finished page: {page_nr}')
     except Exception as err:
         print(err)
 
@@ -33,7 +34,7 @@ def main(out_file, acc_type, hs_type, page_nr, page_size=25):
 
     page_nrs = range(page_nr, max_page + 1)
 
-    print(f'scraping range({page_nr}-{max_page})')
+    logging.info(f'scraping range({page_nr}-{max_page})')
 
     spawn_threads(process, page_nrs, acc_type=acc_type, hs_type=hs_type, out_file=out_file)
 
@@ -57,7 +58,7 @@ def find_max_page(acc_type, hs_type, page_size):
             l = middle + 1
         else:
             r = middle - 1
-        print(f'looking for max page size: ({l}-{r})')
+        logging.info(f'looking for max page size: ({l}-{r})')
     return res
 
 
@@ -73,5 +74,5 @@ if __name__ == '__main__':
 
     main(args.out_file, args.account_type, args.hs_type, args.page_nr)
 
-    print("done")
+    logging.info("done")
     sys.exit(0)

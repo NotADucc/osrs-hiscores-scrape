@@ -1,6 +1,7 @@
 import argparse
 import sys
 import threading
+import logging
 
 from request.common import HSLookup
 from util.retry_handler import retry
