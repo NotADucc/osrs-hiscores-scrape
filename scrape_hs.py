@@ -1,6 +1,5 @@
 import argparse
 import sys
-import functools
 import threading
 
 from util.retry_handler import retry
@@ -11,7 +10,10 @@ from request.request import get_hs_page, extract_highscore_records
 file_lock = threading.Lock()
 
 
-def process(page_nr, acc_type, hs_type, out_file):
+def process(page_nr, **args):
+    acc_type = args["acc_type"]
+    hs_type = args["hs_type"]
+    out_file = args["out_file"]
     try:
         page = retry(get_hs_page, acc_type, hs_type, page_nr)
         extracted_records = extract_highscore_records(page)
@@ -33,9 +35,7 @@ def main(out_file, acc_type, hs_type, page_nr, page_size=25):
 
     print(f'scraping range({page_nr}-{max_page})')
 
-    process_with_args = functools.partial(
-        process, acc_type=acc_type, hs_type=hs_type, out_file=out_file)
-    spawn_threads(process_with_args, page_nrs)
+    spawn_threads(process, page_nrs, acc_type=acc_type, hs_type=hs_type, out_file=out_file)
 
 
 def find_max_page(acc_type, hs_type, page_size):

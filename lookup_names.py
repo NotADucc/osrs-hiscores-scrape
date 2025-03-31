@@ -1,6 +1,5 @@
 import argparse
 import sys
-import functools
 import threading
 
 from request.common import HSLookup
@@ -11,8 +10,11 @@ from util.combat_lvl_handler import get_combat_lvl_api, get_combat_lvl_scrape
 file_lock = threading.Lock()
 
 
-def process(hs_record, get_combat_lvl, acc_type, out_file):
+def process(hs_record, **args):
     idx, name = hs_record
+    get_combat_lvl = args["get_combat_lvl"]
+    acc_type = args["acc_type"]
+    out_file = args["out_file"]
     cmb_lvl = retry(get_combat_lvl, idx, name, acc_type)
     if cmb_lvl and cmb_lvl < 40:
         with file_lock:
@@ -32,9 +34,7 @@ def main(in_file, out_file, start_nr, method, acc_type):
 
     get_combat_lvl = get_combat_lvl_api if method == 'api' else get_combat_lvl_scrape
 
-    process_with_args = functools.partial(
-        process, get_combat_lvl=get_combat_lvl, acc_type=acc_type, out_file=out_file)
-    spawn_threads(process_with_args, hs_records)
+    spawn_threads(process, hs_records, get_combat_lvl=get_combat_lvl, acc_type=acc_type, out_file=out_file)
 
 
 if __name__ == '__main__':
