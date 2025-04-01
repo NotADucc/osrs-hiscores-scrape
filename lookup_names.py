@@ -12,12 +12,10 @@ logger = get_logger()
 file_lock = threading.Lock()
 
 
-def process(hs_record, **args):
+def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
-    get_combat_lvl = args["get_combat_lvl"]
-    acc_type = args["acc_type"]
-    out_file = args["out_file"]
-    cmb_lvl = retry(get_combat_lvl, idx, name, acc_type)
+    get_combat_lvl, account_type, out_file = args["get_combat_lvl"], args["account_type"], args["out_file"]
+    cmb_lvl = retry(get_combat_lvl, idx, name, account_type)
     if cmb_lvl and cmb_lvl < 40:
         with file_lock:
             with open(out_file, "a") as ff:
@@ -25,7 +23,7 @@ def process(hs_record, **args):
     logger.info(f'finished nr: {idx} - {name}')
 
 
-def main(in_file, out_file, start_nr, method, acc_type):
+def main(in_file: str, out_file: str, start_nr: int, method, account_type: str):
     hs_records = []
     with open(in_file, "r") as f:
         for line in f:
@@ -37,7 +35,7 @@ def main(in_file, out_file, start_nr, method, acc_type):
     get_combat_lvl = get_combat_lvl_api if method == 'api' else get_combat_lvl_scrape
 
     spawn_threads(process, hs_records, get_combat_lvl=get_combat_lvl,
-                  acc_type=acc_type, out_file=out_file)
+                  account_type=account_type, out_file=out_file)
 
 
 if __name__ == '__main__':

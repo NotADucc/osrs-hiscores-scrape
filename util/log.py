@@ -3,7 +3,7 @@ import logging
 logger = None
 
 
-def setup_custom_logger():
+def setup_custom_logger() -> logging:
     formatter = logging.Formatter(
         fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
@@ -16,7 +16,7 @@ def setup_custom_logger():
     return logger
 
 
-def get_logger():
+def get_logger() -> logging:
     global logger
     logger = setup_custom_logger() if logger is None else logger
     return logger

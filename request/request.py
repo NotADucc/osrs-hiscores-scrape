@@ -1,4 +1,4 @@
-from request.common import IsRateLimited, RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper, HSApiCsvMapper
+from request.common import IsRateLimited, RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper
 
 import requests
 from bs4 import BeautifulSoup
@@ -8,16 +8,9 @@ from util.retry_handler import retry
 logger = get_logger()
 
 
-def get_hs_page(type=HSOverall.regular, table=HSOverallTableMapper.overall, page_num=1):
-    params = {'category_type': table.value[0],
-              'table': table.value[1], 'page': page_num, }
-    page = https_request(type.value, params)
-    return page
-
-
-def find_max_page(acc_type, hs_type, page_size):
+def find_max_page(account_type: HSOverall, hs_type: HSOverallTableMapper) -> int:
     # max on hs is currently 80_000 pages
-    l, r, res = 1, 100_000, -1
+    l, r, res, page_size = 1, 100_000, -1, 25
 
     def give_first_idx(acc_type, hs_type, middle):
         page = get_hs_page(acc_type, hs_type, middle)
@@ -26,7 +19,7 @@ def find_max_page(acc_type, hs_type, page_size):
 
     while l <= r:
         middle = (l + r) >> 1
-        first_idx = retry(give_first_idx, acc_type, hs_type, middle)
+        first_idx = retry(give_first_idx, account_type, hs_type, middle)
         expected_idx = (middle - 1) * page_size + 1
 
         if first_idx == expected_idx:
@@ -38,19 +31,26 @@ def find_max_page(acc_type, hs_type, page_size):
     return res
 
 
-def lookup(name, type=HSApi.regular):
-    params = {'player': name}
-    csv = https_request(type.value, params)
-    return csv
-
-
-def lookup_scrape(name, type=HSLookup.regular):
-    params = {'user1': name}
-    page = https_request(type.value, params)
+def get_hs_page(account_type: HSOverall = HSOverall.regular, hs_type: HSOverallTableMapper = HSOverallTableMapper.overall, page_nr: int = 1) -> bytes:
+    params = {'category_type': hs_type.value[0],
+              'table': hs_type.value[1], 'page': page_nr, }
+    page = https_request(account_type.value, params)
     return page
 
 
-def https_request(url, params):
+def lookup(name: str, account_type: HSApi = HSApi.regular) -> bytes:
+    params = {'player': name}
+    csv = https_request(account_type.value, params)
+    return csv
+
+
+def lookup_scrape(name: str, account_type: HSLookup = HSLookup.regular) -> bytes:
+    params = {'user1': name}
+    page = https_request(account_type.value, params)
+    return page
+
+
+def https_request(url: str, params: dict) -> bytes:
     headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
@@ -71,11 +71,11 @@ def https_request(url, params):
                         "code": resp.status_code, "params": params})
 
 
-def is_rate_limited(page):
+def is_rate_limited(page: bytes):
     return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
 
 
-def extract_stats(page):
+def extract_stats(page: bytes) -> dict:
     soup = BeautifulSoup(page, "html.parser")
     body = soup.find(id='contentHiscores')
     result = {}
@@ -106,7 +106,7 @@ def extract_stats(page):
     return result
 
 
-def extract_highscore_records(page):
+def extract_highscore_records(page: bytes) -> dict:
     soup = BeautifulSoup(page, "html.parser")
     scores = soup.find_all(class_='personal-hiscores__row')
 

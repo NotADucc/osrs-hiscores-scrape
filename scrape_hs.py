@@ -12,10 +12,8 @@ logger = get_logger()
 file_lock = threading.Lock()
 
 
-def process(page_nr, **args):
-    acc_type = args["acc_type"]
-    hs_type = args["hs_type"]
-    out_file = args["out_file"]
+def process(page_nr: int, **args: dict) -> None:
+    acc_type, hs_type, out_file = args["acc_type"], args["hs_type"], args["out_file"]
     try:
         page = retry(get_hs_page, acc_type, hs_type, page_nr)
         extracted_records = extract_highscore_records(page)
@@ -30,8 +28,8 @@ def process(page_nr, **args):
         print(err)
 
 
-def main(out_file, acc_type, hs_type, page_nr, page_size=25):
-    max_page = find_max_page(acc_type, hs_type, page_size)
+def main(out_file, acc_type, hs_type, page_nr):
+    max_page = find_max_page(acc_type, hs_type)
 
     page_nrs = range(page_nr, max_page + 1)
 

@@ -1,4 +1,4 @@
-def calc_cmb(att, de, st, hp, ra, pr, ma):
+def calc_cmb(att: int, de: int, st: int, hp: int, ra: int, pr: int, ma: int) -> float:
     base = 0.25 * (de + hp + pr // 2)
     melee = 0.325 * (att + st)
     ranged = 0.325 * (ra // 2 + ra)
