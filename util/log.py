@@ -2,8 +2,10 @@ import logging
 
 logger = None
 
+
 def setup_custom_logger():
-    formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+    formatter = logging.Formatter(
+        fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
 
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
@@ -13,7 +15,8 @@ def setup_custom_logger():
     logger.addHandler(handler)
     return logger
 
-def get_logger() :
+
+def get_logger():
     global logger
     logger = setup_custom_logger() if logger is None else logger
     return logger

@@ -4,6 +4,7 @@ from util.log import get_logger
 
 logger = get_logger()
 
+
 def main(in_file):
     with open(in_file, "r") as file:
         lines = file.readlines()

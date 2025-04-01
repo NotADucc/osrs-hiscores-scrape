@@ -36,7 +36,8 @@ def main(in_file, out_file, start_nr, method, acc_type):
 
     get_combat_lvl = get_combat_lvl_api if method == 'api' else get_combat_lvl_scrape
 
-    spawn_threads(process, hs_records, get_combat_lvl=get_combat_lvl, acc_type=acc_type, out_file=out_file)
+    spawn_threads(process, hs_records, get_combat_lvl=get_combat_lvl,
+                  acc_type=acc_type, out_file=out_file)
 
 
 if __name__ == '__main__':
