@@ -1,5 +1,4 @@
 import threading
-import logging
 
 from time import sleep
 from util.log import get_logger

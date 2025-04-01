@@ -1,7 +1,6 @@
 import argparse
 import sys
 import threading
-import logging
 
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
