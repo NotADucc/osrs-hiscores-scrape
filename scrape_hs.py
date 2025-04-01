@@ -6,7 +6,7 @@ import logging
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
 from request.common import HSOverall, HSOverallTableMapper
-from request.request import get_hs_page, extract_highscore_records
+from request.request import find_max_page, get_hs_page, extract_highscore_records
 from util.log import get_logger
 
 logger = get_logger()
@@ -38,30 +38,8 @@ def main(out_file, acc_type, hs_type, page_nr, page_size=25):
 
     logger.info(f'scraping range({page_nr}-{max_page})')
 
-    spawn_threads(process, page_nrs, acc_type=acc_type, hs_type=hs_type, out_file=out_file)
-
-
-def find_max_page(acc_type, hs_type, page_size):
-    # max on hs is currently 80_000 pages
-    l, r, res = 1, 100_000, -1
-
-    def give_first_idx(acc_type, hs_type, middle):
-        page = get_hs_page(acc_type, hs_type, middle)
-        extracted_records = extract_highscore_records(page)
-        return -1 if not extracted_records else list(extracted_records.keys())[0]
-
-    while l <= r:
-        middle = (l + r) >> 1
-        first_idx = retry(give_first_idx, acc_type, hs_type, middle)
-        expected_idx = (middle - 1) * page_size + 1
-
-        if first_idx == expected_idx:
-            res = middle
-            l = middle + 1
-        else:
-            r = middle - 1
-        logger.info(f'looking for max page size: ({l}-{r})')
-    return res
+    spawn_threads(process, page_nrs, acc_type=acc_type,
+                  hs_type=hs_type, out_file=out_file)
 
 
 if __name__ == '__main__':
