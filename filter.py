@@ -28,8 +28,8 @@ def is_sub_40_cmb(cmb_stats: dict):
     return cmb_stats["combat"] and cmb_stats["combat"] < 40
 
 
-def is_sub_80_range(cmb_stats: dict):
-    return cmb_stats["range"] and cmb_stats["range"] < 80
+def is_sub_86_range(cmb_stats: dict):
+    return cmb_stats["ranged"] and cmb_stats["ranged"] < 86
 
 
 def main(in_file: str, out_file: str, start_nr: int, method, account_type: str):
@@ -44,7 +44,7 @@ def main(in_file: str, out_file: str, start_nr: int, method, account_type: str):
     get_combat_stats = get_combat_stats_api if method == 'api' else get_combat_stats_scrape
 
     spawn_threads(process, hs_records, get_combat_stats=get_combat_stats,
-                  account_type=account_type, out_file=out_file, predicate=is_sub_40_cmb)
+                  account_type=account_type, out_file=out_file, predicate=is_sub_86_range)
 
 
 if __name__ == '__main__':
