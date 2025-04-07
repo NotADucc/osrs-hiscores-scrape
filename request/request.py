@@ -58,15 +58,16 @@ def https_request(url: str, params: dict) -> bytes:
     }
 
     resp = requests.get(url, headers=headers, params=params)
+    resp.encoding = "ISO-8859-1"
 
-    content = resp.content
+    text = resp.text
 
-    if is_rate_limited(content):
+    if is_rate_limited(text):
         raise IsRateLimited(
             f"limited on \'{url}\'", details={"params": params})
 
     if resp.status_code == 200:
-        return content
+        return text
 
     raise RequestFailed(f"failed on \'{url}\'", details={
                         "code": resp.status_code, "params": params})
@@ -117,6 +118,7 @@ def extract_highscore_records(page: bytes) -> dict:
         rank = int(score.find_all('td', class_='right')
                    [0].text.replace(',', '').strip())
         username = score.find('td', class_='left').a.text.strip()
-        result[rank] = username.replace('Ā', ' ').replace('\xa0', ' ')
+        # result[rank] = username.replace('Ā', ' ').replace('\xa0', ' ')
+        result[rank] = username
 
     return result
