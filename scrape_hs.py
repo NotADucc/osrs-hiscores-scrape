@@ -13,9 +13,10 @@ file_lock = threading.Lock()
 
 
 def process(page_nr: int, **args: dict) -> None:
-    acc_type, hs_type, out_file = args["acc_type"], args["hs_type"], args["out_file"]
+    account_type, hs_type, out_file = args["account_type"], args["hs_type"], args["out_file"]
     try:
-        page = retry(get_hs_page, acc_type, hs_type, page_nr)
+        page = retry(get_hs_page, account_type=account_type,
+                     hs_type=hs_type, page_nr=page_nr)
         extracted_records = extract_highscore_records(page)
 
         with file_lock:
@@ -28,14 +29,14 @@ def process(page_nr: int, **args: dict) -> None:
         print(err)
 
 
-def main(out_file, acc_type, hs_type, page_nr):
-    max_page = find_max_page(acc_type, hs_type)
+def main(out_file, account_type, hs_type, page_nr):
+    max_page = find_max_page(account_type, hs_type)
 
     page_nrs = range(page_nr, max_page + 1)
 
     logger.info(f'scraping range({page_nr}-{max_page})')
 
-    spawn_threads(process, page_nrs, acc_type=acc_type,
+    spawn_threads(process, page_nrs, account_type=account_type,
                   hs_type=hs_type, out_file=out_file)
 
 

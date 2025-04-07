@@ -1,6 +1,7 @@
 import threading
 
 from time import sleep
+from typing import Any, Callable
 from request.common import IsRateLimited
 from util.log import get_logger
 
@@ -8,23 +9,27 @@ logger = get_logger()
 file_lock = threading.Lock()
 
 
-def retry(callback, *args, max_retries: int = 5, initial_delay: int = 10, out_file: str = "error_log") -> None:
+def retry(callback: Callable[..., Any], max_retries: int = 5, initial_delay: int = 10, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any:
     retries = 1
     while retries <= max_retries:
         try:
-            return callback(*args)
+            return callback(**kwargs)
         except IsRateLimited as err:
-            logger.error(f"Rate limited, attempts reset: {args}", exc_info=False)
-            sleep(retries * initial_delay)
+            logger.error(
+                f"Rate limited, attempts reset: {kwargs}", exc_info=exc_info)
             retries = 1
         except Exception as err:
-            logger.error(f"Attempt {retries} failed: {err} | {args}", exc_info=False)
-            sleep(retries * initial_delay)
+            logger.error(
+                f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
             retries += 1
 
-    message = f"{','.join(map(str, args))},{callback}"
+        sleep(retries * initial_delay)
+
+    message = f"{','.join(str(v) for v in kwargs.values())},{callback}"
 
     with file_lock:
         with open(f"{out_file}.err", "a") as f:
             f.write(f'{message}\n')
     logger.error(f"Max retries reached for '{message}'.")
+
+    return None

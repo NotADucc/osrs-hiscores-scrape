@@ -19,9 +19,9 @@ def main():
     with open(pure, "r") as f:
         for line in f:
             idx, name, stats = line.strip().split(",", 2)
-            if idx not in dct :
+            if idx not in dct:
                 dct[idx] = (name, ast.literal_eval(stats))
-            else :
+            else:
                 dct_stats = dct[idx][1]
                 stats = ast.literal_eval(stats)
                 att = max(int(stats["attack"]), int(dct_stats["attack"]))
@@ -45,10 +45,11 @@ def main():
                     'zuk-kc': zuk
                 }
                 dct[idx] = (name, stats)
-                
+
     with open(output, "w") as file:
         for k, v in dct.items():
             file.write(f'{k},{v[0]},{v[1]}\n')
+
 
 if __name__ == '__main__':
     main()

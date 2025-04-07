@@ -12,14 +12,15 @@ def find_max_page(account_type: HSOverall, hs_type: HSOverallTableMapper) -> int
     # max on hs is currently 80_000 pages
     l, r, res, page_size = 1, 100_000, -1, 25
 
-    def give_first_idx(acc_type, hs_type, middle):
-        page = get_hs_page(acc_type, hs_type, middle)
+    def give_first_idx(account_type, hs_type, middle):
+        page = get_hs_page(account_type, hs_type, middle)
         extracted_records = extract_highscore_records(page)
         return -1 if not extracted_records else list(extracted_records.keys())[0]
 
     while l <= r:
         middle = (l + r) >> 1
-        first_idx = retry(give_first_idx, account_type, hs_type, middle)
+        first_idx = retry(give_first_idx, account_type=account_type,
+                          hs_type=hs_type, middle=middle)
         expected_idx = (middle - 1) * page_size + 1
 
         if first_idx == expected_idx:
@@ -32,8 +33,8 @@ def find_max_page(account_type: HSOverall, hs_type: HSOverallTableMapper) -> int
 
 
 def get_hs_page(account_type: HSOverall = HSOverall.regular, hs_type: HSOverallTableMapper = HSOverallTableMapper.overall, page_nr: int = 1) -> bytes:
-    params = {'category_type': hs_type.value[0],
-              'table': hs_type.value[1], 'page': page_nr, }
+    params = {'category_type': hs_type.get_category(),
+              'table': hs_type.value, 'page': page_nr, }
     page = https_request(account_type.value, params)
     return page
 

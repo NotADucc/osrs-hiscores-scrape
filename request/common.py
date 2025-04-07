@@ -79,7 +79,7 @@ def hs_overall_table_mapper_increment(cat_type):
         res = hs_overall_table_mapper_rest
         hs_overall_table_mapper_rest += 1
 
-    return (cat_type, res)
+    return res
 
 
 hs_api_csv_mapper_value = 0
@@ -202,11 +202,14 @@ class HSOverallTableMapper(Enum):
     zalcano = hs_overall_table_mapper_increment(1)
     zulrah = hs_overall_table_mapper_increment(1)
 
-    def __str__(self):
+    def get_category(self) -> int:
+        return 0 if HSOverallTableMapper.overall.value <= self.value <= HSOverallTableMapper.construction.value else 1
+
+    def __str__(self) -> str:
         return self.name
 
     @staticmethod
-    def from_string(s):
+    def from_string(s) -> str:
         try:
             return HSOverallTableMapper[s]
         except KeyError:
@@ -323,5 +326,14 @@ class HSApiCsvMapper(Enum):
     zalcano = hs_api_csv_mapper_increment()
     zulrah = hs_api_csv_mapper_increment()
 
-    def __str__(self):
+    def is_skill(self) -> bool:
+        return HSApiCsvMapper.overall.value <= self.value <= HSApiCsvMapper.construction.value
+
+    def is_combat(self) -> bool:
+        return self.name in {
+            "attack", "defence", "strength", "hitpoints",
+            "ranged", "prayer", "magic"
+        }
+
+    def __str__(self) -> str:
         return self.name

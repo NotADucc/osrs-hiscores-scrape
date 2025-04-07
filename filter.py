@@ -5,7 +5,7 @@ import threading
 from request.common import HSLookup
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
-from util.combat_stats_handler import get_combat_stats_api, get_combat_stats_scrape
+from util.stats_handler import get_stats_api, get_combat_stats_scrape
 from util.log import get_logger
 
 logger = get_logger()
@@ -14,22 +14,21 @@ file_lock = threading.Lock()
 
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
-    out_file, predicate = args["out_file"], args["predicate"]
-    get_combat_stats, account_type = args["get_combat_stats"], args["account_type"]
-    cmb_stats = retry(get_combat_stats, idx, name, account_type)
-    if predicate(cmb_stats):
+    out_file, predicate, get_stats, account_type = args["out_file"], args["predicate"], args["get_stats"], args["account_type"]
+    stats = retry(get_stats, name=name, account_type=account_type, idx=idx)
+    if predicate(stats):
         with file_lock:
-            with open(out_file, "a") as ff:
-                ff.write('%s,%s,%s\n' % (idx, name, cmb_stats))
+            with open(out_file, "a") as f:
+                f.write('%s,%s,%s\n' % (idx, name, stats))
     logger.info(f'finished nr: {idx} - {name}')
 
 
-def is_sub_40_cmb(cmb_stats: dict):
-    return cmb_stats["combat"] and cmb_stats["combat"] < 40
+def is_sub_40_cmb(stats: dict):
+    return stats["combat"] and stats["combat"] < 40
 
 
-def is_sub_86_range(cmb_stats: dict):
-    return cmb_stats["ranged"] and cmb_stats["ranged"] < 86
+def is_sub_86_range(stats: dict):
+    return stats["ranged"] and stats["ranged"] < 86
 
 
 def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, delimiter: str):
@@ -41,9 +40,9 @@ def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, 
             if idx >= start_nr:
                 hs_records.append((idx, name))
 
-    get_combat_stats = get_combat_stats_api if method == 'api' else get_combat_stats_scrape
+    get_stats = get_stats_api if method == 'api' else get_combat_stats_scrape
 
-    spawn_threads(process, hs_records, get_combat_stats=get_combat_stats,
+    spawn_threads(process, hs_records, get_stats=get_stats,
                   account_type=account_type, out_file=out_file, predicate=is_sub_86_range)
 
 

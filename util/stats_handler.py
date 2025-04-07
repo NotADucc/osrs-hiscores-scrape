@@ -3,35 +3,27 @@ from request.request import lookup, lookup_scrape, extract_stats
 from util.common import calc_cmb
 
 
-def get_combat_stats_api(_, name: str, account_type: str) -> float:
+def get_stats_api(name: str, account_type: str, **kwargs) -> dict:
     csv = lookup(name, HSApi[account_type]).split(b'\n')
 
-    att = int(csv[HSApiCsvMapper.attack.value].split(b',')[1])
-    de = int(csv[HSApiCsvMapper.defence.value].split(b',')[1])
-    st = int(csv[HSApiCsvMapper.strength.value].split(b',')[1])
-    hp = int(csv[HSApiCsvMapper.hitpoints.value].split(b',')[1])
-    ra = int(csv[HSApiCsvMapper.ranged.value].split(b',')[1])
-    pr = int(csv[HSApiCsvMapper.prayer.value].split(b',')[1])
-    ma = int(csv[HSApiCsvMapper.magic.value].split(b',')[1])
+    # i want cmb on first position when printed or written
+    stats = {'combat': -1}
 
-    cmb_level = calc_cmb(att, de, st, hp, ra, pr, ma)
+    for mapper_val in HSApiCsvMapper:
+        val = int(csv[mapper_val.value].split(b',')[1])
+        if val == -1:
+            continue
+        stats[mapper_val.name] = val
 
-    stats = {
-        'combat': cmb_level,
-        'attack': att,
-        'defence': de,
-        'strength': st,
-        'hitpoints': hp,
-        'ranged': ra,
-        'prayer': pr,
-        'magic': ma,
-        'zuk-kc': int(csv[HSApiCsvMapper.zuk.value].split(b',')[1])
-    }
+    cmb_level = calc_cmb(stats[HSApiCsvMapper.attack.name], stats[HSApiCsvMapper.defence.name],
+                         stats[HSApiCsvMapper.strength.name], stats[HSApiCsvMapper.hitpoints.name], stats[HSApiCsvMapper.ranged.name], stats[HSApiCsvMapper.prayer.name], stats[HSApiCsvMapper.magic.name])
+
+    stats['combat'] = cmb_level
 
     return stats
 
 
-def get_combat_stats_scrape(_, name: str, account_type: str) -> float:
+def get_combat_stats_scrape(name: str, account_type: str, **kwargs) -> dict:
     page = lookup_scrape(name, HSLookup[account_type])
     extracted_stats = extract_stats(page)
 
