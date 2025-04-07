@@ -23,11 +23,14 @@ def process(hs_record: tuple, **args: dict) -> None:
                 ff.write('%s,%s,%s\n' % (idx, name, cmb_stats))
     logger.info(f'finished nr: {idx} - {name}')
 
+
 def is_sub_40_cmb(cmb_stats: dict):
     return cmb_stats["combat"] and cmb_stats["combat"] < 40
 
+
 def is_sub_80_range(cmb_stats: dict):
     return cmb_stats["range"] and cmb_stats["range"] < 80
+
 
 def main(in_file: str, out_file: str, start_nr: int, method, account_type: str):
     hs_records = []

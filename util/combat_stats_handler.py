@@ -13,7 +13,7 @@ def get_combat_stats_api(_, name: str, account_type: str) -> float:
     ra = int(csv[HSApiCsvMapper.ranged.value].split(b',')[1])
     pr = int(csv[HSApiCsvMapper.prayer.value].split(b',')[1])
     ma = int(csv[HSApiCsvMapper.magic.value].split(b',')[1])
-    
+
     cmb_level = calc_cmb(att, de, st, hp, ra, pr, ma)
 
     stats = {
