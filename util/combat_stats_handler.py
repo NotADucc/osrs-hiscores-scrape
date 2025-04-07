@@ -3,7 +3,7 @@ from request.request import lookup, lookup_scrape, extract_stats
 from util.common import calc_cmb
 
 
-def get_combat_lvl_api(_, name: str, account_type: str) -> float:
+def get_combat_stats_api(_, name: str, account_type: str) -> float:
     csv = lookup(name, HSApi[account_type]).split(b'\n')
 
     att = int(csv[HSApiCsvMapper.attack.value].split(b',')[1])
@@ -13,10 +13,24 @@ def get_combat_lvl_api(_, name: str, account_type: str) -> float:
     ra = int(csv[HSApiCsvMapper.ranged.value].split(b',')[1])
     pr = int(csv[HSApiCsvMapper.prayer.value].split(b',')[1])
     ma = int(csv[HSApiCsvMapper.magic.value].split(b',')[1])
-    return calc_cmb(att, de, st, hp, ra, pr, ma)
+    
+    cmb_level = calc_cmb(att, de, st, hp, ra, pr, ma)
+
+    stats = {
+        'combat': cmb_level,
+        'attack': att,
+        'defence': de,
+        'strength': st,
+        'hitpoints': hp,
+        'ranged': ra,
+        'prayer': pr,
+        'magic': ma
+    }
+
+    return stats
 
 
-def get_combat_lvl_scrape(_, name: str, account_type: str) -> float:
+def get_combat_stats_scrape(_, name: str, account_type: str) -> float:
     page = lookup_scrape(name, HSLookup[account_type])
     extracted_stats = extract_stats(page)
 
@@ -27,4 +41,18 @@ def get_combat_lvl_scrape(_, name: str, account_type: str) -> float:
     ra = extracted_stats.get('Ranged', {'lvl': 1})['lvl']
     pr = extracted_stats.get('Prayer', {'lvl': 1})['lvl']
     ma = extracted_stats.get('Magic', {'lvl': 1})['lvl']
-    return calc_cmb(att, de, st, hp, ra, pr, ma)
+
+    cmb_level = calc_cmb(att, de, st, hp, ra, pr, ma)
+
+    stats = {
+        'combat': cmb_level,
+        'attack': att,
+        'defence': de,
+        'strength': st,
+        'hitpoints': hp,
+        'ranged': ra,
+        'prayer': pr,
+        'magic': ma
+    }
+
+    return stats

@@ -7,7 +7,7 @@ logger = get_logger()
 file_lock = threading.Lock()
 
 
-def retry(callback, *args, max_retries: int = 5, initial_delay: int = 10, out_file: str = "error_log") -> None:
+def retry(callback, *args, max_retries: int = 50, initial_delay: int = 10, out_file: str = "error_log") -> None:
     retries = 1
     while retries <= max_retries:
         try:
