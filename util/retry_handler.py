@@ -13,7 +13,7 @@ def retry(callback, *args, max_retries: int = 50, initial_delay: int = 10, out_f
         try:
             return callback(*args)
         except Exception as err:
-            logger.error(f"Attempt {retries} failed: {err}", exc_info=True)
+            logger.error(f"Attempt {retries} failed: {err}", exc_info=False)
             sleep(retries * initial_delay)
             retries += 1
 
