@@ -1,18 +1,25 @@
 from request.common import HSApiCsvMapper, HSApi, HSLookup
 from request.request import lookup, lookup_scrape, extract_stats
-from util.common import calc_cmb
+from util.common import StatsFlag, calc_cmb
 
 
-def get_stats_api(name: str, account_type: str, **kwargs) -> dict:
+def get_stats_api(name: str, account_type: str, flags: StatsFlag = StatsFlag.default, **kwargs) -> dict:
     csv = lookup(name, HSApi[account_type]).split(b'\n')
 
     # i want cmb on first position when printed or written
     stats = {'combat': -1}
 
+    add_skills = flags.__contains__(StatsFlag.add_skills)
+    add_misc = flags.__contains__(StatsFlag.add_misc)
+
     for mapper_val in HSApiCsvMapper:
         val = int(csv[mapper_val.value].split(b',')[1])
         if val == -1:
             continue
+
+        if (not add_skills and mapper_val.is_skill() and not mapper_val.is_combat()) or (not add_misc and not mapper_val.is_skill()):
+            continue
+
         stats[mapper_val.name] = val
 
     cmb_level = calc_cmb(stats[HSApiCsvMapper.attack.name], stats[HSApiCsvMapper.defence.name],

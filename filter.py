@@ -14,7 +14,8 @@ file_lock = threading.Lock()
 
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
-    out_file, predicate, get_stats, account_type = args["out_file"], args["predicate"], args["get_stats"], args["account_type"]
+    out_file, predicate, get_stats, account_type = args["out_file"], args[
+        "predicate"], args["get_stats"], args["account_type"]
     stats = retry(get_stats, name=name, account_type=account_type, idx=idx)
     if predicate(stats):
         with file_lock:
