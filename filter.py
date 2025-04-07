@@ -36,11 +36,12 @@ def main(in_file: str, out_file: str, start_nr: int, method, account_type: str):
     hs_records = []
     with open(in_file, "r") as f:
         for line in f:
-            idx, name = line.strip().split(",", 1)
+            idx, name = line.strip().split(",")[:2]
             idx = int(idx)
+            print(idx, name)
             if idx >= start_nr:
                 hs_records.append((idx, name))
-
+                
     get_combat_stats = get_combat_stats_api if method == 'api' else get_combat_stats_scrape
 
     spawn_threads(process, hs_records, get_combat_stats=get_combat_stats,
