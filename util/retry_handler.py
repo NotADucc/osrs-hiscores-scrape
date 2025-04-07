@@ -22,7 +22,7 @@ def retry(callback, *args, max_retries: int = 5, initial_delay: int = 10, out_fi
             sleep(retries * initial_delay)
             retries += 1
 
-    message = f"{','.join(map(str, args))} - {callback}"
+    message = f"{','.join(map(str, args))}, {callback}"
 
     with file_lock:
         with open(f"{out_file}.err", "a") as f:
