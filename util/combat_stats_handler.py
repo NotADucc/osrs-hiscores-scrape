@@ -24,7 +24,8 @@ def get_combat_stats_api(_, name: str, account_type: str) -> float:
         'hitpoints': hp,
         'ranged': ra,
         'prayer': pr,
-        'magic': ma
+        'magic': ma,
+        'zuk-kc': int(csv[HSApiCsvMapper.zuk.value].split(b',')[1])
     }
 
     return stats
