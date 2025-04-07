@@ -32,16 +32,15 @@ def is_sub_86_range(cmb_stats: dict):
     return cmb_stats["ranged"] and cmb_stats["ranged"] < 86
 
 
-def main(in_file: str, out_file: str, start_nr: int, method, account_type: str):
+def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, delimiter: str):
     hs_records = []
     with open(in_file, "r") as f:
         for line in f:
-            idx, name = line.strip().split(",")[:2]
+            idx, name = line.strip().split(delimiter)[:2]
             idx = int(idx)
-            print(idx, name)
             if idx >= start_nr:
                 hs_records.append((idx, name))
-                
+
     get_combat_stats = get_combat_stats_api if method == 'api' else get_combat_stats_scrape
 
     spawn_threads(process, hs_records, get_combat_stats=get_combat_stats,
@@ -56,10 +55,11 @@ if __name__ == '__main__':
     parser.add_argument('--method', default='api', choices=['api', 'scrape'])
     parser.add_argument('--account-type', default='regular',
                         type=HSLookup.from_string, choices=list(HSLookup))
+    parser.add_argument('--delimiter', default=',')
     args = parser.parse_args()
 
     main(args.in_file, args.out_file, args.start_nr,
-         args.method, str(args.account_type))
+         args.method, str(args.account_type), args.delimiter)
 
     logger.info("done")
     sys.exit(0)
