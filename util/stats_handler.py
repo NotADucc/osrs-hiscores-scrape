@@ -4,8 +4,8 @@ from util.common import StatsFlag, calc_cmb
 
 
 def get_stats_api(name: str, account_type: str, flags: StatsFlag = StatsFlag.default, **kwargs) -> dict:
-    csv = lookup(name, HSApi[account_type]).split(b'\n')
-
+    csv = lookup(name, HSApi[account_type]).split('\n')
+    
     # i want cmb on first position when printed or written
     stats = {'combat': -1}
 
@@ -13,7 +13,7 @@ def get_stats_api(name: str, account_type: str, flags: StatsFlag = StatsFlag.def
     add_misc = flags.__contains__(StatsFlag.add_misc)
 
     for mapper_val in HSApiCsvMapper:
-        val = int(csv[mapper_val.value].split(b',')[1])
+        val = int(csv[mapper_val.value].split(',')[1])
         if val == -1:
             continue
 

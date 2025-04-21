@@ -39,28 +39,28 @@ def get_hs_page(account_type: HSOverall = HSOverall.regular, hs_type: HSOverallT
     return page
 
 
-def lookup(name: str, account_type: HSApi = HSApi.regular) -> bytes:
+def lookup(name: str, account_type: HSApi = HSApi.regular) -> str:
     params = {'player': name}
     csv = https_request(account_type.value, params)
     return csv
 
 
-def lookup_scrape(name: str, account_type: HSLookup = HSLookup.regular) -> bytes:
+def lookup_scrape(name: str, account_type: HSLookup = HSLookup.regular) -> str:
     params = {'user1': name}
     page = https_request(account_type.value, params)
     return page
 
 
-def https_request(url: str, params: dict) -> bytes:
+def https_request(url: str, params: dict) -> str:
     headers = {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+        "Content-Type": "text/html"
     }
 
     resp = requests.get(url, headers=headers, params=params)
-    resp.encoding = "ISO-8859-1"
 
-    text = resp.text
+    text = resp.text.replace('Ā', ' ').replace('\xa0', ' ')
 
     if is_rate_limited(text):
         raise IsRateLimited(
@@ -118,7 +118,6 @@ def extract_highscore_records(page: bytes) -> dict:
         rank = int(score.find_all('td', class_='right')
                    [0].text.replace(',', '').strip())
         username = score.find('td', class_='left').a.text.strip()
-        # result[rank] = username.replace('Ā', ' ').replace('\xa0', ' ')
         result[rank] = username
 
     return result
