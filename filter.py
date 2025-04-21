@@ -44,7 +44,7 @@ def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, 
     get_stats = get_stats_api if method == 'api' else get_combat_stats_scrape
 
     spawn_threads(process, hs_records, get_stats=get_stats,
-                  account_type=account_type, out_file=out_file, predicate=is_sub_86_range)
+                  account_type=account_type, out_file=out_file, predicate=is_sub_40_cmb)
 
 
 if __name__ == '__main__':
