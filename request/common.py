@@ -325,6 +325,7 @@ class HSApiCsvMapper(Enum):
     wt = hs_api_csv_mapper_increment()
     zalcano = hs_api_csv_mapper_increment()
     zulrah = hs_api_csv_mapper_increment()
+    combat = -1
 
     def is_skill(self) -> bool:
         return HSApiCsvMapper.overall.value <= self.value <= HSApiCsvMapper.construction.value
@@ -332,8 +333,15 @@ class HSApiCsvMapper(Enum):
     def is_combat(self) -> bool:
         return self.name in {
             "attack", "defence", "strength", "hitpoints",
-            "ranged", "prayer", "magic"
+            "ranged", "prayer", "magic", "combat"
         }
 
     def __str__(self) -> str:
         return self.name
+    
+    @staticmethod
+    def from_string(s) -> str:
+        try:
+            return HSApiCsvMapper[s]
+        except KeyError:
+            raise ValueError()

@@ -7,12 +7,15 @@ def get_stats_api(name: str, account_type: str, flags: StatsFlag = StatsFlag.def
     csv = lookup(name, HSApi[account_type]).split('\n')
     
     # i want cmb on first position when printed or written
-    stats = {'combat': -1}
+    stats = {HSApiCsvMapper.combat.name: -1}
 
     add_skills = flags.__contains__(StatsFlag.add_skills)
     add_misc = flags.__contains__(StatsFlag.add_misc)
 
     for mapper_val in HSApiCsvMapper:
+        if mapper_val.value == -1:
+            continue
+
         val = int(csv[mapper_val.value].split(',')[1])
         if val == -1:
             continue
@@ -21,11 +24,9 @@ def get_stats_api(name: str, account_type: str, flags: StatsFlag = StatsFlag.def
             continue
 
         stats[mapper_val.name] = val
-
     cmb_level = calc_cmb(stats[HSApiCsvMapper.attack.name], stats[HSApiCsvMapper.defence.name],
                          stats[HSApiCsvMapper.strength.name], stats[HSApiCsvMapper.hitpoints.name], stats[HSApiCsvMapper.ranged.name], stats[HSApiCsvMapper.prayer.name], stats[HSApiCsvMapper.magic.name])
-
-    stats['combat'] = cmb_level
+    stats[HSApiCsvMapper.combat.name] = cmb_level
 
     return stats
 
