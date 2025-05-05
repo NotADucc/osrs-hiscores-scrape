@@ -11,7 +11,6 @@ from util.log import get_logger
 logger = get_logger()
 file_lock = threading.Lock()
 
-
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
     out_file, get_stats, account_type, filter = args["out_file"], args["get_stats"], args["account_type"], args["filter"]
@@ -43,7 +42,7 @@ def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, 
 if __name__ == '__main__':
     def parse_key_value_pairs(arg):
         kv_pairs = arg.split(',')
-        return {HSApiCsvMapper.from_string(k): int(v) for k, v in (pair.split(':') for pair in kv_pairs)}
+        return {HSApiCsvMapper.from_string(k.strip()): int(v) for k, v in (pair.split(':') for pair in kv_pairs)}
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-file', required=True)
     parser.add_argument('--out-file', required=True)
