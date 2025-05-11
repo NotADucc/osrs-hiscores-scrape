@@ -17,8 +17,13 @@
 # Usage
 ## Filter.py
 ```
-# NO spaces in the filter argument, unless you're using apostrophes
+# NO spaces in the filter argument, unless you're using apostrophes/quotes
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter ranged:50,attack:50
+
+py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged:50,attack:50'
+py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged:50 , attack:50'
+py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged : 50, attack : 50' 
+
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter "ranged:50,attack:50"
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter "ranged:50 , attack:50"
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter "ranged : 50, attack : 50" 

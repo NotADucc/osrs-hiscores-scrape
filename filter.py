@@ -1,7 +1,6 @@
 import argparse
 import sys
 import threading
-import subprocess
 from request.common import HSApiCsvMapper, HSLookup
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
@@ -12,11 +11,13 @@ from util.log import get_logger
 logger = get_logger()
 file_lock = threading.Lock()
 
+
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
-    out_file, get_stats, account_type, filter = args["out_file"], args["get_stats"], args["account_type"], args["filter"]
+    out_file, get_stats, account_type, filter = args["out_file"], args[
+        "get_stats"], args["account_type"], args["filter"]
     stats = retry(get_stats, name=name, account_type=account_type, idx=idx)
-    
+
     if all(stats.get(filter_stat.name, 0) <= filter_val for filter_stat, filter_val in filter.items()):
         with file_lock:
             with open(out_file, "a") as f:
@@ -25,7 +26,7 @@ def process(hs_record: tuple, **args: dict) -> None:
     logger.info(f'finished nr: {idx} - {name}')
 
 
-def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, delimiter: str, filter : dict):
+def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, delimiter: str, filter: dict):
     hs_records = []
     with open(in_file, "r") as f:
         for line in f:
@@ -44,17 +45,23 @@ if __name__ == '__main__':
     def parse_key_value_pairs(arg):
         kv_pairs = arg.split(',')
         return {HSApiCsvMapper.from_string(k.strip()): int(v.strip()) for k, v in (pair.split(':') for pair in kv_pairs)}
-        
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in-file', required=True, help="Path to the input file")
-    parser.add_argument('--out-file', required=True, help="Path to the output file")
-    parser.add_argument('--start-nr', default=1, type=int, help="Key value pair index that it should start filtering at")
-    parser.add_argument('--method', default='api', choices=['api', 'scrape'], help="Either use osrs api or scrape from website")
+    parser.add_argument('--in-file', required=True,
+                        help="Path to the input file")
+    parser.add_argument('--out-file', required=True,
+                        help="Path to the output file")
+    parser.add_argument('--start-nr', default=1, type=int,
+                        help="Key value pair index that it should start filtering at")
+    parser.add_argument('--method', default='api', choices=[
+                        'api', 'scrape'], help="Either use osrs api or scrape from website")
     parser.add_argument('--account-type', default='regular',
                         type=HSLookup.from_string, choices=list(HSLookup), help="Account type it should look at (default: 'regular')")
-    parser.add_argument('--filter', type=parse_key_value_pairs, required=True, help="Inclusive bound on what the account should have")
-    parser.add_argument('--delimiter', default=',', help="Delimiter used in the files (default: ,)")
-    
+    parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
+                        help="Inclusive bound on what the account should have")
+    parser.add_argument('--delimiter', default=',',
+                        help="Delimiter used in the files (default: ,)")
+
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 

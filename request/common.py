@@ -342,7 +342,7 @@ class HSApiCsvMapper(Enum):
 
     def __str__(self) -> str:
         return self.name
-    
+
     @staticmethod
     def from_string(s) -> str:
         try:

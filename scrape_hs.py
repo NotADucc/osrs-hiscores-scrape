@@ -43,13 +43,15 @@ def main(out_file, account_type, hs_type, page_nr):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--out-file', required=True, help="Path to the output file")
+    parser.add_argument('--out-file', required=True,
+                        help="Path to the output file")
     parser.add_argument('--account-type', default='regular',
                         type=HSOverall.from_string, choices=list(HSOverall), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
                         type=HSOverallTableMapper.from_string, choices=list(HSOverallTableMapper), help="Hiscore category it should pull from (default: 'overall')")
-    parser.add_argument('--page-nr', default=1, type=int, help="Hiscore page number it should start at")
-    
+    parser.add_argument('--page-nr', default=1, type=int,
+                        help="Hiscore page number it should start at")
+
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 

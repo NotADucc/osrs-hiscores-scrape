@@ -54,11 +54,15 @@ def main(in_main, in_merge, out_file, delimiter):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in-main', required=True, help="Path to the main input file")
-    parser.add_argument('--in-merge', required=True, help="Path to the file to merge in")
-    parser.add_argument('--out-file', required=True, help="Path to the output file")
-    parser.add_argument('--delimiter', default=',', help="Delimiter used in the files (default: ,)")
-    
+    parser.add_argument('--in-main', required=True,
+                        help="Path to the main input file")
+    parser.add_argument('--in-merge', required=True,
+                        help="Path to the file to merge in")
+    parser.add_argument('--out-file', required=True,
+                        help="Path to the output file")
+    parser.add_argument('--delimiter', default=',',
+                        help="Delimiter used in the files (default: ,)")
+
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
