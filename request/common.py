@@ -1,3 +1,4 @@
+import argparse
 from enum import Enum
 
 
@@ -28,7 +29,8 @@ class HSOverall(Enum):
         try:
             return HSOverall[s]
         except KeyError:
-            raise ValueError()
+            valid_values = ', '.join(HSLookup.__members__.keys())
+            raise argparse.ArgumentTypeError(valid_values)
 
 
 class HSLookup(Enum):
@@ -46,7 +48,8 @@ class HSLookup(Enum):
         try:
             return HSLookup[s]
         except KeyError:
-            raise ValueError()
+            valid_values = ', '.join(HSLookup.__members__.keys())
+            raise argparse.ArgumentTypeError(valid_values)
 
 
 class HSApi(Enum):
@@ -213,7 +216,8 @@ class HSOverallTableMapper(Enum):
         try:
             return HSOverallTableMapper[s]
         except KeyError:
-            raise ValueError()
+            valid_values = ', '.join(HSOverallTableMapper.__members__.keys())
+            raise argparse.ArgumentTypeError(valid_values)
 
 
 class HSApiCsvMapper(Enum):
@@ -345,4 +349,4 @@ class HSApiCsvMapper(Enum):
             return HSApiCsvMapper[s]
         except KeyError:
             valid_values = ', '.join(HSApiCsvMapper.__members__.keys())
-            raise ValueError(valid_values)
+            raise argparse.ArgumentTypeError(valid_values)
