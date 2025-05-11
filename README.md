@@ -11,7 +11,7 @@
 - Filter usernames based on skills/bossing achievements and save that resultset on a file.
 
 # Misc Features
-- Sort the output.
+- Sort the output, sorting script provided since scrape_hs is 'multi threaded'/async so the kvp resultset is not chronological.
 - Merge 2 outputs into one, this is for when a highscore type can't pull 100% of the data in 1 hiscore type but can in a different hiscore type.
 
 # Usage
