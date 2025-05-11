@@ -26,7 +26,7 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | `--start-nr`  | No      | Key value pair index that it should start looking at |
 | `--method`  | No      | Either use osrs api or scrape from website |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
-| `--filter`  | Yes      | Inclusive bound on what the account should have |
+| `--filter`  | Yes      | Inclusive bound on what the account should have, DON'T USE SPACES |
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
 ## Scrape_hs.py
 ```

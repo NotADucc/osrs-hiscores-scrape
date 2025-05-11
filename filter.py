@@ -42,7 +42,8 @@ def main(in_file: str, out_file: str, start_nr: int, method, account_type: str, 
 if __name__ == '__main__':
     def parse_key_value_pairs(arg):
         kv_pairs = arg.split(',')
-        return {HSApiCsvMapper.from_string(k): int(v) for k, v in (pair.split(':') for pair in kv_pairs)}
+        print(kv_pairs)
+        return {HSApiCsvMapper.from_string(k.strip()): int(v.strip()) for k, v in (pair.split(':') for pair in kv_pairs)}
         
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-file', required=True)
