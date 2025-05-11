@@ -1,24 +1,24 @@
 import ast
 import sys
+import argparse
+
 from util.common import calc_cmb
 from util.log import get_logger
 
 logger = get_logger()
 
 
-def main():
-    regular, pure = '[entire_pure_set] regular_sub_86_range_inf.txt', '[entire_pure_set] pure_sub_86_range_inf.txt'
-    output = '[cleaned_up] sub_86_range_inf.txt'
+def main(in_main, in_merge, out_file, delimiter):
     dct = {}
 
-    with open(regular, "r") as f:
+    with open(in_main, "r") as f:
         for line in f:
-            idx, name, stats = line.strip().split(",", 2)
+            idx, name, stats = line.strip().split(delimiter, 2)
             dct[idx] = (name, ast.literal_eval(stats))
 
-    with open(pure, "r") as f:
+    with open(in_merge, "r") as f:
         for line in f:
-            idx, name, stats = line.strip().split(",", 2)
+            idx, name, stats = line.strip().split(delimiter, 2)
             if idx not in dct:
                 dct[idx] = (name, ast.literal_eval(stats))
             else:
@@ -46,12 +46,20 @@ def main():
                 }
                 dct[idx] = (name, stats)
 
-    with open(output, "w") as file:
+    with open(out_file, "w") as file:
         for k, v in dct.items():
             file.write(f'{k},{v[0]},{v[1]}\n')
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--in-main', required=True)
+    parser.add_argument('--in-merge', required=True)
+    parser.add_argument('--out-file', required=True)
+    parser.add_argument('--delimiter', default=',')
+    args = parser.parse_args()
+
+    main(args.in_main, args.in_merge, args.out_file, args.delimiter)
+
     logger.info("done")
     sys.exit(0)
