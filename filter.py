@@ -11,7 +11,6 @@ from util.log import get_logger
 logger = get_logger()
 file_lock = threading.Lock()
 
-
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
     out_file, get_stats, account_type, filter = args["out_file"], args["get_stats"], args["account_type"], args["filter"]
