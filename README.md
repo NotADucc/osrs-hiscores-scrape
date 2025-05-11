@@ -27,7 +27,7 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | ------------- | -------- | ------------------------------------------ |
 | `--in-file`   | Yes      | Path to the input file                |
 | `--out-file`  | Yes      | Path to the output file                    |
-| `--start-nr`  | No      | Key value pair index that it should start looking at |
+| `--start-nr`  | No      | Key value pair index that it should start filtering at |
 | `--method`  | No      | Either use osrs api or scrape from website |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
 | `--filter`  | Yes      | Inclusive bound on what the account should have |

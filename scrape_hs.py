@@ -2,6 +2,7 @@ import argparse
 import sys
 import threading
 
+from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
 from request.common import HSOverall, HSOverallTableMapper
@@ -42,12 +43,14 @@ def main(out_file, account_type, hs_type, page_nr):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--out-file', required=True)
+    parser.add_argument('--out-file', required=True, help="Path to the output file")
     parser.add_argument('--account-type', default='regular',
-                        type=HSOverall.from_string, choices=list(HSOverall))
+                        type=HSOverall.from_string, choices=list(HSOverall), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
-                        type=HSOverallTableMapper.from_string, choices=list(HSOverallTableMapper))
-    parser.add_argument('--page-nr', default=1, type=int)
+                        type=HSOverallTableMapper.from_string, choices=list(HSOverallTableMapper), help="Hiscore category it should pull from (default: 'overall')")
+    parser.add_argument('--page-nr', default=1, type=int, help="Hiscore page number it should start at")
+    
+    running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
     main(args.out_file, args.account_type, args.hs_type, args.page_nr)
