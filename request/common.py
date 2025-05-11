@@ -344,4 +344,5 @@ class HSApiCsvMapper(Enum):
         try:
             return HSApiCsvMapper[s]
         except KeyError:
-            raise ValueError()
+            valid_values = ', '.join(HSApiCsvMapper.__members__.keys())
+            raise ValueError(valid_values)
