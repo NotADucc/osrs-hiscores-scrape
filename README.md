@@ -65,6 +65,8 @@ py merge.py --in-main main_file.txt --in-merge merge_file.txt --out-file output.
 | `--in-merge`  | Yes      | Path to the file to merge in               |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
+# Debug.py
+Can be ignored.
 
 # Logging
 A logger is used to report progress. A "done" message is logged once processing is complete.
