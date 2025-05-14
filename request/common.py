@@ -202,11 +202,15 @@ class HSOverallTableMapper(Enum):
     vetion = hs_overall_table_mapper_increment(1)
     vorkath = hs_overall_table_mapper_increment(1)
     wt = hs_overall_table_mapper_increment(1)
+    yama = hs_overall_table_mapper_increment(1)
     zalcano = hs_overall_table_mapper_increment(1)
     zulrah = hs_overall_table_mapper_increment(1)
 
     def get_category(self) -> int:
         return 0 if HSOverallTableMapper.overall.value <= self.value <= HSOverallTableMapper.construction.value else 1
+
+    def debug() -> list:
+        return [f'{v}: {v.value}' for v in HSOverallTableMapper]
 
     def __str__(self) -> str:
         return self.name
@@ -327,6 +331,7 @@ class HSApiCsvMapper(Enum):
     vetion = hs_api_csv_mapper_increment()
     vorkath = hs_api_csv_mapper_increment()
     wt = hs_api_csv_mapper_increment()
+    yama = hs_api_csv_mapper_increment()
     zalcano = hs_api_csv_mapper_increment()
     zulrah = hs_api_csv_mapper_increment()
     combat = -1
@@ -339,6 +344,9 @@ class HSApiCsvMapper(Enum):
             "attack", "defence", "strength", "hitpoints",
             "ranged", "prayer", "magic", "combat"
         }
+
+    def debug() -> list:
+        return [f'{v}: {v.value}' for v in HSApiCsvMapper]
 
     def __str__(self) -> str:
         return self.name
