@@ -5,7 +5,7 @@ import threading
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
-from request.common import HSOverall, HSOverallTableMapper
+from request.common import HSCategoryMapper, HSLookup
 from request.request import find_max_page, get_hs_page, extract_highscore_records
 from util.log import get_logger
 
@@ -46,9 +46,9 @@ if __name__ == '__main__':
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
     parser.add_argument('--account-type', default='regular',
-                        type=HSOverall.from_string, choices=list(HSOverall), help="Account type it should pull from (default: 'regular')")
+                        type=HSLookup.from_string, choices=list(HSLookup), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
-                        type=HSOverallTableMapper.from_string, choices=list(HSOverallTableMapper), help="Hiscore category it should pull from (default: 'overall')")
+                        type=HSCategoryMapper.from_string, choices=list(HSCategoryMapper), help="Hiscore category it should pull from (default: 'overall')")
     parser.add_argument('--page-nr', default=1, type=int,
                         help="Hiscore page number it should start at")
 

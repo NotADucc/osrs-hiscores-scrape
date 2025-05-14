@@ -1,4 +1,4 @@
-from request.common import IsRateLimited, RequestFailed, HSOverall, HSLookup, HSApi, HSOverallTableMapper
+from request.common import HSCategoryMapper, IsRateLimited, RequestFailed, HSLookup, HSApi
 
 import requests
 from bs4 import BeautifulSoup
@@ -8,7 +8,7 @@ from util.retry_handler import retry
 logger = get_logger()
 
 
-def find_max_page(account_type: HSOverall, hs_type: HSOverallTableMapper) -> int:
+def find_max_page(account_type: HSLookup, hs_type: HSCategoryMapper) -> int:
     # max on hs is currently 80_000 pages
     l, r, res, page_size = 1, 100_000, -1, 25
 
@@ -32,22 +32,22 @@ def find_max_page(account_type: HSOverall, hs_type: HSOverallTableMapper) -> int
     return res
 
 
-def get_hs_page(account_type: HSOverall = HSOverall.regular, hs_type: HSOverallTableMapper = HSOverallTableMapper.overall, page_nr: int = 1) -> bytes:
+def get_hs_page(account_type: HSLookup, hs_type: HSCategoryMapper, page_nr: int = 1) -> bytes:
     params = {'category_type': hs_type.get_category(),
               'table': hs_type.value, 'page': page_nr, }
-    page = https_request(account_type.value, params)
+    page = https_request(account_type.overall(), params)
     return page
 
 
-def lookup(name: str, account_type: HSApi = HSApi.regular) -> str:
+def lookup(name: str, account_type: HSApi) -> str:
     params = {'player': name}
     csv = https_request(account_type.value, params)
     return csv
 
 
-def lookup_scrape(name: str, account_type: HSLookup = HSLookup.regular) -> str:
+def lookup_scrape(name: str, account_type: HSLookup) -> str:
     params = {'user1': name}
-    page = https_request(account_type.value, params)
+    page = https_request(account_type.personal(), params)
     return page
 
 

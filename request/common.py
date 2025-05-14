@@ -14,39 +14,43 @@ class IsRateLimited(Exception):
         super().__init__(message)
 
 
-class HSOverall(Enum):
-    regular = 'https://secure.runescape.com/m=hiscore_oldschool/overall'
-    pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/overall'
-    im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/overall'
-    uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/overall'
-    hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall'
-    skiller = 'https://secure.runescape.com/m=hiscore_oldschool_skiller/overall'
-
-    def __str__(self):
-        return self.name
-
-    @staticmethod
-    def from_string(s):
-        try:
-            return HSOverall[s]
-        except KeyError:
-            valid_values = ', '.join(HSLookup.__members__.keys())
-            raise argparse.ArgumentTypeError(valid_values)
-
-
 class HSLookup(Enum):
-    regular = 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
-    pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
-    im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
-    uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
-    hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
-    skiller = 'https://secure.runescape.com/m=hiscore_oldschool_skiller/hiscorepersonal'
+    regular = { 
+        'overall': 'https://secure.runescape.com/m=hiscore_oldschool/overall', 
+        'personal': 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
+    }
+    pure = {
+        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/overall',
+        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
+    }
+    im = {
+        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/overall',
+        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
+    }
+    uim = {
+        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/overall',
+        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
+    }
+    hc = {
+        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall',
+        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
+    }
+    skiller = {
+        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/overall',
+        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/hiscorepersonal'
+    }
 
-    def __str__(self):
+    def overall(self) -> str :
+        return self.value['overall']
+    
+    def personal(self) -> str :
+        return self.value['personal']
+
+    def __str__(self) -> str:
         return self.name
 
     @staticmethod
-    def from_string(s):
+    def from_string(s) -> dict:
         try:
             return HSLookup[s]
         except KeyError:
@@ -98,7 +102,7 @@ def hs_api_csv_mapper_increment():
     return hs_api_csv_mapper_value - 1
 
 
-class HSOverallTableMapper(Enum):
+class HSCategoryMapper(Enum):
     overall = hs_overall_table_mapper_increment(0)
     attack = hs_overall_table_mapper_increment(0)
     defence = hs_overall_table_mapper_increment(0)
@@ -211,10 +215,10 @@ class HSOverallTableMapper(Enum):
     zulrah = hs_overall_table_mapper_increment(1)
 
     def get_category(self) -> int:
-        return 0 if HSOverallTableMapper.overall.value <= self.value <= HSOverallTableMapper.construction.value else 1
+        return 0 if HSCategoryMapper.overall.value <= self.value <= HSCategoryMapper.construction.value else 1
 
     def debug() -> list:
-        return [f'{v}: {v.value}' for v in HSOverallTableMapper]
+        return [f'{v}: {v.value}' for v in HSCategoryMapper]
 
     def __str__(self) -> str:
         return self.name
@@ -222,9 +226,9 @@ class HSOverallTableMapper(Enum):
     @staticmethod
     def from_string(s) -> str:
         try:
-            return HSOverallTableMapper[s]
+            return HSCategoryMapper[s]
         except KeyError:
-            valid_values = ', '.join(HSOverallTableMapper.__members__.keys())
+            valid_values = ', '.join(HSCategoryMapper.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
 
 
