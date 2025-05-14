@@ -1,10 +1,16 @@
 # OSRS Hiscore tool
 
 # Requirements 
-- Python 3.x
+- Python 3.x [Download here](https://www.python.org/downloads/)
 - Packages (possible I forgot some)
   - beautifulsoup4
   - requests
+
+```
+pip install requests beautifulsoup4
+# or
+python -m pip install requests beautifulsoup4
+```
 
 # Main Features
 - Pull a hiscore category and save the player names on a file.
