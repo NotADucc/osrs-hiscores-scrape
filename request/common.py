@@ -50,35 +50,53 @@ class HSLookup(Enum):
         return self.name
 
     @staticmethod
-    def from_string(s) -> dict:
+    def from_string(s: str) -> 'HSLookup':
         try:
-            return HSLookup[str(s)]
+            return HSLookup[s]
         except KeyError:
             valid_values = ', '.join(HSLookup.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
 
 
 class HSApi(Enum):
-    regular = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws'
-    pure = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws'
-    im = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws'
-    uim = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws'
-    hc = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws'
-    skiller = 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.ws'
-    regular_json = 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json'
-    pure_json = 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json'
-    im_json = 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json'
-    uim_json = 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json'
-    hc_json = 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json'
-    skiller_json = 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.json'
+    regular = {
+        'csv': 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws',
+        'json': 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json',
+    },
+    pure = {
+        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws',
+        'json': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json',
+    },
+    im = {
+        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
+        'json': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json',
+    },
+    uim = {
+        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
+        'json': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json',
+    },
+    hc = {
+        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
+        'json': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json',
+    },
+    skiller = {
+        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.ws',
+        'json': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.json',
+    }
 
     def __str__(self):
         return self.name
 
+    def csv(self) -> str:
+        return self.value['csv']
+
+    def json(self) -> str:
+        return self.value['json']
+
     @staticmethod
-    def from_string(s) -> dict:
+    def from_string(s: str) -> 'HSApi':
         try:
-            return HSApi[str(s)]
+            return HSApi[s]
         except KeyError:
             valid_values = ', '.join(HSApi.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
@@ -232,9 +250,9 @@ class HSCategoryMapper(Enum):
         return self.name
 
     @staticmethod
-    def from_string(s) -> str:
+    def from_string(s: str) -> 'HSCategoryMapper':
         try:
-            return HSCategoryMapper[str(s)]
+            return HSCategoryMapper[s]
         except KeyError:
             valid_values = ', '.join(HSCategoryMapper.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
@@ -368,9 +386,9 @@ class HSApiCsvMapper(Enum):
         return self.name
 
     @staticmethod
-    def from_string(s) -> str:
+    def from_string(s: str) -> 'HSApiCsvMapper':
         try:
-            return HSApiCsvMapper[str(s)]
+            return HSApiCsvMapper[s]
         except KeyError:
             valid_values = ', '.join(HSApiCsvMapper.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)

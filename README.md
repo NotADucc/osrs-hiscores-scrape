@@ -45,7 +45,6 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | `--in-file`   | Yes      | Path to the input file                |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--start-nr`  | No      | Key value pair index that it should start filtering at |
-| `--method`  | No      | Either use osrs api or scrape from website |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
 | `--filter`  | Yes      | Inclusive bound on what the account should have |
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
@@ -67,7 +66,6 @@ py lookup.py --name Cow31337Killer
 | ------------- | -------- | ------------------------------------------ |
 | `--name`  | Yes      | Name you want to lookup                    |
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
-| `--method`  | No      | Either use osrs api or scrape from website |
 ## Lookup.py
 ```
 py analyse_category.py --out-file output.txt --hs-type zuk

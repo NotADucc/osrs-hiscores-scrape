@@ -2,11 +2,12 @@ import argparse
 import sys
 import threading
 
+from request.extract import extract_highscore_records
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
 from request.common import HSCategoryMapper, HSLookup
-from request.request import find_max_page, get_hs_page, extract_highscore_records
+from request.request import find_max_page, get_hs_page
 from util.log import get_logger
 
 logger = get_logger()
