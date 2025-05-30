@@ -15,7 +15,7 @@ python -m pip install requests beautifulsoup4
 # Main Features
 - Pull a hiscore category and save the player names on a file.
 - Filter usernames based on skills/bossing achievements and save that resultset on a file.
-- Pull an individual his stats from OSRS hiscores.
+- Pull an individual's stats from OSRS hiscores.
 
 # Misc Features
 - Sort the output, sorting script provided since scrape_hs is 'multi threaded'/async so the kvp resultset is not chronological.
