@@ -23,7 +23,6 @@ def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: in
         retries += 1
         sleep(retries * initial_delay)
 
-
     message = f"{','.join(str(v) for v in kwargs.values())},{callback}"
 
     with file_lock:

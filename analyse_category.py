@@ -27,11 +27,11 @@ def process(page_nr: int, **args: dict) -> None:
                     f.write('%s,%s\n' % (key, value))
                     category_info['count'] += 1
                     category_info['total_score'] += value['score']
-                    if category_info['max']['score'] < value['score'] :
+                    if category_info['max']['score'] < value['score']:
                         category_info['max']['name'] = value['username']
                         category_info['max']['score'] = value['score']
 
-                    if category_info['min']['score'] > value['score'] :
+                    if category_info['min']['score'] > value['score']:
                         category_info['min']['name'] = value['username']
                         category_info['min']['score'] = value['score']
 
@@ -46,10 +46,10 @@ def main(out_file, hs_type):
     page_nrs = range(1, max_page + 1)
 
     logger.info(f'scraping {page_nrs}')
-    
+
     category_info = {
         'count': 0,
-        'total_score' : 0,
+        'total_score': 0,
         'max': {
             'name': None,
             'score': float('-inf'),
@@ -61,11 +61,13 @@ def main(out_file, hs_type):
     }
 
     temp_file = out_file.split('.')[0] + ".temp"
-    spawn_threads(process, page_nrs, hs_type=hs_type, category_info=category_info, temp_file=temp_file)
+    spawn_threads(process, page_nrs, hs_type=hs_type,
+                  category_info=category_info, temp_file=temp_file)
 
     with file_lock:
         with open(out_file, "a") as f:
             f.write('%s\n' % category_info)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

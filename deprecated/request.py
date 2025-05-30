@@ -8,6 +8,7 @@ def lookup_scrape(name: str, account_type: HSLookup) -> str:
     page = https_request(account_type.personal(), params)
     return page
 
+
 def extract_stats(page: bytes) -> dict:
     soup = BeautifulSoup(page, "html.parser")
     body = soup.find(id='contentHiscores')

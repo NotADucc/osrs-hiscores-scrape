@@ -46,6 +46,7 @@ def lookup(name: str, account_type: HSApi) -> str:
     csv = https_request(account_type.value, params)
     return csv
 
+
 def https_request(url: str, params: dict) -> str:
     headers = {
         "Access-Control-Allow-Origin": "*",

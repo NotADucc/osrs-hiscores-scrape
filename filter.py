@@ -61,7 +61,8 @@ if __name__ == '__main__':
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.in_file, args.out_file, args.start_nr, args.account_type, args.delimiter, args.filter)
+    main(args.in_file, args.out_file, args.start_nr,
+         args.account_type, args.delimiter, args.filter)
 
     logger.info("done")
     sys.exit(0)
