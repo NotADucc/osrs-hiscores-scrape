@@ -15,8 +15,8 @@ class IsRateLimited(Exception):
 
 
 class HSLookup(Enum):
-    regular = { 
-        'overall': 'https://secure.runescape.com/m=hiscore_oldschool/overall', 
+    regular = {
+        'overall': 'https://secure.runescape.com/m=hiscore_oldschool/overall',
         'personal': 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
     }
     pure = {
@@ -40,10 +40,10 @@ class HSLookup(Enum):
         'personal': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/hiscorepersonal'
     }
 
-    def overall(self) -> str :
+    def overall(self) -> str:
         return self.value['overall']
-    
-    def personal(self) -> str :
+
+    def personal(self) -> str:
         return self.value['personal']
 
     def __str__(self) -> str:
@@ -74,7 +74,7 @@ class HSApi(Enum):
 
     def __str__(self):
         return self.name
-    
+
     @staticmethod
     def from_string(s) -> dict:
         try:
@@ -82,6 +82,7 @@ class HSApi(Enum):
         except KeyError:
             valid_values = ', '.join(HSApi.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
+
 
 hs_overall_table_mapper_skills = 0
 hs_overall_table_mapper_rest = 0
