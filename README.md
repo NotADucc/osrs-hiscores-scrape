@@ -24,7 +24,7 @@ python -m pip install requests beautifulsoup4
 
 > [!Note]
 > Use apostrophes/quotes when you have an argument value that contains a space.
-> Look at filter codeblock for an example.
+> Look at [Filter Codeblock](#Filter.py) for an example.
 
 # Usage
 ## Filter.py
