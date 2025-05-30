@@ -115,9 +115,14 @@ def extract_highscore_records(page: bytes) -> dict:
     result = {}
 
     for score in scores:
-        rank = int(score.find_all('td', class_='right')
-                   [0].text.replace(',', '').strip())
+        td_right = score.find_all('td', class_='right')
+
+        rank = int(td_right[0].text.replace(',', '').strip())
         username = score.find('td', class_='left').a.text.strip()
-        result[rank] = username
+        score = int(td_right[1].text.replace(',', '').strip())
+        result[rank] = {
+            'username': username,
+            'score': score
+        }
 
     return result

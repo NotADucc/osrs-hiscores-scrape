@@ -23,7 +23,7 @@ def process(page_nr: int, **args: dict) -> None:
         with file_lock:
             with open(out_file, "a") as f:
                 for key, value in extracted_records.items():
-                    f.write('%s,%s\n' % (key, value))
+                    f.write('%s,%s\n' % (key, value['username']))
 
         logger.info(f'finished page: {page_nr}')
     except Exception as err:

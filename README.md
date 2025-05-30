@@ -16,6 +16,7 @@ python -m pip install requests beautifulsoup4
 - Pull a hiscore category and save the player names on a file.
 - Filter usernames based on skills/bossing achievements and save that resultset on a file.
 - Pull an individual's stats from OSRS hiscores.
+- Analyse a highscore category (Count, total-, max- and min scores)
 
 # Misc Features
 - Sort the output, sorting script provided since scrape_hs is 'multi threaded'/async so the kvp resultset is not chronological.
@@ -67,6 +68,14 @@ py lookup.py --name Cow31337Killer
 | `--name`  | Yes      | Name you want to lookup                    |
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
 | `--method`  | No      | Either use osrs api or scrape from website |
+## Lookup.py
+```
+py analyse_category.py --out-file output.txt --hs-type zuk
+```
+| Argument      | Required | Description                                |
+| ------------- | -------- | ------------------------------------------ |
+| `--out-file`  | Yes      | Path to the output file                    |
+| `--hs-type`  | Yes      | Hiscore category it should pull from |
 ## Sort.py
 ```
 py sort.py --in-file input.txt

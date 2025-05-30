@@ -9,21 +9,20 @@ logger = get_logger()
 file_lock = threading.Lock()
 
 
-def retry(callback: Callable[..., Any], max_retries: int = 5, initial_delay: int = 10, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any:
+def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: int = 10, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any:
     retries = 1
     while retries <= max_retries:
         try:
             return callback(**kwargs)
         except IsRateLimited as err:
             logger.error(
-                f"Rate limited, attempts reset: {kwargs}", exc_info=exc_info)
-            retries = 1
+                f"Rate limited: {kwargs}", exc_info=exc_info)
         except Exception as err:
             logger.error(
                 f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
-            retries += 1
-
+        retries += 1
         sleep(retries * initial_delay)
+
 
     message = f"{','.join(str(v) for v in kwargs.values())},{callback}"
 
