@@ -35,7 +35,7 @@ def main(out_file, account_type, hs_type, page_nr):
 
     page_nrs = range(page_nr, max_page + 1)
 
-    logger.info(f'scraping range({page_nr}-{max_page})')
+    logger.info(f'scraping {page_nrs}')
 
     spawn_threads(process, page_nrs, account_type=account_type,
                   hs_type=hs_type, out_file=out_file)

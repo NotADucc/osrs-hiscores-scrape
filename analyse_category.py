@@ -14,23 +14,25 @@ file_lock = threading.Lock()
 
 
 def process(page_nr: int, **args: dict) -> None:
-    hs_type, category_info = args["hs_type"], args["category_info"]
+    hs_type, category_info, temp_file = args["hs_type"], args["category_info"], args["temp_file"]
     try:
         page = retry(get_hs_page, account_type=HSLookup.regular,
                      hs_type=hs_type, page_nr=page_nr)
         extracted_records = extract_highscore_records(page)
 
         with file_lock:
-            for key, value in extracted_records.items():
-                category_info['count'] += 1
-                category_info['total_score'] += value['score']
-                if category_info['max']['score'] < value['score'] :
-                    category_info['max']['name'] = value['username']
-                    category_info['max']['score'] = value['score']
+            with open(temp_file, "a") as f:
+                for key, value in extracted_records.items():
+                    f.write('%s,%s\n' % (key, value))
+                    category_info['count'] += 1
+                    category_info['total_score'] += value['score']
+                    if category_info['max']['score'] < value['score'] :
+                        category_info['max']['name'] = value['username']
+                        category_info['max']['score'] = value['score']
 
-                if category_info['min']['score'] > value['score'] :
-                    category_info['min']['name'] = value['username']
-                    category_info['min']['score'] = value['score']
+                    if category_info['min']['score'] > value['score'] :
+                        category_info['min']['name'] = value['username']
+                        category_info['min']['score'] = value['score']
 
         logger.info(f'finished page: {page_nr}')
     except Exception as err:
@@ -42,8 +44,8 @@ def main(out_file, hs_type):
 
     page_nrs = range(1, max_page + 1)
 
-    logger.info(f'scraping range({1}-{max_page})')
-
+    logger.info(f'scraping {page_nrs}')
+    
     category_info = {
         'count': 0,
         'total_score' : 0,
@@ -57,7 +59,8 @@ def main(out_file, hs_type):
         },
     }
 
-    spawn_threads(process, page_nrs, hs_type=hs_type, category_info=category_info)
+    temp_file = out_file.split('.')[0] + ".temp"
+    spawn_threads(process, page_nrs, hs_type=hs_type, category_info=category_info, temp_file=temp_file)
 
     with file_lock:
         with open(out_file, "a") as f:
