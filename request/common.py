@@ -52,7 +52,7 @@ class HSLookup(Enum):
     @staticmethod
     def from_string(s) -> dict:
         try:
-            return HSLookup[s]
+            return HSLookup[str(s)]
         except KeyError:
             valid_values = ', '.join(HSLookup.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
@@ -74,7 +74,14 @@ class HSApi(Enum):
 
     def __str__(self):
         return self.name
-
+    
+    @staticmethod
+    def from_string(s) -> dict:
+        try:
+            return HSApi[str(s)]
+        except KeyError:
+            valid_values = ', '.join(HSApi.__members__.keys())
+            raise argparse.ArgumentTypeError(valid_values)
 
 hs_overall_table_mapper_skills = 0
 hs_overall_table_mapper_rest = 0
@@ -226,7 +233,7 @@ class HSCategoryMapper(Enum):
     @staticmethod
     def from_string(s) -> str:
         try:
-            return HSCategoryMapper[s]
+            return HSCategoryMapper[str(s)]
         except KeyError:
             valid_values = ', '.join(HSCategoryMapper.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
@@ -362,7 +369,7 @@ class HSApiCsvMapper(Enum):
     @staticmethod
     def from_string(s) -> str:
         try:
-            return HSApiCsvMapper[s]
+            return HSApiCsvMapper[str(s)]
         except KeyError:
             valid_values = ', '.join(HSApiCsvMapper.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
