@@ -15,15 +15,20 @@ python -m pip install requests beautifulsoup4
 # Main Features
 - Pull a hiscore category and save the player names on a file.
 - Filter usernames based on skills/bossing achievements and save that resultset on a file.
+- Pull an individual his stats from OSRS hiscores.
 
 # Misc Features
 - Sort the output, sorting script provided since scrape_hs is 'multi threaded'/async so the kvp resultset is not chronological.
 - Merge 2 outputs into one, this is for when a highscore type can't pull 100% of the data in 1 hiscore type but can in a different hiscore type.
 
+
+> [!Note]
+> Use apostrophes/quotes when you have an argument value that contains a space.
+> Look at filter codeblock for an example.
+
 # Usage
 ## Filter.py
 ```
-# NO spaces in the filter argument, unless you're using apostrophes/quotes
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter ranged:50,attack:50
 
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged:50,attack:50'
@@ -53,6 +58,15 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
 | `--page-nr`  | No      | Hiscore page number it should start at |
+## Lookup.py
+```
+py lookup.py --name Cow31337Killer
+```
+| Argument      | Required | Description                                |
+| ------------- | -------- | ------------------------------------------ |
+| `--name`  | Yes      | Name you want to lookup                    |
+| `--account-type`  | No      | Account type it should pull from (default: 'regular') |
+| `--method`  | No      | Either use osrs api or scrape from website |
 ## Sort.py
 ```
 py sort.py --in-file input.txt
