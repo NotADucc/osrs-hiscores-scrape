@@ -1,3 +1,4 @@
+from fake_useragent import UserAgent
 from request.common import HSCategoryMapper, IsRateLimited, RequestFailed, HSLookup, HSApi
 
 import requests
@@ -55,7 +56,8 @@ def https_request(url: str, params: dict) -> str:
     headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-        "Content-Type": "text/html"
+        "Content-Type": "text/html",
+        'User-Agent': UserAgent().random,
     }
 
     resp = requests.get(url, headers=headers, params=params)
