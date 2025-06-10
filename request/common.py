@@ -19,36 +19,18 @@ class NoProxyList(Exception):
         super().__init__(message)
 
 class HSLookup(Enum):
-    regular = {
-        'overall': 'http://secure.runescape.com/m=hiscore_oldschool/overall',
-        'personal': 'http://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
-    }
-    pure = {
-        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/overall',
-        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
-    }
-    im = {
-        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/overall',
-        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
-    }
-    uim = {
-        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/overall',
-        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
-    }
-    hc = {
-        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall',
-        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
-    }
-    skiller = {
-        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/overall',
-        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/hiscorepersonal'
-    }
+    regular = 'hiscore_oldschool'
+    pure = 'hiscore_oldschool_skiller_defence'
+    im = 'hiscore_oldschool_ironman'
+    uim = 'hiscore_oldschool_ultimate'
+    hc = 'hiscore_oldschool_hardcore_ironman'
+    skiller = 'hiscore_oldschool_skiller'
 
     def overall(self) -> str:
-        return self.value['overall']
+        return f'http://secure.runescape.com/m={self.value}/overall'
 
     def personal(self) -> str:
-        return self.value['personal']
+        return f'http://secure.runescape.com/m={self.value}/hiscorepersonal'
 
     def __str__(self) -> str:
         return self.name
@@ -63,36 +45,18 @@ class HSLookup(Enum):
 
 
 class HSApi(Enum):
-    regular = {
-        'csv': 'http://secure.runescape.com/m=hiscore_oldschool/index_lite.ws',
-        'json': 'http://secure.runescape.com/m=hiscore_oldschool/index_lite.json',
-    }
-    pure = {
-        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws',
-        'json': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json',
-    }
-    im = {
-        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
-        'json': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json',
-    }
-    uim = {
-        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
-        'json': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json',
-    }
-    hc = {
-        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
-        'json': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json',
-    }
-    skiller = {
-        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.ws',
-        'json': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.json',
-    }
+    regular = 'hiscore_oldschool'
+    pure = 'hiscore_oldschool_skiller_defence'
+    im = 'hiscore_oldschool_ironman'
+    uim = 'hiscore_oldschool_ultimate'
+    hc = 'hiscore_oldschool_hardcore_ironman'
+    skiller = 'hiscore_oldschool_skiller'
 
     def csv(self) -> str:
-        return self.value['csv']
+        return f'http://secure.runescape.com/m={self.value}/index_lite.ws'
 
     def json(self) -> str:
-        return self.value['json']
+        return f'http://secure.runescape.com/m={self.value}/index_lite.json'
 
     def __str__(self):
         return self.name
