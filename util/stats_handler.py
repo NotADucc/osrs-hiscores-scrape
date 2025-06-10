@@ -1,10 +1,10 @@
 from request.common import HSApiCsvMapper, HSApi
-from request.request import lookup
+from request.request import Requests
 from util.common import StatsFlag, calc_cmb
 
 
-def get_stats(name: str, account_type: HSApi, flags: StatsFlag = StatsFlag.default, **kwargs) -> dict:
-    csv = lookup(name, account_type.csv()).split('\n')
+def get_stats(requests: Requests, name: str, account_type: HSApi, flags: StatsFlag = StatsFlag.default, **kwargs) -> dict:
+    csv = requests.lookup(name, account_type.csv()).split('\n')
 
     # i want cmb on first position when printed or written
     stats = {HSApiCsvMapper.combat.name: -1}
