@@ -102,19 +102,20 @@ class Requests():
             'User-Agent': UserAgent().random,
         }
 
-        resp = requests.get(url, headers=headers, params=params, proxies=self.get_proxies())
+        proxies = self.get_proxies()
+        resp = requests.get(url, headers=headers, params=params, proxies=proxies)
 
         text = resp.text.replace('Ā', ' ').replace('\xa0', ' ')
 
         if self.is_rate_limited(text):
             raise IsRateLimited(
-                f"limited on \'{url}\'", details={"params": params})
+                f"limited on \'{url}\'", details={"params": params, "proxies": proxies})
 
         if resp.status_code == 200:
             return text
 
         raise RequestFailed(f"failed on \'{url}\'", details={
-                            "code": resp.status_code, "params": params})
+                            "code": resp.status_code, "params": params, "proxies": proxies})
 
 
     def is_rate_limited(self, page: bytes):

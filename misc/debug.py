@@ -1,6 +1,9 @@
+from collections import deque
 import sys
+
 from request.common import HSApiCsvMapper, HSCategoryMapper
 from util.log import get_logger
+
 
 logger = get_logger()
 
