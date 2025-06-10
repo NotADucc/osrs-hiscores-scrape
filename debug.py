@@ -1,5 +1,5 @@
 import sys
-from request.common import HSApiCsvMapper, HSCategoryMapper, HSLookup
+from request.common import HSApiCsvMapper, HSCategoryMapper
 from util.log import get_logger
 
 logger = get_logger()
@@ -8,7 +8,6 @@ logger = get_logger()
 def main():
     logger.debug(HSCategoryMapper.debug())
     logger.debug(HSApiCsvMapper.debug())
-
     input()
 
 
