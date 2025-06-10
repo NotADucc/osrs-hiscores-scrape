@@ -28,6 +28,7 @@ python -m pip install requests beautifulsoup4 fake-useragent
 > Look at [Filter Codeblock](#Filterpy) for an example.
 
 # Usage
+
 ## Filter.py
 ```
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter ranged:50,attack:50
@@ -44,10 +45,12 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | ------------- | -------- | ------------------------------------------ |
 | `--in-file`   | Yes      | Path to the input file                |
 | `--out-file`  | Yes      | Path to the output file                    |
+| `--proxy-file`  | No      | Path to the proxy file                    |
 | `--start-nr`  | No      | Key value pair index that it should start filtering at |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
 | `--filter`  | Yes      | Inclusive bound on what the account should have |
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
+
 ## Scrape_hs.py
 ```
 py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
@@ -55,9 +58,11 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
 | `--out-file`  | Yes      | Path to the output file                    |
+| `--proxy-file`  | No      | Path to the proxy file                    |
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
 | `--page-nr`  | No      | Hiscore page number it should start at |
+
 ## Lookup.py
 ```
 py lookup.py --name Cow31337Killer
@@ -66,14 +71,17 @@ py lookup.py --name Cow31337Killer
 | ------------- | -------- | ------------------------------------------ |
 | `--name`  | Yes      | Name you want to lookup                    |
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
-## Lookup.py
+
+## analyse_category.py
 ```
 py analyse_category.py --out-file output.txt --hs-type zuk
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
 | `--out-file`  | Yes      | Path to the output file                    |
+| `--proxy-file`  | No      | Path to the proxy file                    |
 | `--hs-type`  | Yes      | Hiscore category it should pull from |
+
 ## Sort.py
 ```
 py sort.py --in-file input.txt
@@ -82,7 +90,8 @@ py sort.py --in-file input.txt
 | ------------- | -------- | ------------------------------------------ |
 | `--in-file`   | Yes      | Path to the main file                |
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
-# Merge.py
+
+## Merge.py
 ```
 py merge.py --in-main main_file.txt --in-merge merge_file.txt --out-file output.txt
 ```
@@ -92,8 +101,7 @@ py merge.py --in-main main_file.txt --in-merge merge_file.txt --out-file output.
 | `--in-merge`  | Yes      | Path to the file to merge in               |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
-# Debug.py
-Can be ignored.
+
 
 # Logging
 A logger is used to report progress. A "done" message is logged once processing is complete.
