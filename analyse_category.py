@@ -40,8 +40,14 @@ def process(page_nr: int, **args: dict) -> None:
         print(err)
 
 
-def main(out_file, hs_type):
-    req = Requests()
+def main(out_file:str , proxy_file: str|None, hs_type: HSCategoryMapper):
+    if proxy_file is not None:
+        with open(proxy_file, "r") as f:
+            proxies = f.read().splitlines()
+    else:
+        proxies = []
+
+    req = Requests(proxies)
 
     max_page = req.find_max_page(HSLookup.regular, hs_type)
 
@@ -75,13 +81,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
+    parser.add_argument('--proxy-file', help="Path to the proxy file")
     parser.add_argument('--hs-type', required=True,
                         type=HSCategoryMapper.from_string, choices=list(HSCategoryMapper), help="Hiscore category it should pull from")
 
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.out_file, args.hs_type)
+    main(args.out_file, args.proxy_file, args.hs_type)
 
     logger.info("done")
     sys.exit(0)

@@ -31,8 +31,14 @@ def process(page_nr: int, **args: dict) -> None:
         print(err)
 
 
-def main(out_file, account_type, hs_type, page_nr):
-    req = Requests()
+def main(out_file: str, proxy_file: str | None, account_type: HSLookup, hs_type: HSCategoryMapper, page_nr: int):
+    if proxy_file is not None:
+        with open(proxy_file, "r") as f:
+            proxies = f.read().splitlines()
+    else:
+        proxies = []
+
+    req = Requests(proxies)
 
     max_page = req.find_max_page(account_type, hs_type)
 
@@ -48,6 +54,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
+    parser.add_argument('--proxy-file', help="Path to the proxy file")
     parser.add_argument('--account-type', default='regular',
                         type=HSLookup.from_string, choices=list(HSLookup), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
@@ -58,7 +65,7 @@ if __name__ == '__main__':
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.out_file, args.account_type, args.hs_type, args.page_nr)
+    main(args.out_file, args.proxy_file, args.account_type, args.hs_type, args.page_nr)
 
     logger.info("done")
     sys.exit(0)

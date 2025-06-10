@@ -17,7 +17,7 @@ def main(name: str, account_type: HSApi):
 
     req = Requests()
 
-    stats = retry(req.get_stats, name=name, account_type=account_type, flags=flags)
+    stats = retry(req.get_user_stats, name=name, account_type=account_type, flags=flags)
 
     stats = json.dumps(stats)
     json_object = json.loads(stats)
