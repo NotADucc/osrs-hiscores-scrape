@@ -2,8 +2,8 @@ import argparse
 import json
 import sys
 from request.common import HSApi
+from request.request import Requests
 from stats.common import StatsFlag
-from stats.stats import get_stats
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.log import get_logger
@@ -15,7 +15,9 @@ def main(name: str, account_type: HSApi):
     flags = StatsFlag.default.__add__(
         StatsFlag.add_misc).__add__(StatsFlag.add_skills)
 
-    stats = retry(get_stats, name=name, account_type=account_type, flags=flags)
+    req = Requests()
+
+    stats = retry(req.get_stats, name=name, account_type=account_type, flags=flags)
 
     stats = json.dumps(stats)
     json_object = json.loads(stats)

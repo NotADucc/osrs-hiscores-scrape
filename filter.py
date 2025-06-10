@@ -2,10 +2,10 @@ import argparse
 import sys
 import threading
 from request.common import HSApi, HSApiCsvMapper
+from request.request import Requests
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
-from stats.stats import get_stats
 from util.log import get_logger
 
 logger = get_logger()
@@ -14,9 +14,9 @@ file_lock = threading.Lock()
 
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
-    out_file, get_stats, account_type, filter = args["out_file"], args[
-        "get_stats"], args["account_type"], args["filter"]
-    stats = retry(get_stats, name=name, account_type=account_type, idx=idx)
+    out_file, req, account_type, filter = args["out_file"], args["req"], args["account_type"], args["filter"]
+    
+    stats = retry(req.get_stats, name=name, account_type=account_type, idx=idx)
 
     if all(stats.get(filter_stat.name, 0) <= filter_val for filter_stat, filter_val in filter.items()):
         with file_lock:
@@ -35,7 +35,9 @@ def main(in_file: str, out_file: str, start_nr: int, account_type: HSApi, delimi
             if idx >= start_nr:
                 hs_records.append((idx, name))
 
-    spawn_threads(process, hs_records, get_stats=get_stats,
+    req = Requests()
+    
+    spawn_threads(process, hs_records, req=req,
                   account_type=account_type, out_file=out_file, filter=filter)
 
 

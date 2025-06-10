@@ -55,7 +55,7 @@ class Requests():
 
 
     def get_user_stats(self, name: str, account_type: HSApi, flags: StatsFlag = StatsFlag.default, **kwargs) -> dict:
-        csv = requests.lookup(name, account_type.csv()).split('\n')
+        csv = self.lookup(name, account_type.csv()).split('\n')
 
         # i want cmb on first position when printed or written
         stats = {HSApiCsvMapper.combat.name: -1}

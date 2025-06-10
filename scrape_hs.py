@@ -7,7 +7,7 @@ from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
 from request.common import HSCategoryMapper, HSLookup
-from request.request import find_max_page, get_hs_page
+from request.request import Requests
 from util.log import get_logger
 
 logger = get_logger()
@@ -15,9 +15,9 @@ file_lock = threading.Lock()
 
 
 def process(page_nr: int, **args: dict) -> None:
-    account_type, hs_type, out_file = args["account_type"], args["hs_type"], args["out_file"]
+    account_type, hs_type, out_file, req = args["account_type"], args["hs_type"], args["out_file"], args["request"]
     try:
-        page = retry(get_hs_page, account_type=account_type,
+        page = retry(req.get_hs_page, account_type=account_type,
                      hs_type=hs_type, page_nr=page_nr)
         extracted_records = extract_highscore_records(page)
 
@@ -32,14 +32,16 @@ def process(page_nr: int, **args: dict) -> None:
 
 
 def main(out_file, account_type, hs_type, page_nr):
-    max_page = find_max_page(account_type, hs_type)
+    req = Requests()
+
+    max_page = req.find_max_page(account_type, hs_type)
 
     page_nrs = range(page_nr, max_page + 1)
 
     logger.info(f'scraping {page_nrs}')
 
     spawn_threads(process, page_nrs, account_type=account_type,
-                  hs_type=hs_type, out_file=out_file)
+                  hs_type=hs_type, out_file=out_file, request=req)
 
 
 if __name__ == '__main__':
