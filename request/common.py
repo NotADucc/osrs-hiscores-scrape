@@ -66,30 +66,27 @@ class HSApi(Enum):
     regular = {
         'csv': 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws',
         'json': 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json',
-    },
+    }
     pure = {
         'csv': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws',
         'json': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json',
-    },
+    }
     im = {
         'csv': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
         'json': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json',
-    },
+    }
     uim = {
         'csv': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
         'json': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json',
-    },
+    }
     hc = {
         'csv': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
         'json': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json',
-    },
+    }
     skiller = {
         'csv': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.ws',
         'json': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.json',
     }
-
-    def __str__(self):
-        return self.name
 
     def csv(self) -> str:
         return self.value['csv']
@@ -97,6 +94,9 @@ class HSApi(Enum):
     def json(self) -> str:
         return self.value['json']
 
+    def __str__(self):
+        return self.name
+    
     @staticmethod
     def from_string(s: str) -> 'HSApi':
         try:
