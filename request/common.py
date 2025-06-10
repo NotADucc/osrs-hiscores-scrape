@@ -13,10 +13,12 @@ class IsRateLimited(Exception):
         self.details = details
         super().__init__(message)
 
+
 class NoProxyList(Exception):
     def __init__(self, message, details=None):
         self.details = details
         super().__init__(message)
+
 
 class HSLookup(Enum):
     regular = 'hiscore_oldschool'
@@ -60,7 +62,7 @@ class HSApi(Enum):
 
     def __str__(self):
         return self.name
-    
+
     @staticmethod
     def from_string(s: str) -> 'HSApi':
         try:

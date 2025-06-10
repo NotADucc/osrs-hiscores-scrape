@@ -15,7 +15,8 @@ file_lock = threading.Lock()
 
 
 def process(page_nr: int, **args: dict) -> None:
-    hs_type, category_info, temp_file, req = args["hs_type"], args["category_info"], args["temp_file"], args["req"]
+    hs_type, category_info, temp_file, req = args["hs_type"], args[
+        "category_info"], args["temp_file"], args["req"]
     try:
         page = retry(req.get_hs_page, account_type=HSLookup.regular,
                      hs_type=hs_type, page_nr=page_nr)
@@ -40,7 +41,7 @@ def process(page_nr: int, **args: dict) -> None:
         print(err)
 
 
-def main(out_file:str , proxy_file: str|None, hs_type: HSCategoryMapper):
+def main(out_file: str, proxy_file: str | None, hs_type: HSCategoryMapper):
     if proxy_file is not None:
         with open(proxy_file, "r") as f:
             proxies = f.read().splitlines()

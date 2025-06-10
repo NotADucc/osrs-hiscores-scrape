@@ -15,7 +15,8 @@ file_lock = threading.Lock()
 
 
 def process(page_nr: int, **args: dict) -> None:
-    account_type, hs_type, out_file, req = args["account_type"], args["hs_type"], args["out_file"], args["request"]
+    account_type, hs_type, out_file, req = args["account_type"], args[
+        "hs_type"], args["out_file"], args["request"]
     try:
         page = retry(req.get_hs_page, account_type=account_type,
                      hs_type=hs_type, page_nr=page_nr)
@@ -65,7 +66,8 @@ if __name__ == '__main__':
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.out_file, args.proxy_file, args.account_type, args.hs_type, args.page_nr)
+    main(args.out_file, args.proxy_file,
+         args.account_type, args.hs_type, args.page_nr)
 
     logger.info("done")
     sys.exit(0)

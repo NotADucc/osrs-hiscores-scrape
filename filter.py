@@ -15,8 +15,9 @@ file_lock = threading.Lock()
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
     out_file, req, account_type, filter = args["out_file"], args["req"], args["account_type"], args["filter"]
-    
-    stats = retry(req.get_user_stats, name=name, account_type=account_type, idx=idx)
+
+    stats = retry(req.get_user_stats, name=name,
+                  account_type=account_type, idx=idx)
 
     if all(stats.get(filter_stat.name, 0) <= filter_val for filter_stat, filter_val in filter.items()):
         with file_lock:
@@ -26,7 +27,7 @@ def process(hs_record: tuple, **args: dict) -> None:
     logger.info(f'finished nr: {idx} - {name}')
 
 
-def main(in_file: str, out_file: str, proxy_file:str|None, start_nr: int, account_type: HSApi, delimiter: str, filter: dict):
+def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, account_type: HSApi, delimiter: str, filter: dict):
     hs_records = []
     with open(in_file, "r") as f:
         for line in f:
@@ -40,9 +41,9 @@ def main(in_file: str, out_file: str, proxy_file:str|None, start_nr: int, accoun
             proxies = f.read().splitlines()
     else:
         proxies = []
-    
+
     req = Requests(proxies)
-    
+
     spawn_threads(process, hs_records, req=req,
                   account_type=account_type, out_file=out_file, filter=filter)
 

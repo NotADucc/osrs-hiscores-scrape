@@ -12,6 +12,7 @@ from util.retry_handler import retry
 logger = get_logger()
 proxy_lock = threading.Lock()
 
+
 class Requests():
     def __init__(self, proxy_list:  list | None = None):
         self.proxy_list = proxy_list
@@ -20,7 +21,7 @@ class Requests():
     def get_proxies(self) -> dict | None:
         if not self.proxy_list or len(self.proxy_list) == 0:
             return None
-        
+
         with proxy_lock:
             proxy = self.proxy_list[self.proxy_idx]
             self.proxy_idx = (self.proxy_idx + 1) % len(self.proxy_list)
@@ -42,7 +43,7 @@ class Requests():
         while l <= r:
             middle = (l + r) >> 1
             first_idx = retry(give_first_idx, account_type=account_type,
-                            hs_type=hs_type, middle=middle)
+                              hs_type=hs_type, middle=middle)
             expected_idx = (middle - 1) * page_size + 1
 
             if first_idx == expected_idx:
@@ -52,7 +53,6 @@ class Requests():
                 r = middle - 1
             logger.info(f'page range: ({l}-{r})')
         return res
-
 
     def get_user_stats(self, name: str, account_type: HSApi, flags: StatsFlag = StatsFlag.default, **kwargs) -> dict:
         csv = self.lookup(name, account_type.csv()).split('\n')
@@ -75,24 +75,21 @@ class Requests():
 
             stats[mapper_val.name] = val
         cmb_level = calc_cmb(stats[HSApiCsvMapper.attack.name], stats[HSApiCsvMapper.defence.name],
-                            stats[HSApiCsvMapper.strength.name], stats[HSApiCsvMapper.hitpoints.name], stats[HSApiCsvMapper.ranged.name], stats[HSApiCsvMapper.prayer.name], stats[HSApiCsvMapper.magic.name])
+                             stats[HSApiCsvMapper.strength.name], stats[HSApiCsvMapper.hitpoints.name], stats[HSApiCsvMapper.ranged.name], stats[HSApiCsvMapper.prayer.name], stats[HSApiCsvMapper.magic.name])
         stats[HSApiCsvMapper.combat.name] = cmb_level
 
         return stats
 
-
     def get_hs_page(self, account_type: HSLookup, hs_type: HSCategoryMapper, page_nr: int = 1) -> bytes:
         params = {'category_type': hs_type.get_category(),
-                'table': hs_type.value, 'page': page_nr, }
+                  'table': hs_type.value, 'page': page_nr, }
         page = self.https_request(account_type.overall(), params)
         return page
-
 
     def lookup(self, name: str, url: str) -> str:
         params = {'player': name}
         res = self.https_request(url, params)
         return res
-
 
     def https_request(self, url: str, params: dict) -> str:
         headers = {
@@ -103,7 +100,8 @@ class Requests():
         }
 
         proxies = self.get_proxies()
-        resp = requests.get(url, headers=headers, params=params, proxies=proxies)
+        resp = requests.get(url, headers=headers,
+                            params=params, proxies=proxies)
 
         text = resp.text.replace('Ā', ' ').replace('\xa0', ' ')
 
@@ -116,7 +114,6 @@ class Requests():
 
         raise RequestFailed(f"failed on \'{url}\'", details={
                             "code": resp.status_code, "params": params, "proxies": proxies})
-
 
     def is_rate_limited(self, page: bytes):
         return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
