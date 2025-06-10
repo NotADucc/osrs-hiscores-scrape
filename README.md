@@ -7,9 +7,9 @@
   - requests
 
 ```
-pip install requests beautifulsoup4 fake-useragent
+pip install requests beautifulsoup4 fake-useragent 'requests[socks]'
 # or
-python -m pip install requests beautifulsoup4 fake-useragent
+python -m pip install requests beautifulsoup4 fake-useragent 'requests[socks]'
 ```
 
 # Main Features
