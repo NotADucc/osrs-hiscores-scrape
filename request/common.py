@@ -20,28 +20,28 @@ class NoProxyList(Exception):
 
 class HSLookup(Enum):
     regular = {
-        'overall': 'https://secure.runescape.com/m=hiscore_oldschool/overall',
-        'personal': 'https://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
+        'overall': 'http://secure.runescape.com/m=hiscore_oldschool/overall',
+        'personal': 'http://secure.runescape.com/m=hiscore_oldschool/hiscorepersonal'
     }
     pure = {
-        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/overall',
-        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
+        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/overall',
+        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/hiscorepersonal'
     }
     im = {
-        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/overall',
-        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
+        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/overall',
+        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/hiscorepersonal'
     }
     uim = {
-        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/overall',
-        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
+        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/overall',
+        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/hiscorepersonal'
     }
     hc = {
-        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall',
-        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
+        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall',
+        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/hiscorepersonal'
     }
     skiller = {
-        'overall': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/overall',
-        'personal': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/hiscorepersonal'
+        'overall': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/overall',
+        'personal': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/hiscorepersonal'
     }
 
     def overall(self) -> str:
@@ -64,28 +64,28 @@ class HSLookup(Enum):
 
 class HSApi(Enum):
     regular = {
-        'csv': 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws',
-        'json': 'https://secure.runescape.com/m=hiscore_oldschool/index_lite.json',
+        'csv': 'http://secure.runescape.com/m=hiscore_oldschool/index_lite.ws',
+        'json': 'http://secure.runescape.com/m=hiscore_oldschool/index_lite.json',
     }
     pure = {
-        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws',
-        'json': 'https://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json',
+        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.ws',
+        'json': 'http://secure.runescape.com/m=hiscore_oldschool_skiller_defence/index_lite.json',
     }
     im = {
-        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
-        'json': 'https://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json',
+        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws',
+        'json': 'http://secure.runescape.com/m=hiscore_oldschool_ironman/index_lite.json',
     }
     uim = {
-        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
-        'json': 'https://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json',
+        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws',
+        'json': 'http://secure.runescape.com/m=hiscore_oldschool_ultimate/index_lite.json',
     }
     hc = {
-        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
-        'json': 'https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json',
+        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws',
+        'json': 'http://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.json',
     }
     skiller = {
-        'csv': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.ws',
-        'json': 'https://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.json',
+        'csv': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.ws',
+        'json': 'http://secure.runescape.com/m=hiscore_oldschool_skiller/index_lite.json',
     }
 
     def csv(self) -> str:
