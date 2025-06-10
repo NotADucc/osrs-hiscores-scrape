@@ -2,7 +2,7 @@ import ast
 import sys
 import argparse
 
-from util.common import calc_cmb
+from stats.common import calc_cmb
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.log import get_logger
 

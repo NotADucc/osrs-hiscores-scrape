@@ -5,7 +5,7 @@ from request.common import HSApi, HSApiCsvMapper
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
-from util.stats_handler import get_stats
+from stats.stats import get_stats
 from util.log import get_logger
 
 logger = get_logger()
