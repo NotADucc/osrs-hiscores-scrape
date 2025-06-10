@@ -1,6 +1,7 @@
 from fake_useragent import UserAgent
 from request.common import HSCategoryMapper, IsRateLimited, RequestFailed, HSLookup, HSApi
 
+import threading
 import requests
 from bs4 import BeautifulSoup
 from request.extract import extract_highscore_records
@@ -8,11 +9,25 @@ from util.log import get_logger
 from util.retry_handler import retry
 
 logger = get_logger()
+proxy_lock = threading.Lock()
 
 class Requests():
-    def __init__(self, proxy_list = None):
+    def __init__(self, proxy_list:  list | None = None):
         self.proxy_list = proxy_list
         self.proxy_idx = 0
+
+    def get_proxies(self) -> str:
+        if not self.proxy_list or len(self.proxy_list) == 0:
+            return None
+        
+        with proxy_lock:
+            proxy = self.proxy_list[self.proxy_idx]
+            self.proxy_idx = (self.proxy_idx + 1) % len(self.proxy_list)
+
+        return {
+            "http": proxy,
+            "https": proxy,
+        }
 
     def find_max_page(self, account_type: HSLookup, hs_type: HSCategoryMapper) -> int:
         # max on hs is currently 80_000 pages
@@ -34,7 +49,7 @@ class Requests():
                 l = middle + 1
             else:
                 r = middle - 1
-            logger.info(f'looking for max page size: ({l}-{r})')
+            logger.info(f'page range: ({l}-{r})')
         return res
 
 
@@ -59,7 +74,7 @@ class Requests():
             'User-Agent': UserAgent().random,
         }
 
-        resp = requests.get(url, headers=headers, params=params)
+        resp = requests.get(url, headers=headers, params=params, proxies=self.get_proxies())
 
         text = resp.text.replace('Ā', ' ').replace('\xa0', ' ')
 

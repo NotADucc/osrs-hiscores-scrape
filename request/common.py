@@ -13,6 +13,10 @@ class IsRateLimited(Exception):
         self.details = details
         super().__init__(message)
 
+class NoProxyList(Exception):
+    def __init__(self, message, details=None):
+        self.details = details
+        super().__init__(message)
 
 class HSLookup(Enum):
     regular = {
