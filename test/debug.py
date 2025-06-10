@@ -6,7 +6,6 @@ logger = get_logger()
 
 
 def main():
-    logger.debug(HSLookup.debug())
     logger.debug(HSCategoryMapper.debug())
     logger.debug(HSApiCsvMapper.debug())
 
