@@ -17,7 +17,7 @@ class Requests():
         self.proxy_list = proxy_list
         self.proxy_idx = 0
 
-    def get_proxies(self) -> str:
+    def get_proxies(self) -> dict | None:
         if not self.proxy_list or len(self.proxy_list) == 0:
             return None
         
@@ -62,7 +62,6 @@ class Requests():
 
         add_skills = flags.__contains__(StatsFlag.add_skills)
         add_misc = flags.__contains__(StatsFlag.add_misc)
-
         for mapper_val in HSApiCsvMapper:
             if mapper_val.value == -1:
                 continue
@@ -89,10 +88,10 @@ class Requests():
         return page
 
 
-    def lookup(self, name: str, account_type: HSApi) -> str:
+    def lookup(self, name: str, url: str) -> str:
         params = {'player': name}
-        csv = self.https_request(account_type.value, params)
-        return csv
+        res = self.https_request(url, params)
+        return res
 
 
     def https_request(self, url: str, params: dict) -> str:
@@ -118,5 +117,5 @@ class Requests():
                             "code": resp.status_code, "params": params})
 
 
-    def is_rate_limited(page: bytes):
+    def is_rate_limited(self, page: bytes):
         return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
