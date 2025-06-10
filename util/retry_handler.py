@@ -15,8 +15,7 @@ def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: in
         try:
             return callback(**kwargs)
         except IsRateLimited as err:
-            logger.error(
-                f"Rate limited: {kwargs}", exc_info=exc_info)
+            logger.error(f"{err} | {err.details}", exc_info=exc_info)
         except Exception as err:
             logger.error(
                 f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
