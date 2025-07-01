@@ -8,7 +8,7 @@
   - requests
   - requests[socks]
 
-```
+```console
 pip install -r requirements.txt
 # or
 python -m pip install -r requirements.txt
@@ -32,7 +32,7 @@ python -m pip install -r requirements.txt
 # Usage
 
 ## Filter.py
-```
+```console
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter ranged:50,attack:50
 
 py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged:50,attack:50'
@@ -54,7 +54,7 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
 
 ## Scrape_hs.py
-```
+```console
 py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 ```
 | Argument      | Required | Description                                |
@@ -66,7 +66,7 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | `--page-nr`  | No      | Hiscore page number it should start at |
 
 ## Lookup.py
-```
+```console
 py lookup.py --name Cow31337Killer
 ```
 | Argument      | Required | Description                                |
@@ -75,7 +75,7 @@ py lookup.py --name Cow31337Killer
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
 
 ## analyse_category.py
-```
+```console
 py analyse_category.py --out-file output.txt --hs-type zuk
 ```
 | Argument      | Required | Description                                |
@@ -85,7 +85,7 @@ py analyse_category.py --out-file output.txt --hs-type zuk
 | `--hs-type`  | Yes      | Hiscore category it should pull from |
 
 ## Sort.py
-```
+```console
 py sort.py --in-file input.txt
 ```
 | Argument      | Required | Description                                |
@@ -94,7 +94,7 @@ py sort.py --in-file input.txt
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
 
 ## Merge.py
-```
+```console
 py merge.py --in-main main_file.txt --in-merge merge_file.txt --out-file output.txt
 ```
 | Argument      | Required | Description                                |
