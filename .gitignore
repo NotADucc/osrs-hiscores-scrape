@@ -2,3 +2,6 @@ __pycache__
 **.txt
 **.err
 **.temp
+
+# whitelist
+!requirements.txt

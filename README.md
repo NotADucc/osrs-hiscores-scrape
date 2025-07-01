@@ -4,12 +4,14 @@
 - Python 3.x [Download here](https://www.python.org/downloads/)
 - Packages (possible I forgot some)
   - beautifulsoup4
+  - fake-useragent
   - requests
+  - requests[socks]
 
 ```
-pip install requests beautifulsoup4 fake-useragent 'requests[socks]'
+pip install -r requirements.txt
 # or
-python -m pip install requests beautifulsoup4 fake-useragent 'requests[socks]'
+python -m pip install -r requirements.txt
 ```
 
 # Main Features
