@@ -38,7 +38,7 @@ class Requests():
         def give_first_idx(account_type, hs_type, middle):
             page = self.get_hs_page(account_type, hs_type, middle)
             extracted_records = extract_highscore_records(page)
-            return -1 if not extracted_records else list(extracted_records.keys())[0]
+            return -1 if not extracted_records else extracted_records[0].rank
 
         while l <= r:
             middle = (l + r) >> 1

@@ -32,7 +32,7 @@ def process(proxy: str, **args: dict) -> None:
         if res.status_code == 200:
             with file_lock:
                 with open(out_file, "a") as f:
-                    f.write('%s\n' % proxy_url)
+                    f.write(f'{proxy_url}\n')
             logger.info(f'{json.loads(res.text)["ip"]}')
         else:
             logger.error(f'failed {proxy_url} | {res.status_code}')

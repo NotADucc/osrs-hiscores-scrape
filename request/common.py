@@ -461,33 +461,59 @@ class PlayerRecord:
         }
         return json.dumps(data, separators=(',', ':'))
     
+class CategoryRecord:
+    def __init__(self, rank: int, score: int, username: str):
+        self.rank = rank
+        self.score = score
+        self.username = username
 
+    def to_dict(self) -> dict:
+        return {
+            "rank": self.rank,
+            "score": self.score,
+            "username": self.username
+        }
 
+    def __lt__(self, other: 'CategoryRecord') -> bool:
+        return self.rank > other.rank
+
+    def __eq__(self, other) -> bool:
+        if other is None:
+            return False
+        return not self < other and not other < self
+
+    def __ne__(self, other) -> bool:
+        return not self == other
+
+    def __gt__(self, other) -> bool:
+        return other < self
+
+    def __ge__(self, other) -> bool:
+        return not self < other
+
+    def __le__(self, other) -> bool:
+        return not other < self
+
+    def __str__(self) -> str:
+        return json.dumps(self.to_dict(), separators=(',', ':'))
+    
 class CategoryInfo:
     def __init__(self, name: str, ts: datetime):
         self.name = name
         self.ts = ts
         self.count = 0
         self.total_score = 0
-        self.max = {
-            'username': None,
-            'score': float('-inf'),
-        }
-        self.min = {
-            'username': None,
-            'score': float('inf'),
-        }
+        self.max = None
+        self.min = None
 
-    def add(self, username: str, score: int) -> None:
+    def add(self, record: CategoryRecord) -> None:
         self.count += 1
-        self.total_score += score
-        if self.max['score'] < score:
-            self.max['username'] = username
-            self.max['score'] = score
+        self.total_score += record.score
+        if not self.max or self.max < record:
+            self.max = record
 
-        if self.min['score'] > score:
-            self.min['username'] = username
-            self.min['score'] = score
+        if not self.min or self.min > record:
+            self.min = record
 
     def __str__(self) -> str:
         data = {
@@ -495,7 +521,7 @@ class CategoryInfo:
             "timestamp": self.ts.isoformat(),
             "count": self.count,
             "total_score": self.total_score,
-            "max": self.max,
-            "min": self.min,
+            "max": self.max.to_dict() if self.max else None,
+            "min": self.min.to_dict() if self.min else None,
         }
         return json.dumps(data, separators=(',', ':'))

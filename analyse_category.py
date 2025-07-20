@@ -25,9 +25,9 @@ def process(page_nr: int, **args: dict) -> None:
 
         with file_lock:
             with open(temp_file, "a") as f:
-                for key, value in extracted_records.items():
-                    f.write('%s,%s\n' % (key, value))
-                    category_info.add(username=value['username'],score=value['score'])
+                for record in extracted_records:
+                    f.write(f'{record}\n')
+                    category_info.add(record=record)
 
         logger.info(f'finished page: {page_nr}')
     except Exception as err:
@@ -57,7 +57,7 @@ def main(out_file: str, proxy_file: str | None, hs_type: HSCategoryMapper):
 
     with file_lock:
         with open(out_file, "a") as f:
-            f.write('%s\n' % category_info)
+            f.write(f'{category_info}\n')
 
 
 if __name__ == '__main__':
