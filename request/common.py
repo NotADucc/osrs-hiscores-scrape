@@ -475,7 +475,7 @@ class CategoryRecord:
         }
 
     def __lt__(self, other: 'CategoryRecord') -> bool:
-        return self.rank > other.rank
+        return self.rank < other.rank
 
     def __eq__(self, other) -> bool:
         if other is None:

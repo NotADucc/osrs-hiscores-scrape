@@ -50,7 +50,6 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | `--start-nr`  | No      | Key value pair index that it should start filtering at |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
 | `--filter`  | Yes      | Inclusive bound on what the account should have |
-| `--delimiter` | No       | Delimiter used in the files (default: `,`) |
 
 ## Scrape_hs.py
 ```console
@@ -91,7 +90,6 @@ py sort.py --in-file input.txt
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
 | `--in-file`   | Yes      | Path to the main file                |
-| `--delimiter` | No       | Delimiter used in the files (default: `,`) |
 
 
 # Logging

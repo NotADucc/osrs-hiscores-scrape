@@ -1,7 +1,8 @@
 import argparse
+import json
 import sys
 import threading
-from request.common import HSApi, HSApiCsvMapper
+from request.common import CategoryRecord, HSApi, HSApiCsvMapper
 from request.request import Requests
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
@@ -12,29 +13,29 @@ logger = get_logger()
 file_lock = threading.Lock()
 
 
-def process(hs_record: tuple, **args: dict) -> None:
-    idx, name = hs_record
+def process(hs_record: CategoryRecord, **args: dict) -> None:
+    rank, username = hs_record.rank, hs_record.username
     out_file, req, account_type, filter = args["out_file"], args["req"], args["account_type"], args["filter"]
 
-    player_record = retry(req.get_user_stats, name=name,
-                  account_type=account_type, idx=idx)
+    player_record = retry(req.get_user_stats, name=username,
+                  account_type=account_type, idx=rank)
 
     if player_record.lacks_requirements(filter):
         with file_lock:
             with open(out_file, "a") as f:
-                f.write('{%s,%s}\n' % (idx, player_record))
+                f.write(f'{{{rank},{player_record}}}\n')
 
-    logger.info(f'finished nr: {idx} - {name}')
+    logger.info(f'finished nr: {rank} - {username}')
 
 
-def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, account_type: HSApi, delimiter: str, filter: dict[HSApiCsvMapper, int]):
+def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, account_type: HSApi, filter: dict[HSApiCsvMapper, int]):
     hs_records = []
     with open(in_file, "r") as f:
         for line in f:
-            idx, name = line.strip().split(delimiter)[:2]
-            idx = int(idx)
-            if idx >= start_nr:
-                hs_records.append((idx, name))
+            data = json.loads(line)
+            record = CategoryRecord(**data)
+            if record.rank >= start_nr:
+                hs_records.append(record)
 
     if proxy_file is not None:
         with open(proxy_file, "r") as f:
@@ -65,14 +66,12 @@ if __name__ == '__main__':
                         type=HSApi.from_string, choices=list(HSApi), help="Account type it should look at (default: 'regular')")
     parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
                         help="Inclusive bound on what the account should have")
-    parser.add_argument('--delimiter', default=',',
-                        help="Delimiter used in the files (default: ,)")
 
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
     main(args.in_file, args.out_file, args.proxy_file, args.start_nr,
-         args.account_type, args.delimiter, args.filter)
+         args.account_type, args.filter)
 
     logger.info("done")
     sys.exit(0)
