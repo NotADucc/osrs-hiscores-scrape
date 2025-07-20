@@ -1,12 +1,11 @@
 import datetime
 from fake_useragent import UserAgent
-from request.common import HSApiCsvMapper, HSCategoryMapper, IsRateLimited, PlayerRecord, RequestFailed, HSLookup, HSApi
+from request.common import HSCategoryMapper, IsRateLimited, PlayerRecord, RequestFailed, HSLookup, HSApi
 
 import threading
 import requests
 from bs4 import BeautifulSoup
 from request.extract import extract_highscore_records
-from stats.common import calc_cmb
 from util.log import get_logger
 from util.retry_handler import retry
 
