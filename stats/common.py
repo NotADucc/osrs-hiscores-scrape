@@ -10,17 +10,3 @@ def calc_cmb(att: int, de: int, st: int, hp: int, ra: int, pr: int, ma: int) -> 
     mx = mx if mx > mage else mage
     return base + mx
 
-
-class StatsFlag(Flag):
-    default = 0
-    skills = 1 << 0
-    misc = 1 << 1
-
-    def __str__(self):
-        return self.name
-
-    def __add__(self, item):
-        return self | item
-
-    def __contains__(self, item):
-        return (self.value & item.value) == item.value
