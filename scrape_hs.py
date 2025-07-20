@@ -32,7 +32,7 @@ def process(page_nr: int, **args: dict) -> None:
         print(err)
 
 
-def main(out_file: str, proxy_file: str | None, account_type: HSLookup, hs_type: HSCategoryMapper, page_nr: int):
+def main(out_file: str, proxy_file: str | None, account_type: HSLookup, hs_type: HSCategoryMapper, start_page_nr: int, end_page_nr: int):
     if proxy_file is not None:
         with open(proxy_file, "r") as f:
             proxies = f.read().splitlines()
@@ -42,8 +42,9 @@ def main(out_file: str, proxy_file: str | None, account_type: HSLookup, hs_type:
     req = Requests(proxies)
 
     max_page = req.find_max_page(account_type, hs_type)
+    max_page = max_page if end_page_nr <= 0 else end_page_nr if end_page_nr < max_page else max_page
 
-    page_nrs = range(page_nr, max_page + 1)
+    page_nrs = range(start_page_nr, max_page + 1)
 
     logger.info(f'scraping {page_nrs}')
 
@@ -60,14 +61,16 @@ if __name__ == '__main__':
                         type=HSLookup.from_string, choices=list(HSLookup), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
                         type=HSCategoryMapper.from_string, choices=list(HSCategoryMapper), help="Hiscore category it should pull from (default: 'overall')")
-    parser.add_argument('--page-nr', default=1, type=int,
+    parser.add_argument('--start-page-nr', default=1, type=int,
                         help="Hiscore page number it should start at")
-
+    parser.add_argument('--end-page-nr', default=-1, type=int,
+                        help="Hiscore page number it should end at")
+    
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
     main(args.out_file, args.proxy_file,
-         args.account_type, args.hs_type, args.page_nr)
+         args.account_type, args.hs_type, args.start_page_nr, args.end_page_nr)
 
     logger.info("done")
     sys.exit(0)

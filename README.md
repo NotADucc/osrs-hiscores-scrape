@@ -63,7 +63,8 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
-| `--page-nr`  | No      | Hiscore page number it should start at |
+| `--start-page-nr`  | No      | Hiscore page number it should start at (default: 1) |
+| `--end-page-nr`  | No      | Hiscore page number it should end at (default: end of category) |
 
 ## Lookup.py
 ```console
