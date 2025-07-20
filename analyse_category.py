@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import sys
 import threading
 
@@ -7,18 +8,18 @@ from request.request import Requests
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
-from request.common import HSCategoryMapper, HSLookup
+from request.common import CategoryInfo, HSCategoryMapper, HSLookup
 from util.log import get_logger
 
 logger = get_logger()
 file_lock = threading.Lock()
-
+account_type = HSLookup.regular
 
 def process(page_nr: int, **args: dict) -> None:
     hs_type, category_info, temp_file, req = args["hs_type"], args[
         "category_info"], args["temp_file"], args["req"]
     try:
-        page = retry(req.get_hs_page, account_type=HSLookup.regular,
+        page = retry(req.get_hs_page, account_type=account_type,
                      hs_type=hs_type, page_nr=page_nr)
         extracted_records = extract_highscore_records(page)
 
@@ -26,15 +27,7 @@ def process(page_nr: int, **args: dict) -> None:
             with open(temp_file, "a") as f:
                 for key, value in extracted_records.items():
                     f.write('%s,%s\n' % (key, value))
-                    category_info['count'] += 1
-                    category_info['total_score'] += value['score']
-                    if category_info['max']['score'] < value['score']:
-                        category_info['max']['name'] = value['username']
-                        category_info['max']['score'] = value['score']
-
-                    if category_info['min']['score'] > value['score']:
-                        category_info['min']['name'] = value['username']
-                        category_info['min']['score'] = value['score']
+                    category_info.add(username=value['username'],score=value['score'])
 
         logger.info(f'finished page: {page_nr}')
     except Exception as err:
@@ -50,24 +43,13 @@ def main(out_file: str, proxy_file: str | None, hs_type: HSCategoryMapper):
 
     req = Requests(proxies)
 
-    max_page = req.find_max_page(HSLookup.regular, hs_type)
+    max_page = req.find_max_page(account_type, hs_type)
 
     page_nrs = range(1, max_page + 1)
 
     logger.info(f'scraping {page_nrs}')
 
-    category_info = {
-        'count': 0,
-        'total_score': 0,
-        'max': {
-            'name': None,
-            'score': float('-inf'),
-        },
-        'min': {
-            'name': None,
-            'score': float('inf'),
-        },
-    }
+    category_info = CategoryInfo(name=hs_type.name,ts=datetime.datetime.now(datetime.timezone.utc))
 
     temp_file = out_file.split('.')[0] + ".temp"
     spawn_threads(process, page_nrs, hs_type=hs_type,

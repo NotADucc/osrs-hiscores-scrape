@@ -460,3 +460,42 @@ class PlayerRecord:
             "misc": self.misc,
         }
         return json.dumps(data, separators=(',', ':'))
+    
+
+
+class CategoryInfo:
+    def __init__(self, name: str, ts: datetime):
+        self.name = name
+        self.ts = ts
+        self.count = 0
+        self.total_score = 0
+        self.max = {
+            'username': None,
+            'score': float('-inf'),
+        }
+        self.min = {
+            'username': None,
+            'score': float('inf'),
+        }
+
+    def add(self, username: str, score: int) -> None:
+        self.count += 1
+        self.total_score += score
+        if self.max['score'] < score:
+            self.max['username'] = username
+            self.max['score'] = score
+
+        if self.min['score'] > score:
+            self.min['username'] = username
+            self.min['score'] = score
+
+    def __str__(self) -> str:
+        data = {
+            "name": self.name,
+            "timestamp": self.ts.isoformat(),
+            "count": self.count,
+            "total_score": self.total_score,
+            "max": self.max,
+            "min": self.min,
+        }
+        return json.dumps(data, separators=(',', ':'))
