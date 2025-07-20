@@ -23,7 +23,7 @@ def process(hs_record: tuple, **args: dict) -> None:
     if player_record.lacks_requirements(filter):
         with file_lock:
             with open(out_file, "a") as f:
-                f.write('%s,%s\n' % (idx, player_record))
+                f.write('{%s,%s}\n' % (idx, player_record))
 
     logger.info(f'finished nr: {idx} - {name}')
 
