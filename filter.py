@@ -3,6 +3,7 @@ import sys
 import threading
 from request.common import HSApi, HSApiCsvMapper
 from request.request import Requests
+from stats.common import StatsFlag
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
 from util.threading_handler import spawn_threads
@@ -14,10 +15,10 @@ file_lock = threading.Lock()
 
 def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
-    out_file, req, account_type, filter = args["out_file"], args["req"], args["account_type"], args["filter"]
+    out_file, req, account_type, filter, flags = args["out_file"], args["req"], args["account_type"], args["filter"], args["flags"]
 
     stats = retry(req.get_user_stats, name=name,
-                  account_type=account_type, idx=idx)
+                  account_type=account_type, idx=idx, flags=flags)
 
     if all(stats.get(filter_stat.name, 0) <= filter_val for filter_stat, filter_val in filter.items()):
         with file_lock:
@@ -42,10 +43,17 @@ def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, acc
     else:
         proxies = []
 
+    flags = StatsFlag.default
+    for k, _ in filter.items():
+        if k.is_skill():
+            flags = flags.__add__(StatsFlag.skills)
+        if k.is_misc():
+            flags = flags.__add__(StatsFlag.misc)
+
     req = Requests(proxies)
 
     spawn_threads(process, hs_records, req=req,
-                  account_type=account_type, out_file=out_file, filter=filter)
+                  account_type=account_type, out_file=out_file, filter=filter, flags=flags)
 
 
 if __name__ == '__main__':

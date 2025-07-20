@@ -13,8 +13,8 @@ def calc_cmb(att: int, de: int, st: int, hp: int, ra: int, pr: int, ma: int) -> 
 
 class StatsFlag(Flag):
     default = 0
-    add_skills = 1 << 0
-    add_misc = 1 << 1
+    skills = 1 << 0
+    misc = 1 << 1
 
     def __str__(self):
         return self.name

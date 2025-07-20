@@ -60,8 +60,8 @@ class Requests():
         # i want cmb on first position when printed or written
         stats = {HSApiCsvMapper.combat.name: -1}
 
-        add_skills = flags.__contains__(StatsFlag.add_skills)
-        add_misc = flags.__contains__(StatsFlag.add_misc)
+        add_skills = flags.__contains__(StatsFlag.skills)
+        add_misc = flags.__contains__(StatsFlag.misc)
         for mapper_val in HSApiCsvMapper:
             if mapper_val.value == -1:
                 continue

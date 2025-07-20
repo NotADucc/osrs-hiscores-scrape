@@ -343,6 +343,9 @@ class HSApiCsvMapper(Enum):
     def is_skill(self) -> bool:
         return HSApiCsvMapper.overall.value <= self.value <= HSApiCsvMapper.construction.value
 
+    def is_misc(self) -> bool:
+        return HSApiCsvMapper.league_points.value <= self.value <= HSApiCsvMapper.zulrah.value
+
     def is_combat(self) -> bool:
         return self.name in {
             "attack", "defence", "strength", "hitpoints",

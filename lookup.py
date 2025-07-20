@@ -13,7 +13,7 @@ logger = get_logger()
 
 def main(name: str, account_type: HSApi):
     flags = StatsFlag.default.__add__(
-        StatsFlag.add_misc).__add__(StatsFlag.add_skills)
+        StatsFlag.misc).__add__(StatsFlag.skills)
 
     req = Requests()
 
