@@ -17,18 +17,18 @@ def process(hs_record: tuple, **args: dict) -> None:
     idx, name = hs_record
     out_file, req, account_type, filter, flags = args["out_file"], args["req"], args["account_type"], args["filter"], args["flags"]
 
-    stats = retry(req.get_user_stats, name=name,
+    player_record = retry(req.get_user_stats, name=name,
                   account_type=account_type, idx=idx, flags=flags)
 
-    if all(stats.get(filter_stat.name, 0) <= filter_val for filter_stat, filter_val in filter.items()):
+    if player_record.lacks_requirements(filter):
         with file_lock:
             with open(out_file, "a") as f:
-                f.write('%s,%s,%s\n' % (idx, name, stats))
+                f.write('%s,%s\n' % (idx, player_record))
 
     logger.info(f'finished nr: {idx} - {name}')
 
 
-def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, account_type: HSApi, delimiter: str, filter: dict):
+def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, account_type: HSApi, delimiter: str, filter: dict[HSApiCsvMapper, int]):
     hs_records = []
     with open(in_file, "r") as f:
         for line in f:
