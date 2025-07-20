@@ -22,7 +22,6 @@ python -m pip install -r requirements.txt
 
 # Misc Features
 - Sort the output, sorting script provided since scrape_hs is 'multi threaded'/async so the kvp resultset is not chronological.
-- Merge 2 outputs into one, this is for when a highscore type can't pull 100% of the data in 1 hiscore type but can in a different hiscore type.
 
 
 > [!Note]
@@ -92,17 +91,6 @@ py sort.py --in-file input.txt
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
 | `--in-file`   | Yes      | Path to the main file                |
-| `--delimiter` | No       | Delimiter used in the files (default: `,`) |
-
-## Merge.py
-```console
-py merge.py --in-main main_file.txt --in-merge merge_file.txt --out-file output.txt
-```
-| Argument      | Required | Description                                |
-| ------------- | -------- | ------------------------------------------ |
-| `--in-main`   | Yes      | Path to the main input file                |
-| `--in-merge`  | Yes      | Path to the file to merge in               |
-| `--out-file`  | Yes      | Path to the output file                    |
 | `--delimiter` | No       | Delimiter used in the files (default: `,`) |
 
 
