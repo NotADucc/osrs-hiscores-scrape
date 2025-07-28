@@ -132,6 +132,7 @@ class HSCategoryMapper(Enum):
     rifts_closed = HSCategoryMapperIncrementer.increment(1)
     colosseum_glory = HSCategoryMapperIncrementer.increment(1)
     collections_logged = HSCategoryMapperIncrementer.increment(1)
+    # bosses
     sire = HSCategoryMapperIncrementer.increment(1)
     hydra = HSCategoryMapperIncrementer.increment(1)
     amoxliatl = HSCategoryMapperIncrementer.increment(1)
@@ -244,6 +245,7 @@ class HSApiCsvMapper(Enum):
     runecrafting = HSApiCsvMapperIncrementer.increment()
     hunter = HSApiCsvMapperIncrementer.increment()
     construction = HSApiCsvMapperIncrementer.increment()
+    # start non skilling stuff
     league_points = HSApiCsvMapperIncrementer.increment()
     dmm = HSApiCsvMapperIncrementer.increment()
     bh_hunter = HSApiCsvMapperIncrementer.increment()
@@ -263,6 +265,7 @@ class HSApiCsvMapper(Enum):
     rifts_closed = HSApiCsvMapperIncrementer.increment()
     colosseum_glory = HSApiCsvMapperIncrementer.increment()
     collections_logged = HSApiCsvMapperIncrementer.increment()
+    # bosses
     sire = HSApiCsvMapperIncrementer.increment()
     hydra = HSApiCsvMapperIncrementer.increment()
     amoxliatl = HSApiCsvMapperIncrementer.increment()
