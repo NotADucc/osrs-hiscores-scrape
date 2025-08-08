@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 import sys
 import threading
 from request.common import CategoryRecord, HSApi, HSApiCsvMapper
@@ -23,7 +24,10 @@ def process(hs_record: CategoryRecord, **args: dict) -> None:
     if player_record.lacks_requirements(filter):
         with file_lock:
             with open(out_file, "a") as f:
-                f.write(f'{{{rank},{player_record}}}\n')
+                f.write(json.dumps({
+                    "rank": rank,
+                    "record": player_record
+                }) + "\n")
 
     logger.info(f'finished nr: {rank} - {username}')
 
@@ -52,7 +56,33 @@ def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, acc
 if __name__ == '__main__':
     def parse_key_value_pairs(arg):
         kv_pairs = arg.split(',')
-        return {HSApiCsvMapper.from_string(k.strip()): int(v.strip()) for k, v in (pair.split(':') for pair in kv_pairs)}
+        result = {}
+
+        for pair in kv_pairs:
+            match = re.match(r'\s*(.*?)\s*(<=|>=|=|<|>)\s*(.*?)\s*$', pair)
+            if not match:
+                raise ValueError(f"Invalid pair format: '{pair}'")
+
+            key_str, op, value_str = match.groups()
+            key = HSApiCsvMapper.from_string(key_str.strip())
+            value = int(value_str.strip())
+
+            if op == '=':
+                func = lambda x, v=value: x == v
+            elif op == '<':
+                func = lambda x, v=value: x < v
+            elif op == '>':
+                func = lambda x, v=value: x > v
+            elif op == '<=':
+                func = lambda x, v=value: x <= v
+            elif op == '>=':
+                func = lambda x, v=value: x >= v
+            else:
+                raise ValueError(f"Unsupported operator: '{op}'")
+
+            result[key] = func
+
+        return result
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-file', required=True,

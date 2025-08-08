@@ -32,15 +32,9 @@ python -m pip install -r requirements.txt
 
 ## Filter.py
 ```console
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter ranged:50,attack:50
-
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged:50,attack:50'
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged:50 , attack:50'
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged : 50, attack : 50' 
-
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter "ranged:50,attack:50"
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter "ranged:50 , attack:50"
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter "ranged : 50, attack : 50" 
+py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged=50,attack<50'
+py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged>50 , attack>=50'
+py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged<=50, attack=50' 
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -49,7 +43,7 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--start-nr`  | No      | Key value pair index that it should start filtering at |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
-| `--filter`  | Yes      | Inclusive bound on what the account should have |
+| `--filter`  | Yes      | Custom filter on what the accounts should have. |
 
 ## Scrape_hs.py
 ```console
