@@ -2,7 +2,7 @@ import argparse
 import datetime
 from enum import Enum
 import json
-from typing import List
+from typing import Any, Callable, List
 
 from stats.common import calc_cmb
 
@@ -18,6 +18,10 @@ class IsRateLimited(Exception):
         self.details = details
         super().__init__(message)
 
+class PlayerDoesNotExist(Exception):
+    def __init__(self, message, details=None):
+        self.details = details
+        super().__init__(message)
 
 class NoProxyList(Exception):
     def __init__(self, message, details=None):
@@ -396,20 +400,18 @@ class PlayerRecord:
                              self.skills[HSApiCsvMapper.strength.name], self.skills[HSApiCsvMapper.hitpoints.name], self.skills[HSApiCsvMapper.ranged.name], self.skills[HSApiCsvMapper.prayer.name], self.skills[HSApiCsvMapper.magic.name])
         self.combat_lvl = cmb_level
 
-    def lacks_requirements(self, requirements: dict[HSApiCsvMapper, int]) -> bool:  
-        for key, value in requirements.items():
+    def lacks_requirements(self, requirements: dict[HSApiCsvMapper, Callable[[Any], bool]]) -> bool:  
+        for key, pred in requirements.items():
             if key is HSApiCsvMapper.overall:
-                if self.total_level > value:
-                    return False
+                val = self.total_level
             elif key is HSApiCsvMapper.combat:
-                if self.combat_lvl > value:
-                    return False
+                val = self.combat_lvl
             elif key.is_skill():
-                if self.skills.get(key.name, 0) > value:
-                    return False
+                val = self.skills.get(key.name, 0)
             elif key.is_misc():
-                if self.misc.get(key.name, 0) > value:
-                    return False
+                val = self.misc.get(key.name, 0)
+            if not pred(val):
+                return False
         return True
 
     def __lt__(self, other) -> bool:

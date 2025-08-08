@@ -2,7 +2,7 @@ import threading
 
 from time import sleep
 from typing import Any, Callable
-from request.common import IsRateLimited
+from request.common import IsRateLimited, PlayerDoesNotExist
 from util.log import get_logger
 
 logger = get_logger()
@@ -16,6 +16,9 @@ def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: in
             return callback(**kwargs)
         except IsRateLimited as err:
             logger.error(f"{err} | {err.details}", exc_info=exc_info)
+        except PlayerDoesNotExist as err:
+            logger.error(f"{err} | {err.details}", exc_info=exc_info)
+            return None
         except Exception as err:
             logger.error(
                 f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
