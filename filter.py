@@ -19,7 +19,7 @@ def process(hs_record: CategoryRecord, **args: dict) -> None:
     out_file, req, account_type, filter = args["out_file"], args["req"], args["account_type"], args["filter"]
 
     player_record = retry(req.get_user_stats, name=username,
-                  account_type=account_type, idx=rank)
+                          account_type=account_type, idx=rank)
 
     if player_record.lacks_requirements(filter):
         with file_lock:
@@ -68,15 +68,15 @@ if __name__ == '__main__':
             value = int(value_str.strip())
 
             if op == '=':
-                func = lambda x, v=value: x == v
+                def func(x, v=value): return x == v
             elif op == '<':
-                func = lambda x, v=value: x < v
+                def func(x, v=value): return x < v
             elif op == '>':
-                func = lambda x, v=value: x > v
+                def func(x, v=value): return x > v
             elif op == '<=':
-                func = lambda x, v=value: x <= v
+                def func(x, v=value): return x <= v
             elif op == '>=':
-                func = lambda x, v=value: x >= v
+                def func(x, v=value): return x >= v
             else:
                 raise ValueError(f"Unsupported operator: '{op}'")
 

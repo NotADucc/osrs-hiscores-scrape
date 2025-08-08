@@ -18,10 +18,12 @@ class IsRateLimited(Exception):
         self.details = details
         super().__init__(message)
 
+
 class PlayerDoesNotExist(Exception):
     def __init__(self, message, details=None):
         self.details = details
         super().__init__(message)
+
 
 class NoProxyList(Exception):
     def __init__(self, message, details=None):
@@ -80,6 +82,7 @@ class HSApi(Enum):
             valid_values = ', '.join(HSApi.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
 
+
 class EnumIncrementer():
     def __init__(self, size: int = 1):
         self.arr = [0] * size
@@ -89,7 +92,9 @@ class EnumIncrementer():
         self.arr[idx] += 1
         return res
 
+
 HSCategoryMapperIncrementer = EnumIncrementer(2)
+
 
 class HSCategoryMapper(Enum):
     overall = HSCategoryMapperIncrementer.increment(0)
@@ -222,7 +227,9 @@ class HSCategoryMapper(Enum):
             valid_values = ', '.join(HSCategoryMapper.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
 
+
 HSApiCsvMapperIncrementer = EnumIncrementer(1)
+
 
 class HSApiCsvMapper(Enum):
     overall = HSApiCsvMapperIncrementer.increment()
@@ -365,6 +372,7 @@ class HSApiCsvMapper(Enum):
             valid_values = ', '.join(HSApiCsvMapper.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
 
+
 class PlayerRecord:
     def __init__(self, username: str, csv: List[str], ts: datetime):
         self.username = username
@@ -385,13 +393,13 @@ class PlayerRecord:
 
             splitted = list(map(int, csv[mapper_val.value].split(',')))
 
-            if mapper_val.is_skill() :
+            if mapper_val.is_skill():
                 # self.skills[mapper_val.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
                 # just lvl for now, saving all the information is prob gonna clog it
                 self.skills[mapper_val.name] = splitted[1]
-            
-            elif mapper_val.is_misc() :
-                if splitted[0] == -1 :
+
+            elif mapper_val.is_misc():
+                if splitted[0] == -1:
                     continue
                 # self.misc[mapper_val.name] = { 'rank': splitted[0], 'kc': splitted[1] }
                 self.misc[mapper_val.name] = splitted[1]
@@ -400,7 +408,7 @@ class PlayerRecord:
                              self.skills[HSApiCsvMapper.strength.name], self.skills[HSApiCsvMapper.hitpoints.name], self.skills[HSApiCsvMapper.ranged.name], self.skills[HSApiCsvMapper.prayer.name], self.skills[HSApiCsvMapper.magic.name])
         self.combat_lvl = cmb_level
 
-    def lacks_requirements(self, requirements: dict[HSApiCsvMapper, Callable[[Any], bool]]) -> bool:  
+    def lacks_requirements(self, requirements: dict[HSApiCsvMapper, Callable[[Any], bool]]) -> bool:
         for key, pred in requirements.items():
             if key is HSApiCsvMapper.overall:
                 val = self.total_level
@@ -419,7 +427,7 @@ class PlayerRecord:
             return True
         elif self.total_level == other.total_level and self.total_xp < other.total_xp:
             return True
-        elif self.total_xp == other.total_xp and self.rank > other.rank: 
+        elif self.total_xp == other.total_xp and self.rank > other.rank:
             return True
         return False
 
@@ -439,7 +447,7 @@ class PlayerRecord:
 
     def __le__(self, other) -> bool:
         return not other < self
-    
+
     def __str__(self):
         data = {
             "rank": self.rank,
@@ -452,7 +460,8 @@ class PlayerRecord:
             "misc": self.misc,
         }
         return json.dumps(data, separators=(',', ':'))
-    
+
+
 class CategoryRecord:
     def __init__(self, rank: int, score: int, username: str):
         self.rank = rank
@@ -488,7 +497,8 @@ class CategoryRecord:
 
     def __str__(self) -> str:
         return json.dumps(self.to_dict(), separators=(',', ':'))
-    
+
+
 class CategoryInfo:
     def __init__(self, name: str, ts: datetime):
         self.name = name

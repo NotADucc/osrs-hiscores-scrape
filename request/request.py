@@ -89,7 +89,8 @@ class Requests():
                 f"limited on \'{url}\'", details={"params": params, "proxies": proxies})
 
         if ('player' in params and not self.does_player_exist(params.get('player'), text)) or resp.status_code == 404:
-            raise PlayerDoesNotExist(f"Player does not exist", details={"params": params, "proxies": proxies})
+            raise PlayerDoesNotExist(f"Player does not exist", details={
+                                     "params": params, "proxies": proxies})
 
         if resp.status_code == 200:
             return text
@@ -99,6 +100,6 @@ class Requests():
 
     def is_rate_limited(self, page: bytes) -> bool:
         return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
-    
+
     def does_player_exist(self, name: str, page: bytes) -> bool:
         return not f"No player \"{name}\" found" in BeautifulSoup(page, "html.parser").text

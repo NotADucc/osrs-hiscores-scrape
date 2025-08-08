@@ -14,9 +14,9 @@ def main(name: str, account_type: HSApi):
     req = Requests()
 
     player_record = retry(req.get_user_stats, name=name,
-                  account_type=account_type)
-    
-    if not player_record :
+                          account_type=account_type)
+
+    if not player_record:
         return None
 
     json_object = json.loads(str(player_record))

@@ -15,6 +15,7 @@ logger = get_logger()
 file_lock = threading.Lock()
 account_type = HSLookup.regular
 
+
 def process(page_nr: int, **args: dict) -> None:
     hs_type, category_info, temp_file, req = args["hs_type"], args[
         "category_info"], args["temp_file"], args["req"]
@@ -49,7 +50,8 @@ def main(out_file: str, proxy_file: str | None, hs_type: HSCategoryMapper):
 
     logger.info(f'scraping {page_nrs}')
 
-    category_info = CategoryInfo(name=hs_type.name,ts=datetime.datetime.now(datetime.timezone.utc))
+    category_info = CategoryInfo(
+        name=hs_type.name, ts=datetime.datetime.now(datetime.timezone.utc))
 
     temp_file = out_file.split('.')[0] + ".temp"
     spawn_threads(process, page_nrs, hs_type=hs_type,

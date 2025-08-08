@@ -24,7 +24,8 @@ def process(page_nr: int, **args: dict) -> None:
 
         with file_lock:
             with open(out_file, "a") as f:
-                f.writelines(str(record) + '\n' for record in extracted_records)
+                f.writelines(
+                    str(record) + '\n' for record in extracted_records)
 
         logger.info(f'finished page: {page_nr}')
     except Exception as err:
@@ -64,7 +65,7 @@ if __name__ == '__main__':
                         help="Hiscore page number it should start at")
     parser.add_argument('--end-page-nr', default=-1, type=int,
                         help="Hiscore page number it should end at")
-    
+
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 

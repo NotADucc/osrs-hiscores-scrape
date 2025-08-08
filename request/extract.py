@@ -15,6 +15,7 @@ def extract_highscore_records(page: bytes) -> list[CategoryRecord]:
         rank = int(td_right[0].text.replace(',', '').strip())
         username = score.find('td', class_='left').a.text.strip()
         score = int(td_right[1].text.replace(',', '').strip())
-        result.append(CategoryRecord(rank=rank, score=score, username=username))
+        result.append(CategoryRecord(
+            rank=rank, score=score, username=username))
 
     return result
