@@ -1,8 +1,9 @@
 import datetime
-from fake_useragent import UserAgent
-
 import threading
-import requests
+from typing import Dict
+
+from aiohttp import ClientSession
+from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 from request.dto import GetHighscorePageRequest, GetMaxHighscorePageRequest, GetPlayerRequest
 from request.errors import IsRateLimited, RequestFailed, NotFound
@@ -15,7 +16,8 @@ proxy_lock = threading.Lock()
 
 
 class Requests():
-    def __init__(self, proxy_list:  list | None = None):
+    def __init__(self, session: ClientSession, proxy_list:  list | None = None):
+        self.session = session
         self.proxy_list = proxy_list
         self.proxy_idx = 0
 
@@ -67,11 +69,9 @@ class Requests():
         return Requests.extract_highscore_records(page)
 
     async def lookup(self, input: GetPlayerRequest) -> str:
-        params = {'player': input.username}
-        res = await self.https_request(input.account_type.api_csv(), params)
-        return res
+        return await self.https_request(input.account_type.api_csv(), {'player': input.username})
 
-    async def https_request(self, url: str, params: dict) -> str:
+    async def https_request(self, url: str, params: Dict[str, str]) -> str:
         headers = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
@@ -80,23 +80,23 @@ class Requests():
         }
 
         proxies = self.get_proxies()
-        resp = requests.get(url, headers=headers,
-                            params=params, proxies=proxies)
+        proxy_url = (proxies.get("http") or proxies.get("https")) if proxies else None
 
-        text = resp.text.replace('Ā', ' ').replace('\xa0', ' ')
+        async with self.session.get(url, headers=headers, params=params, proxy=proxy_url, timeout=30) as resp:
+            text = await resp.text()
+            text = text.replace('Ā', ' ').replace('\xa0', ' ')
+            if Requests.is_rate_limited(text):
+                raise IsRateLimited(
+                    f"limited on '{url}'", details={"params": params, "proxies": proxies})
 
-        if Requests.is_rate_limited(text):
-            raise IsRateLimited(
-                f"limited on \'{url}\'", details={"params": params, "proxies": proxies})
+            if resp.status == 404:
+                raise NotFound(f"Not found", details={"params": params, "proxies": proxies})
 
-        if resp.status_code == 404:
-            raise NotFound(f"Not found", details={"params": params, "proxies": proxies})
+            if resp.status == 200:
+                return text
 
-        if resp.status_code == 200:
-            return text
-
-        raise RequestFailed(f"failed on \'{url}\'", details={
-                            "code": resp.status_code, "params": params, "proxies": proxies})
+            raise RequestFailed(f"failed on '{url}'", details={
+                                "code": resp.status, "params": params, "proxies": proxies})
     
     @staticmethod
     def is_rate_limited(page: bytes) -> bool:

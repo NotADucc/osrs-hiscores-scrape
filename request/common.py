@@ -10,16 +10,16 @@ class HSAccountTypes(Enum):
     skiller = 'hiscore_oldschool_skiller'
 
     def lookup_overall(self) -> str:
-        return f'http://secure.runescape.com/m={self.value}/overall'
+        return f'https://secure.runescape.com/m={self.value}/overall'
 
     def lookup_personal(self) -> str:
-        return f'http://secure.runescape.com/m={self.value}/hiscorepersonal'
+        return f'https://secure.runescape.com/m={self.value}/hiscorepersonal'
 
     def api_csv(self) -> str:
-        return f'http://secure.runescape.com/m={self.value}/index_lite.ws'
+        return f'https://secure.runescape.com/m={self.value}/index_lite.ws'
 
     def api_json(self) -> str:
-        return f'http://secure.runescape.com/m={self.value}/index_lite.json'
+        return f'https://secure.runescape.com/m={self.value}/index_lite.json'
 
     def __str__(self):
         return self.name
