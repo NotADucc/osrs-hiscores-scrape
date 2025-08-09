@@ -1,11 +1,12 @@
 import datetime
 from fake_useragent import UserAgent
-from request.common import HSCategoryMapper, IsRateLimited, PlayerDoesNotExist, PlayerRecord, RequestFailed, HSLookup, HSApi
 
 import threading
 import requests
 from bs4 import BeautifulSoup
-from request.extract import extract_highscore_records
+from request.dto import GetHighscorePageRequest, GetMaxHighscorePageRequest, GetPlayerRequest
+from request.errors import IsRateLimited, PlayerDoesNotExist, RequestFailed
+from request.results import CategoryRecord, PlayerRecord
 from util.log import get_logger
 from util.retry_handler import retry
 
@@ -31,19 +32,19 @@ class Requests():
             "https": proxy,
         }
 
-    def find_max_page(self, account_type: HSLookup, hs_type: HSCategoryMapper) -> int:
+    def find_max_page(self, input: GetMaxHighscorePageRequest) -> int:
         # max on hs is currently 80_000 pages
         l, r, res, page_size = 1, 100_000, -1, 25
 
         def give_first_idx(account_type, hs_type, middle):
             page = self.get_hs_page(account_type, hs_type, middle)
-            extracted_records = extract_highscore_records(page)
+            extracted_records = Requests.extract_highscore_records(page)
             return -1 if not extracted_records else extracted_records[0].rank
 
         while l <= r:
             middle = (l + r) >> 1
-            first_idx = retry(give_first_idx, account_type=account_type,
-                              hs_type=hs_type, middle=middle)
+            first_idx = retry(give_first_idx, account_type=input.account_type,
+                              hs_type=input.hs_type, middle=middle)
             expected_idx = (middle - 1) * page_size + 1
 
             if first_idx == expected_idx:
@@ -54,20 +55,20 @@ class Requests():
             logger.info(f'page range: ({l}-{r})')
         return res
 
-    def get_user_stats(self, name: str, account_type: HSApi, **kwargs) -> PlayerRecord:
-        csv = self.lookup(name, account_type.csv()).split('\n')
+    # def get_user_stats(self, name: str, account_type: HSAccountTypes, **kwargs) -> PlayerRecord:
+    def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
+        csv = self.lookup(input).split('\n')
+        return PlayerRecord(username=input.username, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
 
-        return PlayerRecord(username=name, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
+    def get_hs_page(self, input: GetHighscorePageRequest) -> list[CategoryRecord]:
+        params = {'category_type': input.hs_type.get_category(),
+                  'table': input.hs_type.value, 'page': input.page_num, }
+        page = self.https_request(input.account_type.lookup_overall(), params)
+        return Requests.extract_highscore_records(page)
 
-    def get_hs_page(self, account_type: HSLookup, hs_type: HSCategoryMapper, page_nr: int = 1) -> bytes:
-        params = {'category_type': hs_type.get_category(),
-                  'table': hs_type.value, 'page': page_nr, }
-        page = self.https_request(account_type.overall(), params)
-        return page
-
-    def lookup(self, name: str, url: str) -> str:
-        params = {'player': name}
-        res = self.https_request(url, params)
+    def lookup(self, input: GetPlayerRequest) -> str:
+        params = {'player': input.username}
+        res = self.https_request(input.account_type.api_csv(), params)
         return res
 
     def https_request(self, url: str, params: dict) -> str:
@@ -84,11 +85,11 @@ class Requests():
 
         text = resp.text.replace('Ā', ' ').replace('\xa0', ' ')
 
-        if self.is_rate_limited(text):
+        if Requests.is_rate_limited(text):
             raise IsRateLimited(
                 f"limited on \'{url}\'", details={"params": params, "proxies": proxies})
 
-        if ('player' in params and not self.does_player_exist(params.get('player'), text)) or resp.status_code == 404:
+        if ('player' in params and not Requests.does_player_exist(params.get('player'), text)) or resp.status_code == 404:
             raise PlayerDoesNotExist(f"Player does not exist", details={
                                      "params": params, "proxies": proxies})
 
@@ -97,9 +98,29 @@ class Requests():
 
         raise RequestFailed(f"failed on \'{url}\'", details={
                             "code": resp.status_code, "params": params, "proxies": proxies})
-
-    def is_rate_limited(self, page: bytes) -> bool:
+    
+    @staticmethod
+    def is_rate_limited(page: bytes) -> bool:
         return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
-
-    def does_player_exist(self, name: str, page: bytes) -> bool:
+    
+    @staticmethod
+    def does_player_exist(name: str, page: bytes) -> bool:
         return not f"No player \"{name}\" found" in BeautifulSoup(page, "html.parser").text
+
+    @staticmethod
+    def extract_highscore_records(page: bytes) -> list[CategoryRecord]:
+        soup = BeautifulSoup(page, "html.parser")
+        scores = soup.find_all(class_='personal-hiscores__row')
+
+        result = []
+
+        for score in scores:
+            td_right = score.find_all('td', class_='right')
+
+            rank = int(td_right[0].text.replace(',', '').strip())
+            username = score.find('td', class_='left').a.text.strip()
+            score = int(td_right[1].text.replace(',', '').strip())
+            result.append(CategoryRecord(
+                rank=rank, score=score, username=username))
+
+        return result
