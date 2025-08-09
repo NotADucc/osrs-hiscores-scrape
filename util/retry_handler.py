@@ -2,7 +2,7 @@ import threading
 
 from time import sleep
 from typing import Any, Callable
-from request.common import IsRateLimited, PlayerDoesNotExist
+from request.errors import IsRateLimited, PlayerDoesNotExist
 from util.log import get_logger
 
 logger = get_logger()
