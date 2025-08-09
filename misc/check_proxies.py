@@ -1,24 +1,24 @@
 import argparse
+import asyncio
 import json
 import sys
 import threading
 
-import requests
+import aiohttp
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.log import get_logger
-from util import pool
+from deprecated.pool import execute
 
 
 logger = get_logger()
 file_lock = threading.Lock()
 
 
-def process(proxy: str, **args: dict) -> None:
+async def process(proxy: str, **args: dict) -> None:
     out_file = args["out_file"]
     try:
         if proxy.startswith(("https://", "http://", "socks4://", "socks5://")):
             proxy_url = proxy
-            print(proxy_url)
         else:
             # ip, port, user, pwd
             splitted = proxy.split(":")
@@ -26,27 +26,28 @@ def process(proxy: str, **args: dict) -> None:
                 if len(splitted) > 2 \
                 else f"http://{splitted[0]}:{splitted[1]}"
 
-        res = requests.get("http://ipinfo.io/json",
-                           proxies={"http": proxy_url, "https": proxy_url})
-        if res.status_code == 200:
-            with file_lock:
-                with open(out_file, "a") as f:
-                    f.write(f'{proxy_url}\n')
-            logger.info(f'{json.loads(res.text)["ip"]}')
-        else:
-            logger.error(f'failed {proxy_url} | {res.status_code}')
+        async with aiohttp.ClientSession() as session:
+            async with session.get("http://httpbin.org/ip", proxy=proxy_url, timeout=10) as resp:
+                if resp.status == 200:
+                    ip_info = await resp.json()
+                    logger.info(f'{ip_info}')
+                    with file_lock:
+                        with open(out_file, "a") as f:
+                            f.write(f'{proxy_url}\n')
+                else:
+                    print(f"{proxy_url} | status {resp.status}")
 
     except Exception as err:
         print(err)
 
 
-def main(proxy_file: str):
+async def main(proxy_file: str):
     with open(proxy_file, "r") as f:
         proxies = f.read().splitlines()
 
     splitted = proxy_file.split('.')
     valid_file = splitted[0] + "_valid." + splitted[1]
-    pool.execute(process, proxies, out_file=valid_file)
+    await execute(process, proxies, out_file=valid_file)
 
 
 if __name__ == '__main__':
@@ -57,6 +58,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    main(args.proxy_file)
+    asyncio.run(main(args.proxy_file))
+
     logger.debug("done")
     sys.exit(0)
