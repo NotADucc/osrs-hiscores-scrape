@@ -2,7 +2,7 @@ import datetime
 import json
 from typing import Any, Callable, List
 
-from request.common import HSApiCsvMapper
+from request.common import HSType
 from stats.common import calc_cmb
 
 class PlayerRecord:
@@ -19,32 +19,34 @@ class PlayerRecord:
         self.skills = {}
         self.misc = {}
 
-        for mapper_val in list(HSApiCsvMapper)[1:]:
-            if mapper_val.value == -1:
+        for hstypes in list(HSType)[1:]:
+            csv_val = hstypes.get_csv_value()
+
+            if csv_val == -1:
                 continue
 
-            splitted = list(map(int, csv[mapper_val.value].split(',')))
+            splitted = list(map(int, csv[csv_val].split(',')))
 
-            if mapper_val.is_skill():
+            if hstypes.is_skill():
                 # self.skills[mapper_val.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
                 # just lvl for now, saving all the information is prob gonna clog it
-                self.skills[mapper_val.name] = splitted[1]
+                self.skills[hstypes.name] = splitted[1]
 
-            elif mapper_val.is_misc():
+            elif hstypes.is_misc():
                 if splitted[0] == -1:
                     continue
                 # self.misc[mapper_val.name] = { 'rank': splitted[0], 'kc': splitted[1] }
-                self.misc[mapper_val.name] = splitted[1]
+                self.misc[hstypes.name] = splitted[1]
 
-        cmb_level = calc_cmb(self.skills[HSApiCsvMapper.attack.name], self.skills[HSApiCsvMapper.defence.name],
-                             self.skills[HSApiCsvMapper.strength.name], self.skills[HSApiCsvMapper.hitpoints.name], self.skills[HSApiCsvMapper.ranged.name], self.skills[HSApiCsvMapper.prayer.name], self.skills[HSApiCsvMapper.magic.name])
+        cmb_level = calc_cmb(self.skills[HSType.attack.name], self.skills[HSType.defence.name],
+                             self.skills[HSType.strength.name], self.skills[HSType.hitpoints.name], self.skills[HSType.ranged.name], self.skills[HSType.prayer.name], self.skills[HSType.magic.name])
         self.combat_lvl = cmb_level
 
-    def lacks_requirements(self, requirements: dict[HSApiCsvMapper, Callable[[Any], bool]]) -> bool:
+    def lacks_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
         for key, pred in requirements.items():
-            if key is HSApiCsvMapper.overall:
+            if key is HSType.overall:
                 val = self.total_level
-            elif key is HSApiCsvMapper.combat:
+            elif key is HSType.combat:
                 val = self.combat_lvl
             elif key.is_skill():
                 val = self.skills.get(key.name, 0)

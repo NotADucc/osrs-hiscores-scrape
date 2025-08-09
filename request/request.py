@@ -62,7 +62,7 @@ class Requests():
 
     def get_hs_page(self, input: GetHighscorePageRequest) -> list[CategoryRecord]:
         params = {'category_type': input.hs_type.get_category(),
-                  'table': input.hs_type.value, 'page': input.page_num, }
+                  'table': input.hs_type.get_category_value(), 'page': input.page_num, }
         page = self.https_request(input.account_type.lookup_overall(), params)
         return Requests.extract_highscore_records(page)
 
