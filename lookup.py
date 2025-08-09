@@ -1,6 +1,9 @@
 import argparse
+import asyncio
 import json
 import sys
+
+import aiohttp
 from request.common import HSAccountTypes
 from request.dto import GetPlayerRequest
 from request.request import Requests
@@ -11,10 +14,9 @@ from util.log import get_logger
 logger = get_logger()
 
 
-def main(name: str, account_type: HSAccountTypes):
+async def main(name: str, account_type: HSAccountTypes):
     req = Requests()
-
-    player_record = retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
+    player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
 
     if not player_record:
         return None
@@ -35,7 +37,13 @@ if __name__ == '__main__':
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.name, args.account_type)
+    try :
+        asyncio.run(main(args.name, args.account_type))
+    except asyncio.CancelledError:
+        pass
+    except Exception as e:
+        logger.error(f"Caught Error: {e}")
+        sys.exit(2)
 
     logger.info("done")
     sys.exit(0)

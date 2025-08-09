@@ -10,7 +10,7 @@ class IsRateLimited(Exception):
         super().__init__(message)
 
 
-class PlayerDoesNotExist(Exception):
+class NotFound(Exception):
     def __init__(self, message, details=None):
         self.details = details
         super().__init__(message)
@@ -20,3 +20,7 @@ class NoProxyList(Exception):
     def __init__(self, message, details=None):
         self.details = details
         super().__init__(message)
+
+
+class DoneScraping(Exception):
+    pass

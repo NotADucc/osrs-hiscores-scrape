@@ -5,7 +5,7 @@ import threading
 import requests
 from bs4 import BeautifulSoup
 from request.dto import GetHighscorePageRequest, GetMaxHighscorePageRequest, GetPlayerRequest
-from request.errors import IsRateLimited, PlayerDoesNotExist, RequestFailed
+from request.errors import IsRateLimited, RequestFailed, NotFound
 from request.results import CategoryRecord, PlayerRecord
 from util.log import get_logger
 from util.retry_handler import retry
@@ -32,18 +32,18 @@ class Requests():
             "https": proxy,
         }
 
-    def find_max_page(self, input: GetMaxHighscorePageRequest) -> int:
+    async def find_max_page(self, input: GetMaxHighscorePageRequest) -> int:
         # max on hs is currently 80_000 pages
         l, r, res, page_size = 1, 100_000, -1, 25
 
-        def give_first_idx(account_type, hs_type, middle):
-            page = self.get_hs_page(account_type, hs_type, middle)
+        async def give_first_idx(account_type, hs_type, middle):
+            page = await self.get_hs_page(account_type, hs_type, middle)
             extracted_records = Requests.extract_highscore_records(page)
             return -1 if not extracted_records else extracted_records[0].rank
 
         while l <= r:
             middle = (l + r) >> 1
-            first_idx = retry(give_first_idx, account_type=input.account_type,
+            first_idx = await retry(give_first_idx, account_type=input.account_type,
                               hs_type=input.hs_type, middle=middle)
             expected_idx = (middle - 1) * page_size + 1
 
@@ -56,22 +56,22 @@ class Requests():
         return res
 
     # def get_user_stats(self, name: str, account_type: HSAccountTypes, **kwargs) -> PlayerRecord:
-    def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
-        csv = self.lookup(input).split('\n')
+    async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
+        csv = (await self.lookup(input)).split('\n')
         return PlayerRecord(username=input.username, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
 
-    def get_hs_page(self, input: GetHighscorePageRequest) -> list[CategoryRecord]:
+    async def get_hs_page(self, input: GetHighscorePageRequest) -> list[CategoryRecord]:
         params = {'category_type': input.hs_type.get_category(),
                   'table': input.hs_type.get_category_value(), 'page': input.page_num, }
-        page = self.https_request(input.account_type.lookup_overall(), params)
+        page = await self.https_request(input.account_type.lookup_overall(), params)
         return Requests.extract_highscore_records(page)
 
-    def lookup(self, input: GetPlayerRequest) -> str:
+    async def lookup(self, input: GetPlayerRequest) -> str:
         params = {'player': input.username}
-        res = self.https_request(input.account_type.api_csv(), params)
+        res = await self.https_request(input.account_type.api_csv(), params)
         return res
 
-    def https_request(self, url: str, params: dict) -> str:
+    async def https_request(self, url: str, params: dict) -> str:
         headers = {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
@@ -89,9 +89,8 @@ class Requests():
             raise IsRateLimited(
                 f"limited on \'{url}\'", details={"params": params, "proxies": proxies})
 
-        if ('player' in params and not Requests.does_player_exist(params.get('player'), text)) or resp.status_code == 404:
-            raise PlayerDoesNotExist(f"Player does not exist", details={
-                                     "params": params, "proxies": proxies})
+        if resp.status_code == 404:
+            raise NotFound(f"Not found", details={"params": params, "proxies": proxies})
 
         if resp.status_code == 200:
             return text
