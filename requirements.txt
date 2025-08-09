@@ -1,5 +1,3 @@
-requests==2.32.3
 beautifulsoup4==4.13.3
 fake-useragent==2.2.0
-requests[socks]
 aiohttp==3.12.15
