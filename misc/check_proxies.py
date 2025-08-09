@@ -6,8 +6,7 @@ import threading
 import requests
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.log import get_logger
-from util.retry_handler import retry
-from util.threading_handler import spawn_threads
+from util import pool
 
 
 logger = get_logger()
@@ -47,7 +46,7 @@ def main(proxy_file: str):
 
     splitted = proxy_file.split('.')
     valid_file = splitted[0] + "_valid." + splitted[1]
-    spawn_threads(process, proxies, out_file=valid_file)
+    pool.execute(process, proxies, out_file=valid_file)
 
 
 if __name__ == '__main__':
