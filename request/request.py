@@ -21,7 +21,7 @@ class Requests():
         self.proxy_list = proxy_list
         self.proxy_idx = 0
 
-    def get_proxies(self) -> dict | None:
+    def get_proxy(self) -> dict | None:
         if not self.proxy_list or len(self.proxy_list) == 0:
             return None
 
@@ -29,10 +29,7 @@ class Requests():
             proxy = self.proxy_list[self.proxy_idx]
             self.proxy_idx = (self.proxy_idx + 1) % len(self.proxy_list)
 
-        return {
-            "http": proxy,
-            "https": proxy,
-        }
+        return proxy
 
     async def find_max_page(self, input: GetMaxHighscorePageRequest) -> int:
         # max on hs is currently 80_000 pages
@@ -79,24 +76,23 @@ class Requests():
             'User-Agent': UserAgent().random,
         }
 
-        proxies = self.get_proxies()
-        proxy_url = (proxies.get("http") or proxies.get("https")) if proxies else None
+        proxy = self.get_proxy()
 
-        async with self.session.get(url, headers=headers, params=params, proxy=proxy_url, timeout=30) as resp:
+        async with self.session.get(url, headers=headers, params=params, proxy=proxy, timeout=30) as resp:
             text = await resp.text()
             text = text.replace('Ā', ' ').replace('\xa0', ' ')
             if Requests.is_rate_limited(text):
                 raise IsRateLimited(
-                    f"limited on '{url}'", details={"params": params, "proxies": proxies})
+                    f"limited on '{url}'", details={"params": params, "proxies": proxy})
 
             if resp.status == 404:
-                raise NotFound(f"Not found", details={"params": params, "proxies": proxies})
+                raise NotFound(f"Not found", details={"params": params, "proxies": proxy})
 
             if resp.status == 200:
                 return text
 
             raise RequestFailed(f"failed on '{url}'", details={
-                                "code": resp.status, "params": params, "proxies": proxies})
+                                "code": resp.status, "params": params, "proxies": proxy})
     
     @staticmethod
     def is_rate_limited(page: bytes) -> bool:

@@ -6,6 +6,7 @@ import sys
 import aiohttp
 from request.common import HSAccountTypes
 from request.dto import GetPlayerRequest
+from request.errors import NotFound
 from request.request import Requests
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.retry_handler import retry
@@ -17,11 +18,11 @@ logger = get_logger()
 async def main(name: str, account_type: HSAccountTypes):
     
     async with aiohttp.ClientSession() as session:
-        req = Requests(session=session)
-        player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
-
-    if not player_record:
-        return None
+        try:
+            req = Requests(session=session)
+            player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
+        except NotFound:
+            sys.exit(0)
 
     json_object = json.loads(str(player_record))
     json_formatted_str = json.dumps(json_object, indent=1)

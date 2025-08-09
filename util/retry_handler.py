@@ -15,7 +15,7 @@ async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_del
             logger.warning(f"{err} | {err.details}", exc_info=exc_info)
         except NotFound as err:
             logger.error(f"{err} | {err.details}", exc_info=exc_info)
-            return None
+            raise
         except Exception as err:
             logger.warning(f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
         retries += 1
