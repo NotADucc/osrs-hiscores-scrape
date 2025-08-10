@@ -31,18 +31,18 @@ class Requests():
 
         return proxy
 
-    async def find_max_page(self, input: GetMaxHighscorePageRequest) -> int:
+    async def get_max_page(self, input: GetMaxHighscorePageRequest) -> int:
         # max on hs is currently 80_000 pages
         l, r, res, page_size = 1, 100_000, -1, 25
 
-        async def give_first_idx(account_type, hs_type, middle):
+        async def get_first_idx(account_type, hs_type, middle):
             page = await self.get_hs_page(account_type, hs_type, middle)
             extracted_records = Requests.extract_highscore_records(page)
             return -1 if not extracted_records else extracted_records[0].rank
 
         while l <= r:
             middle = (l + r) >> 1
-            first_idx = await retry(give_first_idx, account_type=input.account_type,
+            first_idx = await retry(get_first_idx, account_type=input.account_type,
                                     hs_type=input.hs_type, middle=middle)
             expected_idx = (middle - 1) * page_size + 1
 

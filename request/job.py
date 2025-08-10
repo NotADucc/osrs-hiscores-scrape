@@ -2,11 +2,13 @@ import asyncio
 from dataclasses import dataclass
 from typing import List
 from request.common import HSAccountTypes, HSType
+from request.dto import GetMaxHighscorePageRequest
+from request.request import Requests
 from request.results import CategoryRecord, PlayerRecord
 
 
 @dataclass(order=True)
-class ScrapeJob:
+class HSCategoryJob:
     priority: int
     page_num: int
     hs_type: HSType
@@ -15,7 +17,7 @@ class ScrapeJob:
 
 
 @dataclass(order=True)
-class PlayerRecordJob:
+class HSLookupJob:
     priority: int
     username: str
     account_type: HSAccountTypes
@@ -57,3 +59,12 @@ class JobQueue:
         item = await self.q.get()
         self.got.set()
         return item
+
+
+async def get_category_job(req: Requests, start_page: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
+    last_page = await req.get_max_page(input=input)
+    return [
+        HSCategoryJob(priority=pagenum, pagenum=pagenum,
+                      account_type=input.account_type, hs_type=input.hs_type)
+        for pagenum in range(start_page, last_page + 1)
+    ]
