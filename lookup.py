@@ -21,13 +21,13 @@ async def main(name: str, account_type: HSAccountTypes):
         try:
             req = Requests(session=session)
             player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
+            json_object = json.loads(str(player_record))
+            json_formatted_str = json.dumps(json_object, indent=1)
+
+            print(json_formatted_str)
         except NotFound:
             sys.exit(0)
 
-    json_object = json.loads(str(player_record))
-    json_formatted_str = json.dumps(json_object, indent=1)
-
-    print(json_formatted_str)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
