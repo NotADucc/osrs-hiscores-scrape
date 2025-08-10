@@ -4,10 +4,11 @@ from dataclasses import dataclass
 from typing import Callable, List
 from request.common import HSAccountTypes, HSType
 from request.dto import GetHighscorePageRequest
-from request.errors import RequestFailed
+from request.errors import NotFound, RequestFailed
 from request.request import Requests
 from request.results import CategoryRecord, PlayerRecord
 from util.retry_handler import retry
+
 
 @dataclass(order=True)
 class ScrapeJob:
@@ -15,7 +16,7 @@ class ScrapeJob:
     page_num: int
     hs_type: HSType
     account_type: HSAccountTypes
-    result: List[CategoryRecord] = None 
+    result: List[CategoryRecord] = None
 
 
 @dataclass(order=True)
@@ -42,6 +43,7 @@ class JobCounter:
     async def await_next(self):
         await self.nextcalled.wait()
         self.nextcalled.clear()
+
 
 class JobQueue:
     def __init__(self, max_size=None):
@@ -82,6 +84,8 @@ class Worker:
                 await enqueue_fn(self.out_q, job)
                 self.job_counter.next()
 
+            except NotFound:
+                self.job_counter.next()
             except (CancelledError, RequestFailed):
                 await self.in_q.put(job, force=True)
                 raise
@@ -90,15 +94,17 @@ class Worker:
 async def request_page(req: Requests, job: ScrapeJob):
     job.result = await req.get_hs_page(input=GetHighscorePageRequest(job.page_num, job.hs_type, job.account_type))
 
+
 async def enqueue_page_usernames(queue: Queue, job: ScrapeJob):
     for record in job.result:
-        outjob = PlayerRecordJob(priority=record.rank, username=record.username, account_type=job.account_type)
+        outjob = PlayerRecordJob(
+            priority=record.rank, username=record.username, account_type=job.account_type)
         await queue.put(outjob)
-
 
 
 async def request_stats(req: Requests, job: PlayerRecordJob):
     job.result = await req.get_user_stats(name=job.username, account_type=job.account_type)
+
 
 async def enqueue_stats(queue: Queue, job: PlayerRecordJob):
     await queue.put(job.result)

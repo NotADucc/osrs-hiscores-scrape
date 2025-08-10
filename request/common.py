@@ -1,6 +1,7 @@
 import argparse
 from enum import Enum
 
+
 class HSAccountTypes(Enum):
     regular = 'hiscore_oldschool'
     pure = 'hiscore_oldschool_skiller_defence'
@@ -32,11 +33,13 @@ class HSAccountTypes(Enum):
             valid_values = ', '.join(HSAccountTypes.__members__.keys())
             raise argparse.ArgumentTypeError(valid_values)
 
+
 class HSValue():
-    def __init__(self, category : int, category_value: int, csv_value: int):
+    def __init__(self, category: int, category_value: int, csv_value: int):
         self.category = category
         self.category_value = category_value
         self.csv_value = csv_value
+
 
 class HSIncrementer():
     def __init__(self):
@@ -54,7 +57,9 @@ class HSIncrementer():
         self.arr[2] += 1
         return HSValue(1, cat_val, csv_val)
 
+
 HSCategoryMapperIncrementer = HSIncrementer()
+
 
 class HSType(Enum):
     overall = HSCategoryMapperIncrementer.skill_increment()

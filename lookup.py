@@ -16,7 +16,7 @@ logger = get_logger()
 
 
 async def main(name: str, account_type: HSAccountTypes):
-    
+
     async with aiohttp.ClientSession() as session:
         try:
             req = Requests(session=session)
@@ -29,7 +29,6 @@ async def main(name: str, account_type: HSAccountTypes):
 
     print(json_formatted_str)
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', required=True,
@@ -40,7 +39,7 @@ if __name__ == '__main__':
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    try :
+    try:
         asyncio.run(main(args.name, args.account_type))
     except asyncio.CancelledError:
         pass

@@ -13,7 +13,7 @@ async def export_records(in_queue: asyncio.Queue, out_file: str, format: Callabl
             job = await in_queue.get()
             if isinstance(job.result, list):
                 f.writelines(format(v) for v in job.result)
-            else :
+            else:
                 f.write(format(job.result))
-        
+
         raise DoneScraping

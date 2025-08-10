@@ -6,6 +6,7 @@ from util.log import get_logger
 
 logger = get_logger()
 
+
 async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: int = 20, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any:
     retries = 1
     while retries <= max_retries:
@@ -17,7 +18,8 @@ async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_del
             logger.error(f"{err} | {err.details}", exc_info=exc_info)
             raise
         except Exception as err:
-            logger.warning(f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
+            logger.warning(
+                f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
         retries += 1
         await asyncio.sleep(retries * initial_delay)
 

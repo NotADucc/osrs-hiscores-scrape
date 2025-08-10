@@ -43,7 +43,7 @@ class Requests():
         while l <= r:
             middle = (l + r) >> 1
             first_idx = await retry(give_first_idx, account_type=input.account_type,
-                              hs_type=input.hs_type, middle=middle)
+                                    hs_type=input.hs_type, middle=middle)
             expected_idx = (middle - 1) * page_size + 1
 
             if first_idx == expected_idx:
@@ -86,18 +86,19 @@ class Requests():
                     f"limited on '{url}'", details={"params": params, "proxies": proxy})
 
             if resp.status == 404:
-                raise NotFound(f"Not found", details={"params": params, "proxies": proxy})
+                raise NotFound(f"Not found", details={
+                               "params": params, "proxies": proxy})
 
             if resp.status == 200:
                 return text
 
             raise RequestFailed(f"failed on '{url}'", details={
                                 "code": resp.status, "params": params, "proxies": proxy})
-    
+
     @staticmethod
     def is_rate_limited(page: bytes) -> bool:
         return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
-    
+
     @staticmethod
     def does_player_exist(name: str, page: bytes) -> bool:
         return not f"No player \"{name}\" found" in BeautifulSoup(page, "html.parser").text

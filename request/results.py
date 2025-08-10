@@ -5,6 +5,7 @@ from typing import Any, Callable, List
 from request.common import HSType
 from stats.common import calc_cmb
 
+
 class PlayerRecord:
     def __init__(self, username: str, csv: List[str], ts: datetime):
         self.username = username
@@ -29,7 +30,8 @@ class PlayerRecord:
 
             if hstypes.is_skill():
                 # self.skills[mapper_val.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
-                # just lvl for now, saving all the information is prob gonna clog it
+                # just lvl for now, saving rank, lvl, xp and maybe virtual lvl is gonna be too much
+                # or have a flag that can enable it
                 self.skills[hstypes.name] = splitted[1]
 
             elif hstypes.is_misc():
