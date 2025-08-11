@@ -22,6 +22,10 @@ class Requests():
         self.proxy_list = proxy_list
         self.proxy_idx = 0
 
+    def get_session(self) -> ClientSession:
+        self.session.cookie_jar.clear()
+        return self.session
+
     def get_proxy(self) -> dict | None:
         if not self.proxy_list or len(self.proxy_list) == 0:
             return None
@@ -81,8 +85,9 @@ class Requests():
         }
 
         proxy = self.get_proxy()
+        session = self.get_session()
 
-        async with self.session.get(url, headers=headers, params=params, proxy=proxy, timeout=30) as resp:
+        async with session.get(url, headers=headers, params=params, proxy=proxy, timeout=30) as resp:
             text = await resp.text()
             if Requests.is_rate_limited(text):
                 raise IsRateLimited(
