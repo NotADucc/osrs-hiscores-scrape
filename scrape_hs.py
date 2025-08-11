@@ -74,7 +74,7 @@ if __name__ == '__main__':
                         help="Hiscore page number it should start at")
     parser.add_argument('--end-page-nr', default=-1, type=int,
                         help="Hiscore page number it should end at")
-    parser.add_argument('--num-workers', default=50, type=int,
+    parser.add_argument('--num-workers', default=15, type=int,
                         help="Number of concurrent scraping threads")
 
     running_script_not_in_cmd_guard(parser)

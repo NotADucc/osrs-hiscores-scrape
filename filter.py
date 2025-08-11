@@ -126,16 +126,13 @@ if __name__ == '__main__':
                         type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
     parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
                         help="Custom filter on what the accounts should have")
-    parser.add_argument('--num-workers', default=50, type=int,
+    parser.add_argument('--num-workers', default=15, type=int,
                         help="Number of concurrent scraping threads")
 
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
     try:
-        if not args.in_file and not args.hs_type:
-            parser.error('"--in-file" or "--hs-type" is missing')
-
         asyncio.run(main(args.out_file, args.proxy_file, args.start_nr,
                     args.account_type, args.hs_type, args.filter, args.num_workers))
     except Exception as e:

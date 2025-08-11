@@ -44,7 +44,7 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
 | `--filter`  | Yes      | Custom filter on what the accounts should have |
-| `--num-workers`  | No      | Number of concurrent scraping threads (default: 50) |
+| `--num-workers`  | No      | Number of concurrent scraping threads (default: 15) |
 
 ## Scrape_hs.py
 ```console
@@ -58,7 +58,7 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
 | `--start-page-nr`  | No      | Hiscore page number it should start at (default: 1) |
 | `--end-page-nr`  | No      | Hiscore page number it should end at (default: end of category) |
-| `--num-workers`  | No      | Number of concurrent scraping threads (default: 50) |
+| `--num-workers`  | No      | Number of concurrent scraping threads (default: 15) |
 
 ## Lookup.py
 ```console
