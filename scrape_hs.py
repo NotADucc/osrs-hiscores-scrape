@@ -7,10 +7,10 @@ import aiohttp
 from request.common import HSAccountTypes, HSType
 from request.dto import GetMaxHighscorePageRequest
 from request.errors import FinishedScript
-from request.job import JobCounter, JobQueue, get_category_job
+from request.job import JobCounter, JobQueue, get_hs_page_job
 from request.request import Requests
 from request.worker import Worker, enqueue_hs_page, request_hs_page
-from util.export import export_records, read_proxies
+from util.io import read_proxies, write_records
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.log import get_logger
 
@@ -21,31 +21,31 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
     async with aiohttp.ClientSession() as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
-        category_joblist = await get_category_job(req=req,
+        hs_scrape_joblist = await get_hs_page_job(req=req,
                                                   start_page=start_page_nr,
                                                   end_page=end_page_nr,
                                                   input=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
-        category_q = JobQueue()
-        for job in category_joblist:
-            await category_q.put(job)
+        hs_scrape_q = JobQueue()
+        for job in hs_scrape_joblist:
+            await hs_scrape_q.put(job)
 
         export_q = asyncio.Queue()
 
-        current_page = JobCounter(value=category_joblist[0].page_num)
-        category_workers = [Worker(in_queue=category_q, out_queue=export_q, job_counter=current_page)
+        current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
+        hs_scrape_workers = [Worker(in_queue=hs_scrape_q, out_queue=export_q, job_counter=current_page)
                             for _ in range(num_workers)]
 
         T = [asyncio.create_task(
-            export_records(in_queue=export_q,
+            write_records(in_queue=export_q,
                            out_file=out_file,
-                           total=category_joblist[-1].page_num -
+                           total=hs_scrape_joblist[-1].page_num -
                            current_page.value + 1,
-                           format=lambda lookup_job: str(lookup_job) + '\n'
+                           format=lambda job: '\n'.join(str(item) for item in job.result)
                            )
         )]
-        for w in category_workers:
+        for w in hs_scrape_workers:
             T.append(asyncio.create_task(
                 w.run(req=req, request_fn=request_hs_page,
                       enqueue_fn=enqueue_hs_page)

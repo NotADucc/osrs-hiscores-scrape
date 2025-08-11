@@ -15,7 +15,7 @@ class Worker:
         self.out_q = out_queue
         self.job_counter = job_counter
 
-    async def run(self, req: Requests, request_fn: Callable, enqueue_fn: Callable, delay: float = 0):
+    async def run(self, req: Requests, request_fn: Callable, enqueue_fn: Callable, delay: float = 0, **kwargs):
         await asyncio.sleep(delay)
         while True:
             job = await self.in_q.get()
@@ -56,4 +56,4 @@ async def request_stats(req: Requests, job: HSLookupJob):
 
 
 async def enqueue_stats(queue: Queue, job: HSLookupJob):
-    await queue.put(job.result)
+    await queue.put(job)

@@ -1,6 +1,8 @@
 import argparse
 from enum import Enum
 
+def get_page_size() -> int:
+    return 25
 
 class HSAccountTypes(Enum):
     regular = 'hiscore_oldschool'

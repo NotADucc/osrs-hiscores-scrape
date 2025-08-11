@@ -7,8 +7,9 @@ from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
+from request.common import get_page_size
 from request.dto import (GetHighscorePageRequest, GetMaxHighscorePageRequest,
-                         GetPlayerRequest)
+                         GetPlayerRequest, GetMaxHighscorePageResult)
 from request.errors import (IsRateLimited, NotFound, ParsingFailed,
                             RequestFailed)
 from request.results import CategoryRecord, PlayerRecord
@@ -39,32 +40,33 @@ class Requests():
 
         return proxy
 
-    async def get_max_page(self, input: GetMaxHighscorePageRequest) -> int:
+    async def get_max_page(self, input: GetMaxHighscorePageRequest) -> GetMaxHighscorePageResult:
         # max on hs is currently 80_000 pages
-        l, r, res, PAGE_SIZE = 1, 100_000, 1, 25
+        l, r, res, PAGE_SIZE = 1, 100_000, 1, get_page_size()
 
-        async def get_first_idx(hs_request: GetHighscorePageRequest):
+        async def get_last_idx(hs_request: GetHighscorePageRequest):
             extracted_records = await self.get_hs_page(hs_request)
-            return -1 if not extracted_records else extracted_records[0].rank
+            return -1 if not extracted_records else extracted_records[-1].rank
 
         while l <= r:
             middle = (l + r) >> 1
-            first_idx = await retry(
-                get_first_idx,
+            last_idx = await retry(
+                get_last_idx,
                 hs_request=GetHighscorePageRequest(
                     page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
             )
-            expected_idx = (middle - 1) * PAGE_SIZE + 1
+            expected_idx = (middle - 1) * PAGE_SIZE + PAGE_SIZE
 
-            if first_idx == expected_idx:
+            if last_idx == expected_idx:
                 res = middle
                 l = middle + 1
             else:
                 r = middle - 1
             logger.info(f'page range: ({l}-{r})')
 
+        last_rank = await get_last_idx(hs_request=GetHighscorePageRequest(page_num=res, hs_type=input.hs_type, account_type=input.account_type))
         logger.info(f"Max page found: {res}")
-        return res
+        return GetMaxHighscorePageResult(page_nr=res, rank_nr=last_rank)
 
     async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
         csv = (await self.lookup(input)).split('\n')

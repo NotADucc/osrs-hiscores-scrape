@@ -45,6 +45,9 @@ class PlayerRecord:
         self.combat_lvl = cmb_level
 
     def lacks_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
+        return not self.meets_requirements(requirements=requirements)
+
+    def meets_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
         for key, pred in requirements.items():
             if key is HSType.overall:
                 val = self.total_level
@@ -84,8 +87,8 @@ class PlayerRecord:
     def __le__(self, other) -> bool:
         return not other < self
 
-    def __str__(self):
-        data = {
+    def to_dict(self):
+        return {
             "rank": self.rank,
             "username": self.username,
             "timestamp": self.ts.isoformat(),
@@ -95,7 +98,9 @@ class PlayerRecord:
             "skills": self.skills,
             "misc": self.misc,
         }
-        return json.dumps(data, separators=(',', ':'))
+
+    def __str__(self):
+        return json.dumps(self.to_dict(), separators=(',', ':'))
 
 
 class CategoryRecord:

@@ -38,12 +38,14 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
-| `--in-file`   | Yes      | Path to the input file                |
+| `--in-file`   | No (Yes if hs type is empty)  | Path to the input file, if no path is given it scrapes the data beforehand |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--start-nr`  | No      | Key value pair index that it should start filtering at |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
-| `--filter`  | Yes      | Custom filter on what the accounts should have. |
+| `--hs-type`  | No (Yes if in file is empty)     | Hiscore category it should pull from |
+| `--filter`  | Yes      | Custom filter on what the accounts should have |
+| `--num-workers`  | No      | Number of concurrent scraping threads (default: 50) |
 
 ## Scrape_hs.py
 ```console
@@ -57,7 +59,7 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
 | `--start-page-nr`  | No      | Hiscore page number it should start at (default: 1) |
 | `--end-page-nr`  | No      | Hiscore page number it should end at (default: end of category) |
-| `--num-workers`  | No      | Number of concurrent scraping threads |
+| `--num-workers`  | No      | Number of concurrent scraping threads (default: 50) |
 
 ## Lookup.py
 ```console
