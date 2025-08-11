@@ -5,36 +5,41 @@ import re
 import sys
 
 import aiohttp
+
 from request.common import HSAccountTypes, HSType
 from request.errors import FinishedScript
-from request.job import HSLookupJob, JobCounter, JobQueue, get_hs_page_job, GetMaxHighscorePageRequest
+from request.job import (GetMaxHighscorePageRequest, HSLookupJob, JobCounter,
+                         JobQueue, get_hs_page_job)
 from request.request import Requests
-from request.worker import Worker, enqueue_page_usernames, request_hs_page, request_stats
+from request.worker import (Worker, enqueue_page_usernames, request_hs_page,
+                            request_stats)
 from util.guard_clause_handler import running_script_not_in_cmd_guard
-from util.io import read_proxies, read_hs_records, write_records
+from util.io import read_hs_records, read_proxies, write_records
 from util.log import get_logger
 
 logger = get_logger()
 N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
+
 async def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, account_type: HSAccountTypes, hs_type: HSType, filter: dict[HSType, int], num_workers: int):
     async def enqueue_filter(queue: asyncio.Queue, job: HSLookupJob):
         if job.result.meets_requirements(filter):
             await queue.put(job)
-        else : 
+        else:
             await queue.put(None)
+
     async with aiohttp.ClientSession() as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
         if in_file is None:
-            start_page_nr = (start_nr - 1) // 25 + 1 
+            start_page_nr = (start_nr - 1) // 25 + 1
             hs_scrape_joblist = await get_hs_page_job(req=req,
-                                                    start_page=start_page_nr,
-                                                    end_page=-1,
-                                                    input=GetMaxHighscorePageRequest(
-                                                        hs_type=hs_type, account_type=account_type)
-                                                    )
+                                                      start_page=start_page_nr,
+                                                      end_page=-1,
+                                                      input=GetMaxHighscorePageRequest(
+                                                          hs_type=hs_type, account_type=account_type)
+                                                      )
             hs_scrape_job_q = JobQueue()
             for job in hs_scrape_joblist:
                 await hs_scrape_job_q.put(job)
@@ -43,29 +48,31 @@ async def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: in
 
             current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
             hs_scrape_workers = [Worker(in_queue=hs_scrape_job_q, out_queue=hs_scrape_export_q, job_counter=current_page)
-                                for _ in range(N_SCRAPE_WORKERS)]
+                                 for _ in range(N_SCRAPE_WORKERS)]
 
             filter_q = asyncio.Queue()
             current_rank = JobCounter(value=start_nr)
             filter_workers = [Worker(in_queue=hs_scrape_export_q, out_queue=filter_q, job_counter=current_rank)
-                   for _ in range(num_workers)]
+                              for _ in range(num_workers)]
 
             T = [asyncio.create_task(
                 write_records(in_queue=filter_q,
-                            out_file=out_file,
-                            total=hs_scrape_joblist[-1].end_rank -
-                            hs_scrape_joblist[0].start_rank + 1,
-                            format=lambda job: json.dumps({"rank": job.priority, "record": job.result.to_dict()}) + '\n'
-                            )
+                              out_file=out_file,
+                              total=hs_scrape_joblist[-1].end_rank -
+                              hs_scrape_joblist[0].start_rank + 1,
+                              format=lambda job: json.dumps(
+                                  {"rank": job.priority, "record": job.result.to_dict()}) + '\n'
+                              )
             )]
             for w in hs_scrape_workers:
                 T.append(asyncio.create_task(
                     w.run(req=req, request_fn=request_hs_page,
-                        enqueue_fn=enqueue_page_usernames, delay=0.2)
+                          enqueue_fn=enqueue_page_usernames, delay=0.2)
                 ))
             for i, w in enumerate(filter_workers):
                 T.append(asyncio.create_task(
-                    w.run(req=req, request_fn=request_stats, enqueue_fn=enqueue_filter, delay=i * 0.1)
+                    w.run(req=req, request_fn=request_stats,
+                          enqueue_fn=enqueue_filter, delay=i * 0.1)
                 ))
             try:
                 await asyncio.gather(*T)
@@ -75,9 +82,9 @@ async def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: in
                 for task in T:
                     task.cancel()
                 await asyncio.gather(*T, return_exceptions=True)
-        else :
+        else:
             hs_records = read_hs_records(in_file=in_file)
-    
+
 
 if __name__ == '__main__':
     def parse_key_value_pairs(arg):
@@ -125,7 +132,7 @@ if __name__ == '__main__':
                         help="Custom filter on what the accounts should have")
     parser.add_argument('--num-workers', default=50, type=int,
                         help="Number of concurrent scraping threads")
-    
+
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
@@ -133,7 +140,8 @@ if __name__ == '__main__':
         if not args.in_file and not args.hs_type:
             parser.error('"--in-file" or "--hs-type" is missing')
 
-        asyncio.run(main(args.in_file, args.out_file, args.proxy_file, args.start_nr, args.account_type, args.hs_type, args.filter, args.num_workers))
+        asyncio.run(main(args.in_file, args.out_file, args.proxy_file, args.start_nr,
+                    args.account_type, args.hs_type, args.filter, args.num_workers))
     except Exception as e:
         logger.error(e)
         sys.exit(2)

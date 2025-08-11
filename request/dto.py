@@ -8,10 +8,12 @@ class GetMaxHighscorePageRequest:
     hs_type: HSType
     account_type: HSAccountTypes
 
+
 @dataclass
 class GetMaxHighscorePageResult:
     page_nr: int
     rank_nr: int
+
 
 @dataclass
 class GetHighscorePageRequest:

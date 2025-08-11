@@ -71,7 +71,7 @@ async def get_hs_page_job(req: Requests, start_page: int, end_page: int, input: 
     if end_page <= 0 or end_page >= max_page:
         end_page = max_page
         end_rank = max_page_result.rank_nr
-    else :
+    else:
         end_page = end_page
         end_rank = end_page * PAGE_SIZE
 
@@ -82,8 +82,8 @@ async def get_hs_page_job(req: Requests, start_page: int, end_page: int, input: 
         raise ValueError("Start page is greater than end page")
 
     return [
-        HSCategoryJob(priority=page_num, page_num=page_num, 
-                      start_rank=(page_num - 1) * PAGE_SIZE + 1, 
+        HSCategoryJob(priority=page_num, page_num=page_num,
+                      start_rank=(page_num - 1) * PAGE_SIZE + 1,
                       end_rank=page_num if page_num != end_page else end_rank,
                       account_type=input.account_type, hs_type=input.hs_type)
         for page_num in range(start_page, end_page + 1)

@@ -9,7 +9,7 @@ from fake_useragent import UserAgent
 
 from request.common import get_page_size
 from request.dto import (GetHighscorePageRequest, GetMaxHighscorePageRequest,
-                         GetPlayerRequest, GetMaxHighscorePageResult)
+                         GetMaxHighscorePageResult, GetPlayerRequest)
 from request.errors import (IsRateLimited, NotFound, ParsingFailed,
                             RequestFailed)
 from request.results import CategoryRecord, PlayerRecord

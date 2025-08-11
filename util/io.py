@@ -18,15 +18,17 @@ async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable
                 f.write(format(job))
 
         raise FinishedScript
-    
+
+
 def read_proxies(proxy_file: str) -> list[str] | None:
     if proxy_file is not None:
         with open(proxy_file, "r") as f:
             proxies = f.read().splitlines()
     else:
         proxies = []
-    
+
     return proxies
+
 
 def read_hs_records(in_file: str) -> list[CategoryRecord] | None:
     hs_records = []

@@ -10,8 +10,8 @@ from request.errors import FinishedScript
 from request.job import JobCounter, JobQueue, get_hs_page_job
 from request.request import Requests
 from request.worker import Worker, enqueue_hs_page, request_hs_page
-from util.io import read_proxies, write_records
 from util.guard_clause_handler import running_script_not_in_cmd_guard
+from util.io import read_proxies, write_records
 from util.log import get_logger
 
 logger = get_logger()
@@ -35,15 +35,16 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 
         current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
         hs_scrape_workers = [Worker(in_queue=hs_scrape_q, out_queue=export_q, job_counter=current_page)
-                            for _ in range(num_workers)]
+                             for _ in range(num_workers)]
 
         T = [asyncio.create_task(
             write_records(in_queue=export_q,
-                           out_file=out_file,
-                           total=hs_scrape_joblist[-1].page_num -
-                           current_page.value + 1,
-                           format=lambda job: '\n'.join(str(item) for item in job.result)
-                           )
+                          out_file=out_file,
+                          total=hs_scrape_joblist[-1].page_num -
+                          current_page.value + 1,
+                          format=lambda job: '\n'.join(
+                              str(item) for item in job.result)
+                          )
         )]
         for w in hs_scrape_workers:
             T.append(asyncio.create_task(
