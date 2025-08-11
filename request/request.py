@@ -33,18 +33,20 @@ class Requests():
 
     async def get_max_page(self, input: GetMaxHighscorePageRequest) -> int:
         # max on hs is currently 80_000 pages
-        l, r, res, page_size = 1, 100_000, -1, 25
+        l, r, res, PAGE_SIZE = 1, 100_000, 1, 25
 
-        async def get_first_idx(account_type, hs_type, middle):
-            page = await self.get_hs_page(account_type, hs_type, middle)
-            extracted_records = Requests.extract_highscore_records(page)
+        async def get_first_idx(hs_request: GetHighscorePageRequest):
+            extracted_records = await self.get_hs_page(hs_request)
             return -1 if not extracted_records else extracted_records[0].rank
 
         while l <= r:
             middle = (l + r) >> 1
-            first_idx = await retry(get_first_idx, account_type=input.account_type,
-                                    hs_type=input.hs_type, middle=middle)
-            expected_idx = (middle - 1) * page_size + 1
+            first_idx = await retry(
+                get_first_idx,
+                hs_request=GetHighscorePageRequest(
+                    page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
+            )
+            expected_idx = (middle - 1) * PAGE_SIZE + 1
 
             if first_idx == expected_idx:
                 res = middle
@@ -52,9 +54,10 @@ class Requests():
             else:
                 r = middle - 1
             logger.info(f'page range: ({l}-{r})')
+
+        logger.info(f"Max page found: {res}")
         return res
 
-    # def get_user_stats(self, name: str, account_type: HSAccountTypes, **kwargs) -> PlayerRecord:
     async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
         csv = (await self.lookup(input)).split('\n')
         return PlayerRecord(username=input.username, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
@@ -80,7 +83,6 @@ class Requests():
 
         async with self.session.get(url, headers=headers, params=params, proxy=proxy, timeout=30) as resp:
             text = await resp.text()
-            text = text.replace('Ā', ' ').replace('\xa0', ' ')
             if Requests.is_rate_limited(text):
                 raise IsRateLimited(
                     f"limited on '{url}'", details={"params": params, "proxies": proxy})
@@ -96,25 +98,27 @@ class Requests():
                                 "code": resp.status, "params": params, "proxies": proxy})
 
     @staticmethod
-    def is_rate_limited(page: bytes) -> bool:
+    def is_rate_limited(page: str) -> bool:
         return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
 
     @staticmethod
-    def does_player_exist(name: str, page: bytes) -> bool:
+    def does_player_exist(name: str, page: str) -> bool:
         return not f"No player \"{name}\" found" in BeautifulSoup(page, "html.parser").text
 
     @staticmethod
-    def extract_highscore_records(page: bytes) -> list[CategoryRecord]:
+    def extract_highscore_records(page: str) -> list[CategoryRecord]:
         soup = BeautifulSoup(page, "html.parser")
-        scores = soup.find_all(class_='personal-hiscores__row')
+        records = soup.find_all(class_='personal-hiscores__row')
 
         result = []
 
-        for score in scores:
-            td_right = score.find_all('td', class_='right')
+        for record in records:
+            td_right = record.find_all('td', class_='right')
 
             rank = int(td_right[0].text.replace(',', '').strip())
-            username = score.find('td', class_='left').a.text.strip()
+            # some names contain special char - "non-breaking space."
+            username = record.find('td', class_='left').a.text.strip().replace(
+                'Ā', ' ').replace('\xa0', ' ')
             score = int(td_right[1].text.replace(',', '').strip())
             result.append(CategoryRecord(
                 rank=rank, score=score, username=username))

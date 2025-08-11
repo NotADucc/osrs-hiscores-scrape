@@ -22,5 +22,5 @@ class NoProxyList(Exception):
         super().__init__(message)
 
 
-class DoneScraping(Exception):
+class FinishedScript(Exception):
     pass

@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import Queue, CancelledError
 from typing import Callable
-from request.dto import GetHighscorePageRequest
+from request.dto import GetHighscorePageRequest, GetPlayerRequest
 from request.errors import NotFound, RequestFailed
 from request.job import JobCounter, JobQueue, HSLookupJob, HSCategoryJob
 from request.request import Requests
@@ -35,8 +35,12 @@ class Worker:
                 raise
 
 
-async def request_page(req: Requests, job: HSCategoryJob):
-    job.result = await req.get_hs_page(input=GetHighscorePageRequest(job.page_num, job.hs_type, job.account_type))
+async def request_hs_page(req: Requests, job: HSCategoryJob):
+    job.result = await req.get_hs_page(GetHighscorePageRequest(page_num=job.page_num, hs_type=job.hs_type, account_type=job.account_type))
+
+
+async def enqueue_hs_page(queue: Queue, job: HSCategoryJob):
+    await queue.put(job)
 
 
 async def enqueue_page_usernames(queue: Queue, job: HSCategoryJob):
@@ -47,7 +51,7 @@ async def enqueue_page_usernames(queue: Queue, job: HSCategoryJob):
 
 
 async def request_stats(req: Requests, job: HSLookupJob):
-    job.result = await req.get_user_stats(name=job.username, account_type=job.account_type)
+    job.result = await req.get_user_stats(GetPlayerRequest(username=job.username, account_type=job.account_type))
 
 
 async def enqueue_stats(queue: Queue, job: HSLookupJob):

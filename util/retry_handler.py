@@ -1,5 +1,6 @@
 import asyncio
 
+import inspect
 from typing import Any, Callable
 from request.errors import IsRateLimited, NotFound, RequestFailed
 from util.log import get_logger
@@ -11,7 +12,10 @@ async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_del
     retries = 1
     while retries <= max_retries:
         try:
-            return await callback(**kwargs)
+            result = callback(**kwargs)
+            if inspect.isawaitable(result):
+                result = await result
+            return result
         except IsRateLimited as err:
             logger.warning(f"{err} | {err.details}", exc_info=exc_info)
         except NotFound as err:

@@ -57,6 +57,7 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
 | `--start-page-nr`  | No      | Hiscore page number it should start at (default: 1) |
 | `--end-page-nr`  | No      | Hiscore page number it should end at (default: end of category) |
+| `--num-workers`  | No      | Number of concurrent scraping threads |
 
 ## Lookup.py
 ```console
@@ -76,14 +77,6 @@ py analyse_category.py --out-file output.txt --hs-type zuk
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--hs-type`  | Yes      | Hiscore category it should pull from |
-
-## Sort.py
-```console
-py sort.py --in-file input.txt
-```
-| Argument      | Required | Description                                |
-| ------------- | -------- | ------------------------------------------ |
-| `--in-file`   | Yes      | Path to the main file                |
 
 
 # Logging
