@@ -18,3 +18,12 @@ async def export_records(in_queue: asyncio.Queue, out_file: str, format: Callabl
                 f.write(format(job.result))
 
         raise FinishedScript
+
+def read_proxies(proxy_file: str) -> list[str] | None:
+    if proxy_file is not None:
+        with open(proxy_file, "r") as f:
+            proxies = f.read().splitlines()
+    else:
+        proxies = []
+    
+    return proxies

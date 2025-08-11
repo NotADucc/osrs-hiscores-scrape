@@ -10,7 +10,7 @@ from request.errors import FinishedScript
 from request.job import JobCounter, JobQueue, get_category_job
 from request.request import Requests
 from request.worker import Worker, enqueue_hs_page, request_hs_page
-from util.export import export_records
+from util.export import export_records, read_proxies
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.log import get_logger
 
@@ -18,14 +18,8 @@ logger = get_logger()
 
 
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, start_page_nr: int, end_page_nr: int, num_workers: int):
-    if proxy_file is not None:
-        with open(proxy_file, "r") as f:
-            proxies = f.read().splitlines()
-    else:
-        proxies = []
-
     async with aiohttp.ClientSession() as session:
-        req = Requests(session=session, proxy_list=proxies)
+        req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
         category_joblist = await get_category_job(req=req,
                                                   start_page=start_page_nr,
