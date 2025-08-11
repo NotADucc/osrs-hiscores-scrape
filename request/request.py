@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import threading
 from typing import Dict
@@ -6,7 +7,7 @@ from aiohttp import ClientSession
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 from request.dto import GetHighscorePageRequest, GetMaxHighscorePageRequest, GetPlayerRequest
-from request.errors import IsRateLimited, RequestFailed, NotFound
+from request.errors import IsRateLimited, ParsingFailed, RequestFailed, NotFound
 from request.results import CategoryRecord, PlayerRecord
 from util.log import get_logger
 from util.retry_handler import retry
@@ -102,13 +103,14 @@ class Requests():
         return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
 
     @staticmethod
-    def does_player_exist(name: str, page: str) -> bool:
-        return not f"No player \"{name}\" found" in BeautifulSoup(page, "html.parser").text
-
-    @staticmethod
     def extract_highscore_records(page: str) -> list[CategoryRecord]:
         soup = BeautifulSoup(page, "html.parser")
-        records = soup.find_all(class_='personal-hiscores__row')
+        table = soup.find_all(class_='personal-hiscores__table')
+        
+        if len(table) == 0:
+            raise ParsingFailed("Could not find hiscore table")
+
+        records = table[0].find_all(class_='personal-hiscores__row')
 
         result = []
 

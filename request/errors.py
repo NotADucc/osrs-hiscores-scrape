@@ -22,5 +22,11 @@ class NoProxyList(Exception):
         super().__init__(message)
 
 
+class ParsingFailed(Exception):
+    def __init__(self, message, details=None):
+        self.details = details
+        super().__init__(message)
+
+
 class FinishedScript(Exception):
     pass
