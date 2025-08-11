@@ -38,12 +38,11 @@ py filter.py --in-file input.txt --out-file output.txt --account-type pure --fil
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
-| `--in-file`   | No (Yes if hs type is empty)  | Path to the input file, if no path is given it scrapes the data beforehand |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--start-nr`  | No      | Key value pair index that it should start filtering at |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
-| `--hs-type`  | No (Yes if in file is empty)     | Hiscore category it should pull from |
+| `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
 | `--filter`  | Yes      | Custom filter on what the accounts should have |
 | `--num-workers`  | No      | Number of concurrent scraping threads (default: 50) |
 
