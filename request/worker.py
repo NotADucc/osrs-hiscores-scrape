@@ -1,9 +1,10 @@
 import asyncio
-from asyncio import Queue, CancelledError
+from asyncio import CancelledError, Queue
 from typing import Callable
+
 from request.dto import GetHighscorePageRequest, GetPlayerRequest
 from request.errors import NotFound, RequestFailed
-from request.job import JobCounter, JobQueue, HSLookupJob, HSCategoryJob
+from request.job import HSCategoryJob, HSLookupJob, JobCounter, JobQueue
 from request.request import Requests
 from util.retry_handler import retry
 

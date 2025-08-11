@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.log import get_logger
 

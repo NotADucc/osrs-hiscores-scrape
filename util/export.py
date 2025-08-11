@@ -1,7 +1,9 @@
 import asyncio
 import os
 from typing import Callable
+
 from tqdm import tqdm
+
 from request.errors import FinishedScript
 
 

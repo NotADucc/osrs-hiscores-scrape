@@ -5,10 +5,10 @@ import sys
 import threading
 
 import aiohttp
+
+from deprecated.pool import execute
 from util.guard_clause_handler import running_script_not_in_cmd_guard
 from util.log import get_logger
-from deprecated.pool import execute
-
 
 logger = get_logger()
 file_lock = threading.Lock()

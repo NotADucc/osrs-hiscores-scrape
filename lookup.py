@@ -4,13 +4,14 @@ import json
 import sys
 
 import aiohttp
+
 from request.common import HSAccountTypes
 from request.dto import GetPlayerRequest
 from request.errors import NotFound
 from request.request import Requests
 from util.guard_clause_handler import running_script_not_in_cmd_guard
-from util.retry_handler import retry
 from util.log import get_logger
+from util.retry_handler import retry
 
 logger = get_logger()
 

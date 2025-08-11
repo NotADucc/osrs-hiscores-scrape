@@ -3,7 +3,6 @@ import sys
 from request.common import HSType
 from util.log import get_logger
 
-
 logger = get_logger()
 
 

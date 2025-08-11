@@ -1,7 +1,7 @@
 import asyncio
-
 import inspect
 from typing import Any, Callable
+
 from request.errors import IsRateLimited, NotFound, RequestFailed
 from util.log import get_logger
 

@@ -4,10 +4,13 @@ import threading
 from typing import Dict
 
 from aiohttp import ClientSession
-from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
-from request.dto import GetHighscorePageRequest, GetMaxHighscorePageRequest, GetPlayerRequest
-from request.errors import IsRateLimited, ParsingFailed, RequestFailed, NotFound
+from fake_useragent import UserAgent
+
+from request.dto import (GetHighscorePageRequest, GetMaxHighscorePageRequest,
+                         GetPlayerRequest)
+from request.errors import (IsRateLimited, NotFound, ParsingFailed,
+                            RequestFailed)
 from request.results import CategoryRecord, PlayerRecord
 from util.log import get_logger
 from util.retry_handler import retry
@@ -111,7 +114,7 @@ class Requests():
     def extract_highscore_records(page: str) -> list[CategoryRecord]:
         soup = BeautifulSoup(page, "html.parser")
         table = soup.find_all(class_='personal-hiscores__table')
-        
+
         if len(table) == 0:
             raise ParsingFailed("Could not find hiscore table")
 

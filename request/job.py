@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from typing import List
+
 from request.common import HSAccountTypes, HSType
 from request.dto import GetMaxHighscorePageRequest
 from request.request import Requests

@@ -4,14 +4,14 @@ import sys
 
 import aiohttp
 
+from request.common import HSAccountTypes, HSType
 from request.dto import GetMaxHighscorePageRequest
 from request.errors import FinishedScript
 from request.job import JobCounter, JobQueue, get_category_job
+from request.request import Requests
 from request.worker import Worker, enqueue_hs_page, request_hs_page
 from util.export import export_records
 from util.guard_clause_handler import running_script_not_in_cmd_guard
-from request.common import HSType, HSAccountTypes
-from request.request import Requests
 from util.log import get_logger
 
 logger = get_logger()
