@@ -46,14 +46,16 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
                                                   input=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
+
+        hs_scrape_q = JobQueue()
+        for job in hs_scrape_joblist:
+            await hs_scrape_q.put(job)
+
+        T: list[asyncio.Task] = []
         try:
-            if len(hs_scrape_joblist) == 0:
+            if len(hs_scrape_q) == 0:
                 logger.info("bypass scraping, temp file contains all the data")
                 raise FinishedScript
-
-            hs_scrape_q = JobQueue()
-            for job in hs_scrape_joblist:
-                await hs_scrape_q.put(job)
 
             temp_export_q = asyncio.Queue()
 
@@ -61,7 +63,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
             hs_scrape_workers = [Worker(in_queue=hs_scrape_q, out_queue=temp_export_q, job_counter=current_page)
                                  for _ in range(num_workers)]
 
-            T = [asyncio.create_task(
+            T.append(asyncio.create_task(
                 write_records(in_queue=temp_export_q,
                               out_file=temp_file,
                               total=hs_scrape_joblist[-1].page_num -
@@ -69,7 +71,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
                               format=lambda job: '\n'.join(
                                   str(item) for item in job.result[job.start_idx:job.end_idx])
                               )
-            )]
+            ))
             for w in hs_scrape_workers:
                 T.append(asyncio.create_task(
                     w.run(req=req, request_fn=request_hs_page,

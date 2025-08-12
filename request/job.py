@@ -53,6 +53,9 @@ class JobQueue:
         self.got = asyncio.Event()
         self.max_size = max_size
 
+    def __len__(self):
+        return self.q.qsize()
+
     async def put(self, item, force=False):
         if self.max_size and not force:
             while self.q.qsize() >= self.max_size:
