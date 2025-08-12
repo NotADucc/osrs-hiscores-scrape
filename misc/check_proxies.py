@@ -1,14 +1,12 @@
 import argparse
 import asyncio
-import json
-import sys
 import threading
 
 import aiohttp
 
 from deprecated.pool import execute
-from util.guard_clause_handler import running_script_not_in_cmd_guard
-from util.log import get_logger
+from util.guard_clause_handler import script_running_in_cmd_guard
+from util.log import finished_script, get_logger
 
 logger = get_logger()
 file_lock = threading.Lock()
@@ -54,11 +52,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--proxy-file', required=True,
                         help="Path to the proxy file")
-    running_script_not_in_cmd_guard(parser)
+    script_running_in_cmd_guard(parser)
 
     args = parser.parse_args()
 
     asyncio.run(main(args.proxy_file))
 
-    logger.debug("done")
-    sys.exit(0)
+    finished_script()

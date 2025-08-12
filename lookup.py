@@ -9,8 +9,8 @@ from request.common import HSAccountTypes
 from request.dto import GetPlayerRequest
 from request.errors import NotFound
 from request.request import Requests
-from util.guard_clause_handler import running_script_not_in_cmd_guard
-from util.log import get_logger
+from util.guard_clause_handler import script_running_in_cmd_guard
+from util.log import finished_script, get_logger
 from util.retry_handler import retry
 
 logger = get_logger()
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     parser.add_argument('--account-type', default='regular',
                         type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
 
-    running_script_not_in_cmd_guard(parser)
+    script_running_in_cmd_guard(parser)
     args = parser.parse_args()
 
     try:
@@ -45,8 +45,7 @@ if __name__ == '__main__':
     except asyncio.CancelledError:
         pass
     except Exception as e:
-        logger.error(f"Caught Error: {e}")
+        logger.error(e)
         sys.exit(2)
 
-    logger.info("done")
-    sys.exit(0)
+    finished_script()

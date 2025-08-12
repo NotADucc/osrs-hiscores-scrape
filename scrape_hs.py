@@ -10,9 +10,9 @@ from request.errors import FinishedScript
 from request.job import JobCounter, JobQueue, get_hs_page_job
 from request.request import Requests
 from request.worker import Worker, enqueue_hs_page, request_hs_page
-from util.guard_clause_handler import running_script_not_in_cmd_guard
+from util.guard_clause_handler import script_running_in_cmd_guard
 from util.io import read_proxies, write_records
-from util.log import get_logger
+from util.log import finished_script, get_logger
 
 logger = get_logger()
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
                         help="Number of concurrent scraping threads (default: 15)")
 
-    running_script_not_in_cmd_guard(parser)
+    script_running_in_cmd_guard(parser)
     args = parser.parse_args()
 
     try:
@@ -87,5 +87,4 @@ if __name__ == '__main__':
         logger.error(e)
         sys.exit(2)
 
-    logger.info("done")
-    sys.exit(0)
+    finished_script()
