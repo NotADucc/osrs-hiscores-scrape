@@ -16,6 +16,8 @@ class HSCategoryJob:
     end_rank: int
     hs_type: HSType
     account_type: HSAccountTypes
+    start_idx: int # internal bookkeeping cuz i cbf working with slices and ranks
+    end_idx: int # internal bookkeeping cuz i cbf working with slices and ranks
     result: List[CategoryRecord] = None
 
 
@@ -85,22 +87,9 @@ async def get_hs_page_job(req: Requests, start_page: int, end_page: int, input: 
         HSCategoryJob(priority=page_num, page_num=page_num,
                       start_rank=(page_num - 1) * PAGE_SIZE + 1,
                       end_rank=page_num if page_num != end_page else end_rank,
-                      account_type=input.account_type, hs_type=input.hs_type)
+                      account_type=input.account_type, hs_type=input.hs_type,
+                      start_idx=0,
+                      end_idx=PAGE_SIZE if page_num != end_page else (PAGE_SIZE - ((end_rank // PAGE_SIZE + 1) * PAGE_SIZE - end_rank)),
+                      )
         for page_num in range(start_page, end_page + 1)
     ]
-
-# async def transform_into_hs_page_job(req: Requests, start_page: int, end_page: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
-#     max_page = await req.get_max_page(input=input)
-#     end_page = max_page if end_page <= 0 or end_page >= max_page else end_page
-
-#     if start_page < 1:
-#         raise ValueError("Start page is smaller than 1")
-
-#     if start_page > end_page:
-#         raise ValueError("Start page is greater than end page")
-
-#     return [
-#         HSCategoryJob(priority=page_num, page_num=page_num,
-#                       account_type=input.account_type, hs_type=input.hs_type)
-#         for page_num in range(start_page, end_page + 1)
-#     ]

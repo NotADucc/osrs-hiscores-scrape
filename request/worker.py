@@ -45,7 +45,7 @@ async def enqueue_hs_page(queue: Queue, job: HSCategoryJob):
 
 
 async def enqueue_page_usernames(queue: Queue, job: HSCategoryJob):
-    for record in job.result:
+    for record in job.result[job.start_idx:job.end_idx]:
         outjob = HSLookupJob(
             priority=record.rank, username=record.username, account_type=job.account_type)
         await queue.put(outjob)
