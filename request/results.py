@@ -1,10 +1,11 @@
 import datetime
-from functools import total_ordering
 import json
+from functools import total_ordering
 from typing import Any, Callable, List
 
 from request.common import HSType
 from stats.common import calc_cmb
+
 
 @total_ordering
 class PlayerRecord:
@@ -90,6 +91,7 @@ class PlayerRecord:
 
     def __str__(self):
         return json.dumps(self.to_dict(), separators=(',', ':'))
+
 
 @total_ordering
 class CategoryRecord:

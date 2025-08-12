@@ -42,7 +42,8 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
                           out_file=out_file,
                           total=hs_scrape_joblist[-1].page_num -
                           current_page.value + 1,
-                          format=lambda job: '\n'.join(str(item) for item in job.result[job.start_idx:job.end_idx])
+                          format=lambda job: '\n'.join(
+                              str(item) for item in job.result[job.start_idx:job.end_idx])
                           )
         )]
         for w in hs_scrape_workers:

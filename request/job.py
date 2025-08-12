@@ -16,8 +16,8 @@ class HSCategoryJob:
     end_rank: int
     hs_type: HSType
     account_type: HSAccountTypes
-    start_idx: int # internal bookkeeping cuz i cbf working with slices and ranks
-    end_idx: int # internal bookkeeping cuz i cbf working with slices and ranks
+    start_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
+    end_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
     result: List[CategoryRecord] = None
 
 
@@ -67,8 +67,8 @@ class JobQueue:
 
 
 async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
-    start_page = (start_rank - 1) // 25 + 1 
-    end_page = (end_rank - 1) // 25 + 1 
+    start_page = (start_rank - 1) // 25 + 1
+    end_page = (end_rank - 1) // 25 + 1
 
     if start_rank < 1:
         raise ValueError("Start page is smaller than 1")
@@ -89,14 +89,18 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
 
     if start_rank >= end_rank:
         return []
-    
+
     return [
         HSCategoryJob(priority=page_num, page_num=page_num,
-                      start_rank=start_rank if page_num == start_page else (page_num - 1) * PAGE_SIZE + 1,
-                      end_rank=end_rank if page_num == end_page else (page_num - 1) * PAGE_SIZE + PAGE_SIZE,
+                      start_rank=start_rank if page_num == start_page else (
+                          page_num - 1) * PAGE_SIZE + 1,
+                      end_rank=end_rank if page_num == end_page else (
+                          page_num - 1) * PAGE_SIZE + PAGE_SIZE,
                       account_type=input.account_type, hs_type=input.hs_type,
-                      start_idx=(start_rank - 1) % 25 if page_num == start_page else 0,
-                      end_idx=(end_rank - 1) % 25 + 1 if page_num == end_rank else PAGE_SIZE,
+                      start_idx=(
+                          start_rank - 1) % 25 if page_num == start_page else 0,
+                      end_idx=(end_rank - 1) % 25 +
+                      1 if page_num == end_rank else PAGE_SIZE,
                       )
         for page_num in range(start_page, end_page + 1)
     ]
