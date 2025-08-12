@@ -32,9 +32,9 @@ python -m pip install -r requirements.txt
 
 ## Filter.py
 ```console
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged=50,attack<50'
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged>50 , attack>=50'
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged<=50, attack=50' 
+py filter.py --out-file output.txt --filter 'ranged=50,attack<50'
+py filter.py --out-file output.txt --filter 'ranged>50 , attack>=50'
+py filter.py --out-file output.txt --filter 'ranged<=50, attack=50' 
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -62,7 +62,7 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 
 ## Lookup.py
 ```console
-py lookup.py --name Cow31337Killer
+py lookup.py --name Cow1337Killer
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -71,7 +71,7 @@ py lookup.py --name Cow31337Killer
 
 ## analyse_category.py
 ```console
-py analyse_category.py --out-file output.txt --hs-type zuk
+py analyse_category.py --out-file output.txt --hs-type zuk --account-type hc
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -81,4 +81,4 @@ py analyse_category.py --out-file output.txt --hs-type zuk
 | `--account-type`  | Yes      | Account type it should pull from       |
 
 # Logging
-A logger is used to report progress. A "done" message is logged once processing is complete.
+A logger (and progressbar) is used to report progress. A "done" message is logged once processing is complete.
