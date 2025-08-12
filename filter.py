@@ -22,7 +22,7 @@ N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
 
-async def main(out_file: str, proxy_file: str | None, start_nr: int, account_type: HSAccountTypes, hs_type: HSType, filter: dict[HSType, int], num_workers: int):
+async def main(out_file: str, proxy_file: str | None, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, filter: dict[HSType, int], num_workers: int):
     async def enqueue_filter(queue: asyncio.Queue, job: HSLookupJob):
         if job.result.meets_requirements(filter):
             await queue.put(job)
@@ -32,10 +32,9 @@ async def main(out_file: str, proxy_file: str | None, start_nr: int, account_typ
     async with aiohttp.ClientSession() as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
-        start_page_nr = (start_nr - 1) // 25 + 1
         hs_scrape_joblist = await get_hs_page_job(req=req,
-                                                  start_page=start_page_nr,
-                                                  end_page=-1,
+                                                  start_rank=start_rank,
+                                                  end_rank=-1,
                                                   input=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
@@ -50,7 +49,7 @@ async def main(out_file: str, proxy_file: str | None, start_nr: int, account_typ
                              for _ in range(N_SCRAPE_WORKERS)]
 
         filter_q = asyncio.Queue()
-        current_rank = JobCounter(value=start_nr)
+        current_rank = JobCounter(value=start_rank)
         filter_workers = [Worker(in_queue=hs_scrape_export_q, out_queue=filter_q, job_counter=current_rank)
                           for _ in range(num_workers)]
 
@@ -60,7 +59,7 @@ async def main(out_file: str, proxy_file: str | None, start_nr: int, account_typ
                           total=hs_scrape_joblist[-1].end_rank -
                           hs_scrape_joblist[0].start_rank + 1,
                           format=lambda job: json.dumps(
-                              {"rank": job.priority, "record": job.result.to_dict()}) + '\n'
+                              {"rank": job.priority, "record": job.result.to_dict()})
                           )
         )]
         for w in hs_scrape_workers:
@@ -118,8 +117,8 @@ if __name__ == '__main__':
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
     parser.add_argument('--proxy-file', help="Path to the proxy file")
-    parser.add_argument('--start-nr', default=1, type=int,
-                        help="Key value pair index that it should start filtering at")
+    parser.add_argument('--rank-start', default=1, type=int,
+                        help="Rank number that it should start filtering at (default: 1)")
     parser.add_argument('--account-type', default='regular',
                         type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
@@ -133,7 +132,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     try:
-        asyncio.run(main(args.out_file, args.proxy_file, args.start_nr,
+        asyncio.run(main(args.out_file, args.proxy_file, args.rank_start,
                     args.account_type, args.hs_type, args.filter, args.num_workers))
     except Exception as e:
         logger.error(e)

@@ -15,7 +15,7 @@ class Worker:
         self.out_q = out_queue
         self.job_counter = job_counter
 
-    async def run(self, req: Requests, request_fn: Callable, enqueue_fn: Callable, delay: float = 0, **kwargs):
+    async def run(self, req: Requests, request_fn: Callable, enqueue_fn: Callable, delay: float = 0):
         await asyncio.sleep(delay)
         while True:
             job = await self.in_q.get()

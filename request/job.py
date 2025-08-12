@@ -66,30 +66,37 @@ class JobQueue:
         return item
 
 
-async def get_hs_page_job(req: Requests, start_page: int, end_page: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
-    max_page_result = await req.get_max_page(input=input)
-    max_page = max_page_result.page_nr
-    PAGE_SIZE = get_page_size()
-    if end_page <= 0 or end_page >= max_page:
-        end_page = max_page
-        end_rank = max_page_result.rank_nr
-    else:
-        end_page = end_page
-        end_rank = end_page * PAGE_SIZE
+async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
+    start_page = (start_rank - 1) // 25 + 1 
+    end_page = (end_rank - 1) // 25 + 1 
 
-    if start_page < 1:
+    if start_rank < 1:
         raise ValueError("Start page is smaller than 1")
 
-    if start_page > end_page:
-        raise ValueError("Start page is greater than end page")
+    if end_rank > 0 and start_rank > end_rank:
+        raise ValueError("Start rank is greater than end rank")
 
+    PAGE_SIZE = get_page_size()
+    res = await req.get_max_page(input=input)
+    max_page, max_rank = res.page_nr, res.rank_nr
+
+    if end_rank <= 0 or end_rank >= max_rank:
+        end_page = max_page
+        end_rank = max_rank
+    else:
+        end_page = end_page
+        end_rank = end_rank
+
+    if start_rank >= end_rank:
+        return []
+    
     return [
         HSCategoryJob(priority=page_num, page_num=page_num,
-                      start_rank=(page_num - 1) * PAGE_SIZE + 1,
-                      end_rank=page_num if page_num != end_page else end_rank,
+                      start_rank=start_rank if page_num == start_page else (page_num - 1) * PAGE_SIZE + 1,
+                      end_rank=end_rank if page_num == end_page else (page_num - 1) * PAGE_SIZE + PAGE_SIZE,
                       account_type=input.account_type, hs_type=input.hs_type,
-                      start_idx=0,
-                      end_idx=PAGE_SIZE if page_num != end_page else (PAGE_SIZE - ((end_rank // PAGE_SIZE + 1) * PAGE_SIZE - end_rank)),
+                      start_idx=(start_rank - 1) % 25 if page_num == start_page else 0,
+                      end_idx=(end_rank - 1) % 25 + 1 if page_num == end_rank else PAGE_SIZE,
                       )
         for page_num in range(start_page, end_page + 1)
     ]

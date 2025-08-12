@@ -1,11 +1,12 @@
 import datetime
+from functools import total_ordering
 import json
 from typing import Any, Callable, List
 
 from request.common import HSType
 from stats.common import calc_cmb
 
-
+@total_ordering
 class PlayerRecord:
     def __init__(self, username: str, csv: List[str], ts: datetime):
         self.username = username
@@ -75,18 +76,6 @@ class PlayerRecord:
             return False
         return not self < other and not other < self
 
-    def __ne__(self, other) -> bool:
-        return not self == other
-
-    def __gt__(self, other) -> bool:
-        return other < self
-
-    def __ge__(self, other) -> bool:
-        return not self < other
-
-    def __le__(self, other) -> bool:
-        return not other < self
-
     def to_dict(self):
         return {
             "rank": self.rank,
@@ -102,7 +91,7 @@ class PlayerRecord:
     def __str__(self):
         return json.dumps(self.to_dict(), separators=(',', ':'))
 
-
+@total_ordering
 class CategoryRecord:
     def __init__(self, rank: int, score: int, username: str):
         self.rank = rank
@@ -117,24 +106,13 @@ class CategoryRecord:
         }
 
     def __lt__(self, other: 'CategoryRecord') -> bool:
+        # technically the smaller rank is greater than bigger rank but this is for sorts
         return self.rank < other.rank
 
     def __eq__(self, other) -> bool:
         if other is None:
             return False
-        return not self < other and not other < self
-
-    def __ne__(self, other) -> bool:
-        return not self == other
-
-    def __gt__(self, other) -> bool:
-        return other < self
-
-    def __ge__(self, other) -> bool:
-        return not self < other
-
-    def __le__(self, other) -> bool:
-        return not other < self
+        return self.rank == other.rank
 
     def __str__(self) -> str:
         return json.dumps(self.to_dict(), separators=(',', ':'))
@@ -152,10 +130,11 @@ class CategoryInfo:
     def add(self, record: CategoryRecord) -> None:
         self.count += 1
         self.total_score += record.score
-        if not self.max or self.max < record:
+        # the > and < should technically be reversed since smaller rank is greate rthan larger rank
+        if not self.max or self.max > record:
             self.max = record
 
-        if not self.min or self.min > record:
+        if not self.min or self.min < record:
             self.min = record
 
     def __str__(self) -> str:

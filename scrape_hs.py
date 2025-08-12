@@ -17,13 +17,13 @@ from util.log import get_logger
 logger = get_logger()
 
 
-async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, start_page_nr: int, end_page_nr: int, num_workers: int):
+async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, start_rank: int, end_rank: int, num_workers: int):
     async with aiohttp.ClientSession() as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
         hs_scrape_joblist = await get_hs_page_job(req=req,
-                                                  start_page=start_page_nr,
-                                                  end_page=end_page_nr,
+                                                  start_rank=start_rank,
+                                                  end_rank=end_rank,
                                                   input=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
@@ -42,8 +42,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
                           out_file=out_file,
                           total=hs_scrape_joblist[-1].page_num -
                           current_page.value + 1,
-                          format=lambda job: '\n'.join(
-                              str(item) for item in job.result)
+                          format=lambda job: '\n'.join(str(item) for item in job.result[job.start_idx:job.end_idx])
                           )
         )]
         for w in hs_scrape_workers:
@@ -70,19 +69,19 @@ if __name__ == '__main__':
                         type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
                         type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from (default: 'overall')")
-    parser.add_argument('--start-page-nr', default=1, type=int,
-                        help="Hiscore page number it should start at")
-    parser.add_argument('--end-page-nr', default=-1, type=int,
-                        help="Hiscore page number it should end at")
+    parser.add_argument('--rank-start', default=1, type=int,
+                        help="Hiscore rank number it should start at (default: 1)")
+    parser.add_argument('--rank-end', default=-1, type=int,
+                        help="Hiscore rank number it should end at (default: end of category)")
     parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
-                        help="Number of concurrent scraping threads")
+                        help="Number of concurrent scraping threads (default: 15)")
 
     running_script_not_in_cmd_guard(parser)
     args = parser.parse_args()
 
     try:
         asyncio.run(main(args.out_file, args.proxy_file,
-                         args.account_type, args.hs_type, args.start_page_nr, args.end_page_nr, args.num_workers))
+                         args.account_type, args.hs_type, args.rank_start, args.rank_end, args.num_workers))
     except Exception as e:
         logger.error(e)
         sys.exit(2)
