@@ -77,8 +77,8 @@ py analyse_category.py --out-file output.txt --hs-type zuk
 | ------------- | -------- | ------------------------------------------ |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--proxy-file`  | No      | Path to the proxy file                    |
-| `--hs-type`  | Yes      | Hiscore category it should pull from |
-
+| `--hs-type`  | Yes      | Hiscore category it should pull from        |
+| `--account-type`  | Yes      | Account type it should pull from       |
 
 # Logging
 A logger is used to report progress. A "done" message is logged once processing is complete.

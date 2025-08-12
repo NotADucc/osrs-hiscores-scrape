@@ -20,8 +20,8 @@ async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable
         raise FinishedScript
 
 
-def read_proxies(proxy_file: str) -> list[str] | None:
-    if proxy_file is not None:
+def read_proxies(proxy_file: str) -> list[str]:
+    if proxy_file is not None and os.path.isfile(proxy_file):
         with open(proxy_file, "r") as f:
             proxies = f.read().splitlines()
     else:
@@ -30,9 +30,13 @@ def read_proxies(proxy_file: str) -> list[str] | None:
     return proxies
 
 
-def read_hs_records(in_file: str) -> list[CategoryRecord] | None:
-    hs_records = []
-    with open(in_file, "r") as f:
+def read_hs_records(file: str) -> list[CategoryRecord]: 
+    hs_records = [] 
+
+    if not os.path.isfile(file):
+        return hs_records
+    
+    with open(file, "r") as f:
         for line in f:
             data = json.loads(line)
             record = CategoryRecord(**data)
