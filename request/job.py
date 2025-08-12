@@ -87,7 +87,7 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
         end_page = end_page
         end_rank = end_rank
 
-    if start_rank >= end_rank:
+    if start_rank > end_rank:
         return []
 
     return [
