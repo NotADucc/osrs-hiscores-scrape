@@ -1,4 +1,5 @@
 import logging
+import sys
 
 logger = None
 
@@ -20,3 +21,8 @@ def get_logger() -> logging:
     global logger
     logger = setup_custom_logger() if logger is None else logger
     return logger
+
+
+def finished_script() -> None:
+    get_logger().info("done")
+    sys.exit(0)

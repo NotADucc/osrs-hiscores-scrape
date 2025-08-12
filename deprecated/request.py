@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+
 from request.common import HSLookup
 from request.request import https_request
 

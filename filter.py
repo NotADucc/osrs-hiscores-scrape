@@ -1,57 +1,86 @@
 import argparse
+import asyncio
 import json
 import re
 import sys
-import threading
-from request.common import CategoryRecord, HSApi, HSApiCsvMapper
+
+import aiohttp
+
+from request.common import HSAccountTypes, HSType, get_default_workers_size
+from request.errors import FinishedScript
+from request.job import (GetMaxHighscorePageRequest, HSLookupJob, JobCounter,
+                         JobQueue, get_hs_page_job)
 from request.request import Requests
-from util.guard_clause_handler import running_script_not_in_cmd_guard
-from util.retry_handler import retry
-from util.threading_handler import spawn_threads
-from util.log import get_logger
+from request.worker import (Worker, enqueue_page_usernames, request_hs_page,
+                            request_user_stats)
+from util.guard_clause_handler import script_running_in_cmd_guard
+from util.io import read_proxies, write_records
+from util.log import finished_script, get_logger
 
 logger = get_logger()
-file_lock = threading.Lock()
+N_SCRAPE_WORKERS = 2
+N_SCRAPE_SIZE = 100
 
 
-def process(hs_record: CategoryRecord, **args: dict) -> None:
-    rank, username = hs_record.rank, hs_record.username
-    out_file, req, account_type, filter = args["out_file"], args["req"], args["account_type"], args["filter"]
+async def main(out_file: str, proxy_file: str | None, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, filter: dict[HSType, int], num_workers: int):
+    async def enqueue_filter(queue: asyncio.Queue, job: HSLookupJob):
+        if job.result.meets_requirements(filter):
+            await queue.put(job)
+        else:
+            await queue.put(None)
 
-    player_record = retry(req.get_user_stats, name=username,
-                          account_type=account_type, idx=rank)
+    async with aiohttp.ClientSession() as session:
+        req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
-    if player_record.lacks_requirements(filter):
-        with file_lock:
-            with open(out_file, "a") as f:
-                f.write(json.dumps({
-                    "rank": rank,
-                    "record": player_record
-                }) + "\n")
+        hs_scrape_joblist = await get_hs_page_job(req=req,
+                                                  start_rank=start_rank,
+                                                  end_rank=-1,
+                                                  input=GetMaxHighscorePageRequest(
+                                                      hs_type=hs_type, account_type=account_type)
+                                                  )
+        hs_scrape_job_q = JobQueue()
+        for job in hs_scrape_joblist:
+            await hs_scrape_job_q.put(job)
 
-    logger.info(f'finished nr: {rank} - {username}')
+        hs_scrape_export_q = JobQueue(max_size=N_SCRAPE_SIZE)
 
+        current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
+        hs_scrape_workers = [Worker(in_queue=hs_scrape_job_q, out_queue=hs_scrape_export_q, job_counter=current_page)
+                             for _ in range(N_SCRAPE_WORKERS)]
 
-def main(in_file: str, out_file: str, proxy_file: str | None, start_nr: int, account_type: HSApi, filter: dict[HSApiCsvMapper, int]):
-    hs_records = []
-    with open(in_file, "r") as f:
-        for line in f:
-            data = json.loads(line)
-            record = CategoryRecord(**data)
-            if record.rank >= start_nr:
-                hs_records.append(record)
+        filter_q = asyncio.Queue()
+        current_rank = JobCounter(value=start_rank)
+        filter_workers = [Worker(in_queue=hs_scrape_export_q, out_queue=filter_q, job_counter=current_rank)
+                          for _ in range(num_workers)]
 
-    if proxy_file is not None:
-        with open(proxy_file, "r") as f:
-            proxies = f.read().splitlines()
-    else:
-        proxies = []
+        T = [asyncio.create_task(
+            write_records(in_queue=filter_q,
+                          out_file=out_file,
+                          total=hs_scrape_joblist[-1].end_rank -
+                          hs_scrape_joblist[0].start_rank + 1,
+                          format=lambda job: json.dumps(
+                              {"rank": job.priority, "record": job.result.to_dict()})
+                          )
+        )]
+        for w in hs_scrape_workers:
+            T.append(asyncio.create_task(
+                w.run(req=req, request_fn=request_hs_page,
+                      enqueue_fn=enqueue_page_usernames, delay=0.2)
+            ))
+        for i, w in enumerate(filter_workers):
+            T.append(asyncio.create_task(
+                w.run(req=req, request_fn=request_user_stats,
+                      enqueue_fn=enqueue_filter, delay=i * 0.1)
+            ))
 
-    req = Requests(proxies)
-
-    spawn_threads(process, hs_records, req=req,
-                  account_type=account_type, out_file=out_file, filter=filter)
-
+        try:
+            await asyncio.gather(*T)
+        except FinishedScript:
+            pass
+        finally:
+            for task in T:
+                task.cancel()
+            await asyncio.gather(*T, return_exceptions=True)
 
 if __name__ == '__main__':
     def parse_key_value_pairs(arg):
@@ -64,7 +93,7 @@ if __name__ == '__main__':
                 raise ValueError(f"Invalid pair format: '{pair}'")
 
             key_str, op, value_str = match.groups()
-            key = HSApiCsvMapper.from_string(key_str.strip())
+            key = HSType.from_string(key_str.strip())
             value = int(value_str.strip())
 
             if op == '=':
@@ -85,23 +114,28 @@ if __name__ == '__main__':
         return result
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in-file', required=True,
-                        help="Path to the input file")
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
     parser.add_argument('--proxy-file', help="Path to the proxy file")
-    parser.add_argument('--start-nr', default=1, type=int,
-                        help="Key value pair index that it should start filtering at")
+    parser.add_argument('--rank-start', default=1, type=int,
+                        help="Rank number that it should start filtering at (default: 1)")
     parser.add_argument('--account-type', default='regular',
-                        type=HSApi.from_string, choices=list(HSApi), help="Account type it should look at (default: 'regular')")
+                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
+    parser.add_argument('--hs-type', default='overall',
+                        type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
     parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
-                        help="Inclusive bound on what the account should have")
+                        help="Custom filter on what the accounts should have")
+    parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
+                        help="Number of concurrent scraping threads")
 
-    running_script_not_in_cmd_guard(parser)
+    script_running_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.in_file, args.out_file, args.proxy_file, args.start_nr,
-         args.account_type, args.filter)
+    try:
+        asyncio.run(main(args.out_file, args.proxy_file, args.rank_start,
+                    args.account_type, args.hs_type, args.filter, args.num_workers))
+    except Exception as e:
+        logger.error(e)
+        sys.exit(2)
 
-    logger.info("done")
-    sys.exit(0)
+    finished_script()

@@ -1,28 +1,33 @@
 import argparse
+import asyncio
 import json
 import sys
-from request.common import HSApi
+
+import aiohttp
+
+from request.common import HSAccountTypes
+from request.dto import GetPlayerRequest
+from request.errors import NotFound
 from request.request import Requests
-from util.guard_clause_handler import running_script_not_in_cmd_guard
+from util.guard_clause_handler import script_running_in_cmd_guard
+from util.log import finished_script, get_logger
 from util.retry_handler import retry
-from util.log import get_logger
 
 logger = get_logger()
 
 
-def main(name: str, account_type: HSApi):
-    req = Requests()
+async def main(name: str, account_type: HSAccountTypes):
 
-    player_record = retry(req.get_user_stats, name=name,
-                          account_type=account_type)
+    async with aiohttp.ClientSession() as session:
+        try:
+            req = Requests(session=session)
+            player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
+            json_object = json.loads(str(player_record))
+            json_formatted_str = json.dumps(json_object, indent=1)
 
-    if not player_record:
-        return None
-
-    json_object = json.loads(str(player_record))
-    json_formatted_str = json.dumps(json_object, indent=1)
-
-    print(json_formatted_str)
+            print(json_formatted_str)
+        except NotFound:
+            sys.exit(0)
 
 
 if __name__ == '__main__':
@@ -30,12 +35,17 @@ if __name__ == '__main__':
     parser.add_argument('--name', required=True,
                         help="Name that you want info about.")
     parser.add_argument('--account-type', default='regular',
-                        type=HSApi.from_string, choices=list(HSApi), help="Account type it should look at (default: 'regular')")
+                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
 
-    running_script_not_in_cmd_guard(parser)
+    script_running_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.name, args.account_type)
+    try:
+        asyncio.run(main(args.name, args.account_type))
+    except asyncio.CancelledError:
+        pass
+    except Exception as e:
+        logger.error(e)
+        sys.exit(2)
 
-    logger.info("done")
-    sys.exit(0)
+    finished_script()

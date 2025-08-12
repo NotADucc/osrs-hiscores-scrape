@@ -1,65 +1,89 @@
 import argparse
+import asyncio
 import datetime
 import sys
-import threading
 
-from request.extract import extract_highscore_records
+import aiohttp
+
+from request.common import HSAccountTypes, HSType, get_default_workers_size
+from request.dto import GetMaxHighscorePageRequest
+from request.errors import FinishedScript
+from request.job import HSCategoryJob, JobCounter, JobQueue, get_hs_page_job
 from request.request import Requests
-from util.guard_clause_handler import running_script_not_in_cmd_guard
-from util.retry_handler import retry
-from util.threading_handler import spawn_threads
-from request.common import CategoryInfo, HSCategoryMapper, HSLookup
-from util.log import get_logger
+from request.results import CategoryInfo
+from request.worker import Worker, request_hs_page
+from util.guard_clause_handler import script_running_in_cmd_guard
+from util.io import read_hs_records, read_proxies, write_record, write_records
+from util.log import finished_script, get_logger
 
 logger = get_logger()
-file_lock = threading.Lock()
-account_type = HSLookup.regular
 
 
-def process(page_nr: int, **args: dict) -> None:
-    hs_type, category_info, temp_file, req = args["hs_type"], args[
-        "category_info"], args["temp_file"], args["req"]
-    try:
-        page = retry(req.get_hs_page, account_type=account_type,
-                     hs_type=hs_type, page_nr=page_nr)
-        extracted_records = extract_highscore_records(page)
-
-        with file_lock:
-            with open(temp_file, "a") as f:
-                for record in extracted_records:
-                    f.write(f'{record}\n')
-                    category_info.add(record=record)
-
-        logger.info(f'finished page: {page_nr}')
-    except Exception as err:
-        print(err)
-
-
-def main(out_file: str, proxy_file: str | None, hs_type: HSCategoryMapper):
-    if proxy_file is not None:
-        with open(proxy_file, "r") as f:
-            proxies = f.read().splitlines()
-    else:
-        proxies = []
-
-    req = Requests(proxies)
-
-    max_page = req.find_max_page(account_type, hs_type)
-
-    page_nrs = range(1, max_page + 1)
-
-    logger.info(f'scraping {page_nrs}')
-
+async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, num_workers: int):
     category_info = CategoryInfo(
         name=hs_type.name, ts=datetime.datetime.now(datetime.timezone.utc))
 
-    temp_file = out_file.split('.')[0] + ".temp"
-    spawn_threads(process, page_nrs, hs_type=hs_type,
-                  category_info=category_info, temp_file=temp_file, req=req)
+    async def enqueue_hs_page(queue: asyncio.Queue, job: HSCategoryJob):
+        for record in job.result[job.start_idx:job.end_idx]:
+            category_info.add(record=record)
+        await queue.put(job)
 
-    with file_lock:
-        with open(out_file, "a") as f:
-            f.write(f'{category_info}\n')
+    temp_file = ".".join(
+        [out_file.split('.')[0], str(account_type), str(hs_type), "temp"])
+
+    temp_records = sorted(read_hs_records(temp_file))
+
+    for record in temp_records:
+        category_info.add(record=record)
+
+    async with aiohttp.ClientSession() as session:
+        req = Requests(session=session, proxy_list=read_proxies(proxy_file))
+
+        hs_scrape_joblist = await get_hs_page_job(req=req,
+                                                  start_rank=temp_records[-1].rank + 1 if len(
+                                                      temp_records) > 0 else 1,
+                                                  end_rank=-1,
+                                                  input=GetMaxHighscorePageRequest(
+                                                      hs_type=hs_type, account_type=account_type)
+                                                  )
+
+        hs_scrape_q = JobQueue()
+        for job in hs_scrape_joblist:
+            await hs_scrape_q.put(job)
+
+        T: list[asyncio.Task] = []
+        try:
+            if len(hs_scrape_q) == 0:
+                logger.info("bypass scraping, temp file contains all the data")
+                raise FinishedScript
+
+            temp_export_q = asyncio.Queue()
+
+            current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
+            hs_scrape_workers = [Worker(in_queue=hs_scrape_q, out_queue=temp_export_q, job_counter=current_page)
+                                 for _ in range(num_workers)]
+
+            T.append(asyncio.create_task(
+                write_records(in_queue=temp_export_q,
+                              out_file=temp_file,
+                              total=hs_scrape_joblist[-1].page_num -
+                              current_page.value + 1,
+                              format=lambda job: '\n'.join(
+                                  str(item) for item in job.result[job.start_idx:job.end_idx])
+                              )
+            ))
+            for w in hs_scrape_workers:
+                T.append(asyncio.create_task(
+                    w.run(req=req, request_fn=request_hs_page,
+                          enqueue_fn=enqueue_hs_page)
+                ))
+            await asyncio.gather(*T)
+        except FinishedScript:
+            write_record(out_file=out_file, data=f'{category_info}')
+        finally:
+            for task in T:
+                task.cancel()
+            await asyncio.gather(*T, return_exceptions=True)
 
 
 if __name__ == '__main__':
@@ -67,13 +91,21 @@ if __name__ == '__main__':
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
     parser.add_argument('--proxy-file', help="Path to the proxy file")
+    parser.add_argument('--account-type', required=True,
+                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should pull from")
     parser.add_argument('--hs-type', required=True,
-                        type=HSCategoryMapper.from_string, choices=list(HSCategoryMapper), help="Hiscore category it should pull from")
+                        type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
+    parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
+                        help="Number of concurrent scraping threads")
 
-    running_script_not_in_cmd_guard(parser)
+    script_running_in_cmd_guard(parser)
     args = parser.parse_args()
 
-    main(args.out_file, args.proxy_file, args.hs_type)
+    try:
+        asyncio.run(main(args.out_file, args.proxy_file,
+                    args.account_type, args.hs_type, args.num_workers))
+    except Exception as e:
+        logger.error(e)
+        sys.exit(2)
 
-    logger.info("done")
-    sys.exit(0)
+    finished_script()

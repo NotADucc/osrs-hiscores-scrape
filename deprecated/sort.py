@@ -1,7 +1,8 @@
 import argparse
 import json
 import sys
-from util.guard_clause_handler import running_script_not_in_cmd_guard
+
+from util.guard_clause_handler import script_running_in_cmd_guard
 from util.log import get_logger
 
 logger = get_logger()
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--in-file', required=True,
                         help="Path to the input file")
 
-    running_script_not_in_cmd_guard(parser)
+    script_running_in_cmd_guard(parser)
     args = parser.parse_args()
 
     main(args.in_file)

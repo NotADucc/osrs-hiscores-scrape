@@ -32,18 +32,19 @@ python -m pip install -r requirements.txt
 
 ## Filter.py
 ```console
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged=50,attack<50'
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged>50 , attack>=50'
-py filter.py --in-file input.txt --out-file output.txt --account-type pure --filter 'ranged<=50, attack=50' 
+py filter.py --out-file output.txt --filter 'ranged=50,attack<50'
+py filter.py --out-file output.txt --filter 'ranged>50 , attack>=50'
+py filter.py --out-file output.txt --filter 'ranged<=50, attack=50' 
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
-| `--in-file`   | Yes      | Path to the input file                |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--proxy-file`  | No      | Path to the proxy file                    |
-| `--start-nr`  | No      | Key value pair index that it should start filtering at |
+| `--rank-start`  | No      | Rank number that it should start filtering at (default: 1) |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
-| `--filter`  | Yes      | Custom filter on what the accounts should have. |
+| `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
+| `--filter`  | Yes      | Custom filter on what the accounts should have |
+| `--num-workers`  | No      | Number of concurrent scraping threads (default: 15) |
 
 ## Scrape_hs.py
 ```console
@@ -55,12 +56,13 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
 | `--hs-type`  | No      | Hiscore category it should pull from (default: 'overall') |
-| `--start-page-nr`  | No      | Hiscore page number it should start at (default: 1) |
-| `--end-page-nr`  | No      | Hiscore page number it should end at (default: end of category) |
+| `--rank-start`  | No      | Hiscore rank number it should start at (default: 1) |
+| `--rank-end`  | No      | Hiscore rank number it should end at (default: end of category) |
+| `--num-workers`  | No      | Number of concurrent scraping threads (default: 15) |
 
 ## Lookup.py
 ```console
-py lookup.py --name Cow31337Killer
+py lookup.py --name Cow1337Killer
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -69,22 +71,14 @@ py lookup.py --name Cow31337Killer
 
 ## analyse_category.py
 ```console
-py analyse_category.py --out-file output.txt --hs-type zuk
+py analyse_category.py --out-file output.txt --hs-type zuk --account-type hc
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
 | `--out-file`  | Yes      | Path to the output file                    |
 | `--proxy-file`  | No      | Path to the proxy file                    |
-| `--hs-type`  | Yes      | Hiscore category it should pull from |
-
-## Sort.py
-```console
-py sort.py --in-file input.txt
-```
-| Argument      | Required | Description                                |
-| ------------- | -------- | ------------------------------------------ |
-| `--in-file`   | Yes      | Path to the main file                |
-
+| `--hs-type`  | Yes      | Hiscore category it should pull from        |
+| `--account-type`  | Yes      | Account type it should pull from       |
 
 # Logging
-A logger is used to report progress. A "done" message is logged once processing is complete.
+A logger (and progressbar) is used to report progress. A "done" message is logged once processing is complete.
