@@ -6,7 +6,7 @@ import sys
 
 import aiohttp
 
-from request.common import HSAccountTypes, HSType
+from request.common import HSAccountTypes, HSType, get_default_workers_size
 from request.errors import FinishedScript
 from request.job import (GetMaxHighscorePageRequest, HSLookupJob, JobCounter,
                          JobQueue, get_hs_page_job)
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                         type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
     parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
                         help="Custom filter on what the accounts should have")
-    parser.add_argument('--num-workers', default=15, type=int,
+    parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
                         help="Number of concurrent scraping threads")
 
     running_script_not_in_cmd_guard(parser)

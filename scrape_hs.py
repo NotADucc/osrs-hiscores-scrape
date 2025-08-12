@@ -4,7 +4,7 @@ import sys
 
 import aiohttp
 
-from request.common import HSAccountTypes, HSType
+from request.common import HSAccountTypes, HSType, get_default_workers_size
 from request.dto import GetMaxHighscorePageRequest
 from request.errors import FinishedScript
 from request.job import JobCounter, JobQueue, get_hs_page_job
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                         help="Hiscore page number it should start at")
     parser.add_argument('--end-page-nr', default=-1, type=int,
                         help="Hiscore page number it should end at")
-    parser.add_argument('--num-workers', default=15, type=int,
+    parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
                         help="Number of concurrent scraping threads")
 
     running_script_not_in_cmd_guard(parser)

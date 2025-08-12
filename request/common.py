@@ -5,6 +5,8 @@ from enum import Enum
 def get_page_size() -> int:
     return 25
 
+def get_default_workers_size() -> int:
+    return 15
 
 class HSAccountTypes(Enum):
     regular = 'hiscore_oldschool'
