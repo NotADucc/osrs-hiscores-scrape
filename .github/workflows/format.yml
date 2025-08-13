@@ -6,6 +6,9 @@ on:
       - '**.py'
     branches: [ "main" ]
 
+permissions:
+  contents: write 
+
 jobs:
   format:
     runs-on: ubuntu-latest
