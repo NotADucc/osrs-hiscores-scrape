@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import threading
 from typing import Dict
