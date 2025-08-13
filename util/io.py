@@ -12,7 +12,7 @@ from request.results import CategoryRecord
 async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable, total: int):
     exists = os.path.isfile(out_file)
     with open(out_file, mode='w' if not exists else 'a') as f:
-        for _ in tqdm(range(total), smoothing=0.01):
+        for _ in tqdm(range(total), smoothing=0.01, desc=f'writing to {out_file}'):
             job = await in_queue.get()
             if job is not None:
                 f.write(format(job) + '\n')
