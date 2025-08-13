@@ -39,15 +39,17 @@ class Worker:
 async def request_hs_page(req: Requests, job: HSCategoryJob):
     job.result = await req.get_hs_page(GetHighscorePageRequest(page_num=job.page_num, hs_type=job.hs_type, account_type=job.account_type))
 
+
 async def request_user_stats(req: Requests, job: HSLookupJob):
     job.result = await req.get_user_stats(GetPlayerRequest(username=job.username, account_type=job.account_type))
 
+
 async def enqueue_hs_page(queue: Queue, job: HSCategoryJob):
     await queue.put(job)
+
 
 async def enqueue_page_usernames(queue: Queue, job: HSCategoryJob):
     for record in job.result[job.start_idx:job.end_idx]:
         outjob = HSLookupJob(
             priority=record.rank, username=record.username, account_type=job.account_type)
         await queue.put(outjob)
-
