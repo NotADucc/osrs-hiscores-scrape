@@ -3,7 +3,6 @@ import asyncio
 import sys
 
 import aiohttp
-
 from request.common import HSAccountTypes, HSType, get_default_workers_size
 from request.dto import GetMaxHighscorePageRequest
 from request.errors import FinishedScript
