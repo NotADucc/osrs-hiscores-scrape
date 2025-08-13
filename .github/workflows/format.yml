@@ -1,0 +1,47 @@
+name: format py code
+
+on:
+  push:
+    paths:
+      - '**.py'
+    branches: [ "main" ]
+  pull_request:
+    paths:
+      - '**.py'
+    branches: [ "main" ]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install formatters
+        run: |
+          pip install isort autopep8
+
+      - name: Run isort
+        run: isort .
+
+      - name: Run autopep8
+        run: autopep8 --in-place --recursive .
+
+      - name: Check for modified files
+        id: git-check
+        run: echo modified=$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi) >> $GITHUB_OUTPUT
+
+      - name: Push
+        if: steps.git-check.outputs.modified == 'true'
+        run: |
+            git config --global user.email "robertohelper@outlook.com"
+            git config --global user.name "Gwilom-Bot"
+            git add .
+            git commit -am "refactor: ran autopep and isort" || true
+            git push || git pull --rebase && git push
