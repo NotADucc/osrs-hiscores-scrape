@@ -95,17 +95,17 @@ class Requests():
             text = await resp.text()
             if Requests.is_rate_limited(text):
                 raise IsRateLimited(
-                    f"limited on '{url}'", details={"params": params, "proxies": proxy})
+                    f"limited on '{url}'", details={"params": params, "proxy": proxy})
 
             if resp.status == 404:
                 raise NotFound(f"Not found", details={
-                               "params": params, "proxies": proxy})
+                               "params": params, "proxy": proxy})
 
             if resp.status == 200:
                 return text
 
             raise RequestFailed(f"failed on '{url}'", details={
-                                "code": resp.status, "params": params, "proxies": proxy})
+                                "code": resp.status, "params": params, "proxy": proxy})
 
     @staticmethod
     def is_rate_limited(page: str) -> bool:
