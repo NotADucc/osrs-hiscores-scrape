@@ -54,9 +54,9 @@ class Requests():
                 hs_request=GetHighscorePageRequest(
                     page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
             )
-            expected_idx = (middle - 1) * PAGE_SIZE + PAGE_SIZE
+            expected_first_idx = (middle - 1) * PAGE_SIZE + 1
 
-            if last_idx == expected_idx:
+            if last_idx >= expected_first_idx:
                 res = middle
                 l = middle + 1
             else:
