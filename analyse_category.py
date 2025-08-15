@@ -72,10 +72,10 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
                                   str(item) for item in job.result[job.start_idx:job.end_idx])
                               )
             ))
-            for w in hs_scrape_workers:
+            for i, w in enumerate(hs_scrape_workers):
                 T.append(asyncio.create_task(
                     w.run(req=req, request_fn=request_hs_page,
-                          enqueue_fn=enqueue_hs_page)
+                          enqueue_fn=enqueue_hs_page, delay=i * 0.1)
                 ))
             await asyncio.gather(*T)
         except FinishedScript:
