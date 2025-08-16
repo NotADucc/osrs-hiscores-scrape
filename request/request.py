@@ -2,7 +2,7 @@ import datetime
 import threading
 from typing import Dict
 
-from aiohttp import ClientSession
+from aiohttp import ClientConnectionError, ClientSession
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
@@ -10,13 +10,14 @@ from request.common import get_page_size
 from request.dto import (GetHighscorePageRequest, GetMaxHighscorePageRequest,
                          GetMaxHighscorePageResult, GetPlayerRequest)
 from request.errors import (IsRateLimited, NotFound, ParsingFailed,
-                            RequestFailed)
+                            RequestFailed, ServerBusy)
 from request.results import CategoryRecord, PlayerRecord
 from util.log import get_logger
 from util.retry_handler import retry
 
 logger = get_logger()
 proxy_lock = threading.Lock()
+session_lock = threading.Lock()
 
 
 class Requests():
@@ -25,8 +26,11 @@ class Requests():
         self.proxy_list = proxy_list
         self.proxy_idx = 0
 
+    def remove_cookies(self) -> ClientSession:
+        with session_lock:
+            self.session.cookie_jar.clear()
+
     def get_session(self) -> ClientSession:
-        self.session.cookie_jar.clear()
         return self.session
 
     def get_proxy(self) -> dict | None:
@@ -91,21 +95,26 @@ class Requests():
         proxy = self.get_proxy()
         session = self.get_session()
 
-        async with session.get(url, headers=headers, params=params, proxy=proxy, timeout=30) as resp:
-            text = await resp.text()
-            if Requests.is_rate_limited(text):
-                raise IsRateLimited(
-                    f"limited on '{url}'", details={"params": params, "proxy": proxy})
+        try:
+            async with session.get(url, headers=headers, params=params, proxy=proxy, timeout=30) as resp:
+                text = await resp.text()
+                if Requests.is_rate_limited(text):
+                    raise IsRateLimited(
+                        f"limited on '{url}'", details={"params": params, "proxy": proxy})
 
-            if resp.status == 404:
-                raise NotFound(f"Not found", details={
-                               "params": params, "proxy": proxy})
+                if resp.status == 404:
+                    raise NotFound(f"Not found", details={
+                                "params": params, "proxy": proxy})
 
-            if resp.status == 200:
-                return text
+                if resp.status == 200:
+                    return text
 
-            raise RequestFailed(f"failed on '{url}'", details={
-                                "code": resp.status, "params": params, "proxy": proxy})
+                raise RequestFailed(f"failed on '{url}'", details={
+                                    "code": resp.status, "params": params, "proxy": proxy})
+        except TimeoutError:
+            raise ServerBusy("timed out")
+        except ClientConnectionError as e:
+            raise RequestFailed(f"client connection error: {e}")
 
     @staticmethod
     def is_rate_limited(page: str) -> bool:
