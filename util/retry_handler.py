@@ -2,7 +2,7 @@ import asyncio
 import inspect
 from typing import Any, Callable
 
-from request.errors import IsRateLimited, NotFound, RequestFailed
+from request.errors import IsRateLimited, NotFound, RetryFailed
 from util.log import get_logger
 
 logger = get_logger()
@@ -34,4 +34,4 @@ async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_del
 
     logger.error(f"Max retries reached for '{message}'.")
 
-    raise RequestFailed(message)
+    raise RetryFailed(message)
