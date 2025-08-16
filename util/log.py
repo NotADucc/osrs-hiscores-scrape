@@ -4,7 +4,6 @@ import sys
 logger = None
 
 
-
 class CustomFormatter(logging.Formatter):
 
     grey = "\x1b[38;20m"
@@ -26,6 +25,7 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+
 
 def setup_custom_logger() -> logging:
     handler = logging.StreamHandler()

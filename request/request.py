@@ -104,7 +104,7 @@ class Requests():
 
                 if resp.status == 404:
                     raise NotFound(f"Not found", details={
-                                "params": params, "proxy": proxy})
+                        "params": params, "proxy": proxy})
 
                 if resp.status == 200:
                     return text
