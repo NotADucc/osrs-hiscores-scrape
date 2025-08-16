@@ -2,13 +2,13 @@ import asyncio
 import inspect
 from typing import Any, Callable
 
-from request.errors import IsRateLimited, NotFound, RetryFailed
+from request.errors import NotFound, RetryFailed
 from util.log import get_logger
 
 logger = get_logger()
 
 
-async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: int = 20, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any:
+async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: int = 5, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any:
     retries = 1
     while retries <= max_retries:
         try:
@@ -16,14 +16,13 @@ async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_del
             if inspect.isawaitable(result):
                 result = await result
             return result
-        except IsRateLimited as err:
-            logger.warning(f"{err} | {err.details}", exc_info=exc_info)
         except NotFound as err:
             logger.error(f"{err} | {err.details}", exc_info=exc_info)
             raise
         except Exception as err:
-            logger.warning(
-                f"Attempt {retries} failed: {err} | {kwargs}", exc_info=exc_info)
+            warning_mess = f"Attempt {retries} failed: {err} | {err.details}" \
+                if err.details else f"Attempt {retries} failed: {err}"
+            logger.warning(f"{warning_mess} | {kwargs}", exc_info=exc_info)
         retries += 1
         await asyncio.sleep(retries * initial_delay)
 
