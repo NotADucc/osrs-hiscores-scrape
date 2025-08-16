@@ -45,5 +45,5 @@ jobs:
             git config --global user.email "robertohelper@outlook.com"
             git config --global user.name "Gwilom-Bot"
             git add .
-            git commit -am "refactor: ran autopep and isort" || true
+            git commit -am "refactor: ran autopep, isort and autoflake" || true
             git push || git pull --rebase && git push
