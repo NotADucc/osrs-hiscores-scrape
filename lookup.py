@@ -18,7 +18,7 @@ logger = get_logger()
 
 async def main(name: str, account_type: HSAccountTypes):
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         try:
             req = Requests(session=session)
             player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))

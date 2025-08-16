@@ -36,7 +36,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
     for record in temp_records:
         category_info.add(record=record)
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
         hs_scrape_joblist = await get_hs_page_job(req=req,

@@ -29,7 +29,7 @@ async def main(out_file: str, proxy_file: str | None, start_rank: int, account_t
         else:
             await queue.put(None)
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
         hs_scrape_joblist = await get_hs_page_job(req=req,

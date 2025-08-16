@@ -18,7 +18,7 @@ logger = get_logger()
 
 
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, start_rank: int, end_rank: int, num_workers: int):
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
         hs_scrape_joblist = await get_hs_page_job(req=req,
