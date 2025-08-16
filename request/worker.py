@@ -3,7 +3,7 @@ from asyncio import CancelledError, Queue
 from typing import Callable
 
 from request.dto import GetHighscorePageRequest, GetPlayerRequest
-from request.errors import NotFound, RequestFailed, RetryFailed
+from request.errors import NotFound, RetryFailed
 from request.job import HSCategoryJob, HSLookupJob, JobCounter, JobQueue
 from request.request import Requests
 from util.retry_handler import retry
@@ -31,7 +31,7 @@ class Worker:
 
             except NotFound:
                 self.job_counter.next()
-            except (CancelledError, RequestFailed, RetryFailed):
+            except (CancelledError, RetryFailed):
                 await self.in_q.put(job, force=True)
                 raise
 

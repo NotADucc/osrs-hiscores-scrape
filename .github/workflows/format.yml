@@ -24,7 +24,10 @@ jobs:
 
       - name: Install formatters
         run: |
-          pip install isort autopep8
+          pip install isort autopep8 autoflake
+
+      - name: Remove unused imports
+        run: autoflake --in-place --recursive --remove-all-unused-imports .
 
       - name: Run isort
         run: isort .
