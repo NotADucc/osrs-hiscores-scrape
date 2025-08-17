@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 from typing import Callable, Iterator
 
@@ -7,6 +6,7 @@ from tqdm import tqdm
 
 from request.errors import FinishedScript
 from request.results import CategoryRecord
+from util import json_wrapper
 
 
 async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable, total: int):
@@ -45,6 +45,6 @@ def read_hs_records(file: str) -> Iterator[CategoryRecord]:
             line = line.strip()
             if not line:
                 continue
-            
-            data = json.loads(line)
+
+            data = json_wrapper.from_json(line)
             yield CategoryRecord(**data)

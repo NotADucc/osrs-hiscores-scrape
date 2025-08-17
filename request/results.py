@@ -1,10 +1,10 @@
 import datetime
-import json
 from functools import total_ordering
 from typing import Any, Callable, List
 
 from request.common import HSType
 from stats.common import calc_cmb
+from util import json_wrapper
 
 
 @total_ordering
@@ -90,7 +90,7 @@ class PlayerRecord:
         }
 
     def __str__(self):
-        return json.dumps(self.to_dict(), separators=(',', ':'))
+        return json_wrapper.to_json(self.to_dict(), separators=(',', ':'))
 
 
 @total_ordering
@@ -127,7 +127,7 @@ class CategoryRecord:
         return self.rank == other.rank
 
     def __str__(self) -> str:
-        return json.dumps(self.to_dict(), separators=(',', ':'))
+        return json_wrapper.to_json(self.to_dict(), separators=(',', ':'))
 
 
 class CategoryInfo:
@@ -149,8 +149,8 @@ class CategoryInfo:
         if not self.min or self.min.is_better_rank_than(record):
             self.min = record
 
-    def __str__(self) -> str:
-        data = {
+    def to_dict(self) -> dict:
+        return {
             "name": self.name,
             "timestamp": self.ts.isoformat(),
             "count": self.count,
@@ -158,4 +158,6 @@ class CategoryInfo:
             "max": self.max.to_dict() if self.max else None,
             "min": self.min.to_dict() if self.min else None,
         }
-        return json.dumps(data, separators=(',', ':'))
+
+    def __str__(self) -> str:
+        return json_wrapper.to_json(self.to_dict(), separators=(',', ':'))
