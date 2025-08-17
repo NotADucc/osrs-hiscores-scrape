@@ -1,7 +1,7 @@
 import asyncio
 import json
 import os
-from typing import Callable
+from typing import Callable, Iterator
 
 from tqdm import tqdm
 
@@ -36,20 +36,15 @@ def read_proxies(proxy_file: str) -> list[str]:
     return proxies
 
 
-def read_hs_records(file: str) -> list[CategoryRecord]:
-    hs_records = []
-
+def read_hs_records(file: str) -> Iterator[CategoryRecord]:
     if not os.path.isfile(file):
-        return hs_records
+        return iter([])
 
     with open(file, "r") as f:
         for line in f:
             line = line.strip()
             if not line:
                 continue
-
+            
             data = json.loads(line)
-            record = CategoryRecord(**data)
-            hs_records.append(record)
-
-    return hs_records
+            yield CategoryRecord(**data)

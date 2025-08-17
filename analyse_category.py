@@ -31,17 +31,18 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
     temp_file = ".".join(
         [out_file.split('.')[0], str(account_type), str(hs_type), "temp"])
 
-    temp_records = sorted(read_hs_records(temp_file))
-
-    for record in temp_records:
+    start_rank = 0
+    for record in read_hs_records(temp_file):
         category_info.add(record=record)
+        if record.rank > start_rank:
+            start_rank = record.rank
+    start_rank += 1
 
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
         hs_scrape_joblist = await get_hs_page_job(req=req,
-                                                  start_rank=temp_records[-1].rank + 1 if len(
-                                                      temp_records) > 0 else 1,
+                                                  start_rank=start_rank,
                                                   end_rank=-1,
                                                   input=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
