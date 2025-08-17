@@ -100,6 +100,16 @@ class CategoryRecord:
         self.score = score
         self.username = username
 
+    def is_better_rank_than(self, other: 'CategoryRecord') -> bool:
+        if other is None:
+            return False
+        return self.rank < other.rank
+
+    def is_worse_rank_than(self, other: 'CategoryRecord') -> bool:
+        if other is None:
+            return False
+        return self.rank > other.rank
+
     def to_dict(self) -> dict:
         return {
             "rank": self.rank,
@@ -133,10 +143,10 @@ class CategoryInfo:
         self.count += 1
         self.total_score += record.score
         # the > and < should technically be reversed since smaller rank is greate rthan larger rank
-        if not self.max or self.max > record:
+        if not self.max or self.max.is_worse_rank_than(record):
             self.max = record
 
-        if not self.min or self.min < record:
+        if not self.min or self.min.is_better_rank_than(record):
             self.min = record
 
     def __str__(self) -> str:
