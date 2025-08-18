@@ -4,6 +4,7 @@ from typing import Callable, Iterator
 
 from tqdm import tqdm
 
+from src.request.common import HSAccountTypes, HSType
 from src.request.errors import FinishedScript
 from src.request.results import CategoryRecord
 from src.util import json_wrapper
@@ -48,3 +49,8 @@ def read_hs_records(file: str) -> Iterator[CategoryRecord]:
 
             data = json_wrapper.from_json(line)
             yield CategoryRecord(**data)
+
+
+def build_temp_file(out_file: str, account_type: HSAccountTypes, hs_type: HSType) -> str:
+    base, _ = os.path.splitext(out_file)
+    return ".".join([base, str(account_type), str(hs_type), "temp"])

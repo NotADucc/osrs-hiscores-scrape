@@ -15,7 +15,7 @@ from src.request.results import CategoryInfo
 from src.request.worker import Worker, request_hs_page
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.io import (read_hs_records, read_proxies, write_record,
+from src.util.io import (build_temp_file, read_hs_records, read_proxies, write_record,
                          write_records)
 from src.util.log import finished_script, get_logger
 
@@ -33,15 +33,12 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
             category_info.add(record=record)
         await queue.put(job)
 
-    temp_file = ".".join(
-        [out_file.split('.')[0], str(account_type), str(hs_type), "temp"])
+    temp_file = build_temp_file(out_file, account_type, hs_type)
 
-    start_rank = 0
     for record in read_hs_records(temp_file):
         category_info.add(record=record)
-        if record.rank > start_rank:
-            start_rank = record.rank
-    start_rank += 1
+
+    start_rank = category_info.min.rank + 1 if category_info.min else 1
 
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
