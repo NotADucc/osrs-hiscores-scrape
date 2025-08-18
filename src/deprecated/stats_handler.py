@@ -1,6 +1,6 @@
-from deprecated.request import extract_stats, lookup_scrape
-from request.common import HSLookup
-from stats.common import calc_cmb
+from src.deprecated.request import extract_stats, lookup_scrape
+from src.request.common import HSLookup
+from src.stats.common import calc_cmb
 
 
 def get_combat_stats_scrape(name: str, account_type: str, **kwargs) -> dict:

@@ -4,9 +4,9 @@ from typing import Callable, Iterator
 
 from tqdm import tqdm
 
-from request.errors import FinishedScript
-from request.results import CategoryRecord
-from util import json_wrapper
+from src.request.errors import FinishedScript
+from src.request.results import CategoryRecord
+from src.util import json_wrapper
 
 
 async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable, total: int):

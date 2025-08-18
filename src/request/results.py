@@ -2,9 +2,9 @@ import datetime
 from functools import total_ordering
 from typing import Any, Callable, List
 
-from request.common import HSType
-from stats.common import calc_cmb
-from util import json_wrapper
+from src.request.common import HSType
+from src.stats.common import calc_cmb
+from src.util import json_wrapper
 
 
 @total_ordering

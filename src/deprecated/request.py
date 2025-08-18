@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 
-from request.common import HSLookup
-from request.request import https_request
+from src.request.common import HSLookup
+from src.request.request import https_request
 
 
 def lookup_scrape(name: str, account_type: HSLookup) -> str:

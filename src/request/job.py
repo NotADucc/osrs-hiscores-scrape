@@ -2,10 +2,10 @@ import asyncio
 from dataclasses import dataclass
 from typing import List
 
-from request.common import HSAccountTypes, HSType, get_page_size
-from request.dto import GetMaxHighscorePageRequest
-from request.request import Requests
-from request.results import CategoryRecord, PlayerRecord
+from src.request.common import HSAccountTypes, HSType, get_page_size
+from src.request.dto import GetMaxHighscorePageRequest
+from src.request.request import Requests
+from src.request.results import CategoryRecord, PlayerRecord
 
 
 @dataclass(order=True)

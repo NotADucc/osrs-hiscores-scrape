@@ -3,8 +3,8 @@ import inspect
 import time
 from typing import Callable
 
-from util import mem_profile
-from util.log import get_logger
+from src.util import mem_profile
+from src.util.log import get_logger
 
 logger = get_logger()
 

@@ -4,9 +4,9 @@ import threading
 
 import aiohttp
 
-from deprecated.pool import execute
-from util.guard_clause_handler import script_running_in_cmd_guard
-from util.log import finished_script, get_logger
+from src.deprecated.pool import execute
+from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.log import finished_script, get_logger
 
 logger = get_logger()
 file_lock = threading.Lock()

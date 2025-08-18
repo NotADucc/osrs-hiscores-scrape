@@ -5,18 +5,18 @@ import sys
 
 import aiohttp
 
-from request.common import HSAccountTypes, HSType, get_default_workers_size
-from request.errors import FinishedScript
-from request.job import (GetMaxHighscorePageRequest, HSLookupJob, JobCounter,
+from src.request.common import HSAccountTypes, HSType, get_default_workers_size
+from src.request.errors import FinishedScript
+from src.request.job import (GetMaxHighscorePageRequest, HSLookupJob, JobCounter,
                          JobQueue, get_hs_page_job)
-from request.request import Requests
-from request.worker import (Worker, enqueue_page_usernames, request_hs_page,
+from src.request.request import Requests
+from src.request.worker import (Worker, enqueue_page_usernames, request_hs_page,
                             request_user_stats)
-from util import json_wrapper
-from util.benchmarking import benchmark
-from util.guard_clause_handler import script_running_in_cmd_guard
-from util.io import read_proxies, write_records
-from util.log import finished_script, get_logger
+from src.util import json_wrapper
+from src.util.benchmarking import benchmark
+from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.io import read_proxies, write_records
+from src.util.log import finished_script, get_logger
 
 logger = get_logger()
 N_SCRAPE_WORKERS = 2

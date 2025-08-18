@@ -2,8 +2,8 @@ import argparse
 import json
 import sys
 
-from util.guard_clause_handler import script_running_in_cmd_guard
-from util.log import get_logger
+from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.log import get_logger
 
 logger = get_logger()
 

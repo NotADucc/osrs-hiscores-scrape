@@ -6,14 +6,14 @@ from aiohttp import ClientConnectionError, ClientSession
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
-from request.common import get_page_size
-from request.dto import (GetHighscorePageRequest, GetMaxHighscorePageRequest,
+from src.request.common import get_page_size
+from src.request.dto import (GetHighscorePageRequest, GetMaxHighscorePageRequest,
                          GetMaxHighscorePageResult, GetPlayerRequest)
-from request.errors import (IsRateLimited, NotFound, ParsingFailed,
+from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
                             RequestFailed, ServerBusy)
-from request.results import CategoryRecord, PlayerRecord
-from util.log import get_logger
-from util.retry_handler import retry
+from src.request.results import CategoryRecord, PlayerRecord
+from src.util.log import get_logger
+from src.util.retry_handler import retry
 
 logger = get_logger()
 proxy_lock = threading.Lock()

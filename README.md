@@ -2,11 +2,7 @@
 
 # Requirements 
 - Python 3.x [Download here](https://www.python.org/downloads/)
-- Packages (possible I forgot some)
-  - beautifulsoup4
-  - fake-useragent
-  - requests
-  - requests[socks]
+- Packages, run pip install on requirements.txt
 
 ```console
 pip install -r requirements.txt
@@ -20,10 +16,6 @@ python -m pip install -r requirements.txt
 - Pull an individual's stats from OSRS hiscores.
 - Analyse a highscore category (Count, total-, max- and min scores)
 
-# Misc Features
-- Sort the output, sorting script provided since scrape_hs is 'multi threaded'/async so the kvp resultset is not chronological.
-
-
 > [!Note]
 > Use apostrophes/quotes when you have an argument value that contains a space.
 > Look at [Filter Codeblock](#Filterpy) for an example.
@@ -32,9 +24,9 @@ python -m pip install -r requirements.txt
 
 ## Filter.py
 ```console
-py filter.py --out-file output.txt --filter 'ranged=50,attack<50'
-py filter.py --out-file output.txt --filter 'ranged>50 , attack>=50'
-py filter.py --out-file output.txt --filter 'ranged<=50, attack=50' 
+py .\scripts\filter.py --out-file output.txt --filter 'ranged=50,attack<50'
+py .\scripts\filter.py --out-file output.txt --filter 'ranged>50 , attack>=50'
+py .\scripts\filter.py --out-file output.txt --filter 'ranged<=50, attack=50' 
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -48,7 +40,7 @@ py filter.py --out-file output.txt --filter 'ranged<=50, attack=50'
 
 ## Scrape_hs.py
 ```console
-py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
+py .\scripts\scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -62,7 +54,7 @@ py scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 
 ## Lookup.py
 ```console
-py lookup.py --name Cow1337Killer
+py .\scripts\lookup.py --name Cow1337Killer
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -71,7 +63,7 @@ py lookup.py --name Cow1337Killer
 
 ## analyse_category.py
 ```console
-py analyse_category.py --out-file output.txt --hs-type zuk --account-type hc
+py .\scripts\analyse_category.py --out-file output.txt --hs-type zuk --account-type hc
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |

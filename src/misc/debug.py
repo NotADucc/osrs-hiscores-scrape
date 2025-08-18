@@ -1,7 +1,7 @@
 import sys
 
-from request.common import HSType
-from util.log import get_logger
+from src.request.common import HSType
+from src.util.log import get_logger
 
 logger = get_logger()
 

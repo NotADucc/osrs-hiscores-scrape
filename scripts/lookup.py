@@ -4,15 +4,15 @@ import sys
 
 import aiohttp
 
-from request.common import HSAccountTypes
-from request.dto import GetPlayerRequest
-from request.errors import NotFound
-from request.request import Requests
-from util import json_wrapper
-from util.benchmarking import benchmark
-from util.guard_clause_handler import script_running_in_cmd_guard
-from util.log import finished_script, get_logger
-from util.retry_handler import retry
+from src.request.common import HSAccountTypes
+from src.request.dto import GetPlayerRequest
+from src.request.errors import NotFound
+from src.request.request import Requests
+from src.util import json_wrapper
+from src.util.benchmarking import benchmark
+from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.log import finished_script, get_logger
+from src.util.retry_handler import retry
 
 logger = get_logger()
 

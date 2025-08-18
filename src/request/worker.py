@@ -2,11 +2,11 @@ import asyncio
 from asyncio import CancelledError, Queue
 from typing import Callable
 
-from request.dto import GetHighscorePageRequest, GetPlayerRequest
-from request.errors import NotFound, RetryFailed
-from request.job import HSCategoryJob, HSLookupJob, JobCounter, JobQueue
-from request.request import Requests
-from util.retry_handler import retry
+from src.request.dto import GetHighscorePageRequest, GetPlayerRequest
+from src.request.errors import NotFound, RetryFailed
+from src.request.job import HSCategoryJob, HSLookupJob, JobCounter, JobQueue
+from src.request.request import Requests
+from src.util.retry_handler import retry
 
 
 class Worker:

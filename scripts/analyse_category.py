@@ -5,17 +5,17 @@ import sys
 
 import aiohttp
 
-from request.common import HSAccountTypes, HSType, get_default_workers_size
-from request.dto import GetMaxHighscorePageRequest
-from request.errors import FinishedScript
-from request.job import HSCategoryJob, JobCounter, JobQueue, get_hs_page_job
-from request.request import Requests
-from request.results import CategoryInfo
-from request.worker import Worker, request_hs_page
-from util.benchmarking import benchmark
-from util.guard_clause_handler import script_running_in_cmd_guard
-from util.io import read_hs_records, read_proxies, write_record, write_records
-from util.log import finished_script, get_logger
+from src.request.common import HSAccountTypes, HSType, get_default_workers_size
+from src.request.dto import GetMaxHighscorePageRequest
+from src.request.errors import FinishedScript
+from src.request.job import HSCategoryJob, JobCounter, JobQueue, get_hs_page_job
+from src.request.request import Requests
+from src.request.results import CategoryInfo
+from src.request.worker import Worker, request_hs_page
+from src.util.benchmarking import benchmark
+from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.io import read_hs_records, read_proxies, write_record, write_records
+from src.util.log import finished_script, get_logger
 
 logger = get_logger()
 

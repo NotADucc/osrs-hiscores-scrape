@@ -2,8 +2,8 @@ import asyncio
 import inspect
 from typing import Any, Callable
 
-from request.errors import NotFound, RetryFailed
-from util.log import get_logger
+from src.request.errors import NotFound, RetryFailed
+from src.util.log import get_logger
 
 logger = get_logger()
 
