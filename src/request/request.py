@@ -7,10 +7,11 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
 from src.request.common import get_page_size
-from src.request.dto import (GetHighscorePageRequest, GetMaxHighscorePageRequest,
-                         GetMaxHighscorePageResult, GetPlayerRequest)
+from src.request.dto import (GetHighscorePageRequest,
+                             GetMaxHighscorePageRequest,
+                             GetMaxHighscorePageResult, GetPlayerRequest)
 from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
-                            RequestFailed, ServerBusy)
+                                RequestFailed, ServerBusy)
 from src.request.results import CategoryRecord, PlayerRecord
 from src.util.log import get_logger
 from src.util.retry_handler import retry
