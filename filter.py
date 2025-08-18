@@ -13,6 +13,7 @@ from request.request import Requests
 from request.worker import (Worker, enqueue_page_usernames, request_hs_page,
                             request_user_stats)
 from util import json_wrapper
+from util.benchmarking import benchmark
 from util.guard_clause_handler import script_running_in_cmd_guard
 from util.io import read_proxies, write_records
 from util.log import finished_script, get_logger
@@ -22,6 +23,8 @@ N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
 
+@finished_script
+@benchmark
 async def main(out_file: str, proxy_file: str | None, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, filter: dict[HSType, int], num_workers: int):
     async def enqueue_filter(queue: asyncio.Queue, job: HSLookupJob):
         if job.result.meets_requirements(filter):
@@ -137,5 +140,3 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error(e)
         sys.exit(2)
-
-    finished_script()

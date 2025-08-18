@@ -10,13 +10,15 @@ from request.errors import FinishedScript
 from request.job import JobCounter, JobQueue, get_hs_page_job
 from request.request import Requests
 from request.worker import Worker, enqueue_hs_page, request_hs_page
+from util.benchmarking import benchmark
 from util.guard_clause_handler import script_running_in_cmd_guard
 from util.io import read_proxies, write_records
 from util.log import finished_script, get_logger
 
 logger = get_logger()
 
-
+@finished_script
+@benchmark
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, start_rank: int, end_rank: int, num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
@@ -86,5 +88,3 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error(e)
         sys.exit(2)
-
-    finished_script()

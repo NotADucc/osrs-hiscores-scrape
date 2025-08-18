@@ -1,5 +1,7 @@
+import functools
+import inspect
 import logging
-import sys
+from typing import Callable
 
 logger = None
 
@@ -43,6 +45,13 @@ def get_logger() -> logging:
     return logger
 
 
-def finished_script() -> None:
-    get_logger().info("done")
-    sys.exit(0)
+def finished_script(callback: Callable):
+    @functools.wraps(callback)
+    async def wrapper(*args, **kwargs):
+        result = callback(*args, **kwargs)
+        if inspect.isawaitable(result):
+            result = await result
+
+        get_logger().info("done")
+        return result
+    return wrapper

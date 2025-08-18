@@ -12,13 +12,15 @@ from request.job import HSCategoryJob, JobCounter, JobQueue, get_hs_page_job
 from request.request import Requests
 from request.results import CategoryInfo
 from request.worker import Worker, request_hs_page
+from util.benchmarking import benchmark
 from util.guard_clause_handler import script_running_in_cmd_guard
 from util.io import read_hs_records, read_proxies, write_record, write_records
 from util.log import finished_script, get_logger
 
 logger = get_logger()
 
-
+@finished_script
+@benchmark
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, num_workers: int):
     category_info = CategoryInfo(
         name=hs_type.name, ts=datetime.datetime.now(datetime.timezone.utc))
@@ -108,5 +110,3 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error(e)
         sys.exit(2)
-
-    finished_script()
