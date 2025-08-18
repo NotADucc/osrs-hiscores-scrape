@@ -1,5 +1,7 @@
-import psutil
 import os
+
+import psutil
+
 
 def memory_usage_psutil():
     process = psutil.Process(os.getpid())

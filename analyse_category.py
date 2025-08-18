@@ -19,6 +19,7 @@ from util.log import finished_script, get_logger
 
 logger = get_logger()
 
+
 @finished_script
 @benchmark
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, num_workers: int):

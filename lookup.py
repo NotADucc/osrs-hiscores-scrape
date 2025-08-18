@@ -16,6 +16,7 @@ from util.retry_handler import retry
 
 logger = get_logger()
 
+
 @finished_script
 @benchmark
 async def main(name: str, account_type: HSAccountTypes):

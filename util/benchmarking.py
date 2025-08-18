@@ -22,6 +22,7 @@ def benchmark(callback: Callable):
         end_mem = mem_profile.memory_usage_psutil()
         end_time = time.perf_counter()
 
-        logger.info(f"{callback.__name__} took {end_time - start_time:.4f} seconds and {end_mem - start_mem:.6f} MB")
+        logger.info(
+            f"{callback.__name__} took {end_time - start_time:.4f} seconds and {end_mem - start_mem:.6f} MB")
         return result
     return wrapper
