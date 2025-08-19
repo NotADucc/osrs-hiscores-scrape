@@ -11,6 +11,7 @@ from src.util import json_wrapper
 
 ENCODING = "utf-8"
 
+
 async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable, total: int):
     exists = os.path.isfile(out_file)
     with open(out_file, mode='w' if not exists else 'a', encoding=ENCODING) as f:
