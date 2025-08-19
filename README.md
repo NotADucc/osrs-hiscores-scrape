@@ -60,6 +60,7 @@ py .\scripts\lookup.py --name Cow1337Killer
 | ------------- | -------- | ------------------------------------------ |
 | `--name`  | Yes      | Name you want to lookup                    |
 | `--account-type`  | No      | Account type it should pull from (default: 'regular') |
+| `--hs-type`  | No      | Filter on specific hiscore category  |
 
 ## analyse_category.py
 ```console

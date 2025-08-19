@@ -46,22 +46,22 @@ class PlayerRecord:
                              self.skills[HSType.strength.name], self.skills[HSType.hitpoints.name], self.skills[HSType.ranged.name], self.skills[HSType.prayer.name], self.skills[HSType.magic.name])
         self.combat_lvl = cmb_level
 
+    def get_stat(self, hs_type: HSType) -> int:
+        if hs_type is HSType.overall:
+            val = self.total_level
+        elif hs_type is HSType.combat:
+            val = self.combat_lvl
+        elif hs_type.is_skill():
+            val = self.skills.get(hs_type.name, 0)
+        elif hs_type.is_misc():
+            val = self.misc.get(hs_type.name, 0)
+        return val
+    
     def lacks_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
         return not self.meets_requirements(requirements=requirements)
 
     def meets_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
-        for key, pred in requirements.items():
-            if key is HSType.overall:
-                val = self.total_level
-            elif key is HSType.combat:
-                val = self.combat_lvl
-            elif key.is_skill():
-                val = self.skills.get(key.name, 0)
-            elif key.is_misc():
-                val = self.misc.get(key.name, 0)
-            if not pred(val):
-                return False
-        return True
+        return all(pred(self.get_stat(key)) for key, pred in requirements.items())
 
     def __lt__(self, other) -> bool:
         if self.total_level < other.total_level:
