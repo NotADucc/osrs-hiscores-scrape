@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "osrs-hiscores-scrape"
+version = "1.0"
+description = "Various scripts to interact with OSRS hiscores"
+readme = "README.md"
+authors = [
+    { name = "NotADucc" }
+]
+license = "AGPL-3.0"
+requires-python = ">=3.12"
+dependencies = []  
+
+[project.urls]
+Homepage = "https://github.com/NotADucc/osrs-hiscores-scrape"
+Repository = "https://github.com/NotADucc/osrs-hiscores-scrape"
+Issues = "https://github.com/NotADucc/osrs-hiscores-scrape/issues"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }

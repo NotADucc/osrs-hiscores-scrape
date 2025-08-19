@@ -1,13 +1,14 @@
 # OSRS Hiscore tool
 
 # Requirements 
-- Python 3.x [Download here](https://www.python.org/downloads/)
-- Packages, run pip install on requirements.txt
+- Python 3.12.x or greater [Download here](https://www.python.org/downloads/)
+- Certain py packages, run the command at [Get started](#Getstarted).
 
+# Get started
 ```console
-pip install -r requirements.txt
+pip install -r requirements.txt -e .
 # or
-python -m pip install -r requirements.txt
+python -m pip install -r requirements.txt -e .
 ```
 
 # Main Features

@@ -2,6 +2,8 @@ __pycache__
 **.txt
 **.err
 **.temp
+*.egg-info/
+*.egg
 
 # whitelist
 !requirements.txt
