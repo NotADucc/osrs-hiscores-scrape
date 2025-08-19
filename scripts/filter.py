@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+from functools import partial
 import re
 import sys
 
@@ -10,7 +11,7 @@ from src.request.errors import FinishedScript
 from src.request.job import (GetMaxHighscorePageRequest, HSLookupJob,
                              JobCounter, JobQueue, get_hs_page_job)
 from src.request.request import Requests
-from src.request.worker import (Worker, enqueue_page_usernames,
+from src.request.worker import (Worker, enqueue_page_usernames, enqueue_user_stats_filter,
                                 request_hs_page, request_user_stats)
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
@@ -26,12 +27,6 @@ N_SCRAPE_SIZE = 100
 @finished_script
 @benchmark
 async def main(out_file: str, proxy_file: str | None, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, filter: dict[HSType, int], num_workers: int):
-    async def enqueue_filter(queue: asyncio.Queue, job: HSLookupJob):
-        if job.result.meets_requirements(filter):
-            await queue.put(job)
-        else:
-            await queue.put(None)
-
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
@@ -73,7 +68,7 @@ async def main(out_file: str, proxy_file: str | None, start_rank: int, account_t
         for i, w in enumerate(filter_workers):
             T.append(asyncio.create_task(
                 w.run(req=req, request_fn=request_user_stats,
-                      enqueue_fn=enqueue_filter, delay=i * 0.1)
+                      enqueue_fn=partial(enqueue_user_stats_filter, filter=filter), delay=i * 0.1)
             ))
 
         try:

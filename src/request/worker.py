@@ -2,10 +2,12 @@ import asyncio
 from asyncio import CancelledError, Queue
 from typing import Callable
 
+from src.request.common import HSType
 from src.request.dto import GetHighscorePageRequest, GetPlayerRequest
 from src.request.errors import NotFound, RetryFailed
 from src.request.job import HSCategoryJob, HSLookupJob, JobCounter, JobQueue
 from src.request.request import Requests
+from src.request.results import CategoryInfo
 from src.util.retry_handler import retry
 
 
@@ -47,9 +49,19 @@ async def request_user_stats(req: Requests, job: HSLookupJob):
 async def enqueue_hs_page(queue: Queue, job: HSCategoryJob):
     await queue.put(job)
 
+async def enqueue_analyse_page_category(queue: Queue, job: HSCategoryJob, category_info: CategoryInfo):
+    for record in job.result[job.start_idx:job.end_idx]:
+        category_info.add(record=record)
+    await queue.put(job)
 
 async def enqueue_page_usernames(queue: Queue, job: HSCategoryJob):
     for record in job.result[job.start_idx:job.end_idx]:
         outjob = HSLookupJob(
             priority=record.rank, username=record.username, account_type=job.account_type)
         await queue.put(outjob)
+
+async def enqueue_user_stats_filter(queue: asyncio.Queue, job: HSLookupJob, filter: dict[HSType, int]):
+    if job.result.meets_requirements(filter):
+        await queue.put(job)
+    else:
+        await queue.put(None)

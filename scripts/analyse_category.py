@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import datetime
+from functools import partial
 import sys
 
 import aiohttp
@@ -12,7 +13,7 @@ from src.request.job import (HSCategoryJob, JobCounter, JobQueue,
                              get_hs_page_job)
 from src.request.request import Requests
 from src.request.results import CategoryInfo
-from src.request.worker import Worker, request_hs_page
+from src.request.worker import Worker, enqueue_analyse_page_category, request_hs_page
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import (build_temp_file, read_hs_records, read_proxies,
@@ -27,11 +28,6 @@ logger = get_logger()
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, num_workers: int):
     category_info = CategoryInfo(
         name=hs_type.name, ts=datetime.datetime.now(datetime.timezone.utc))
-
-    async def enqueue_hs_page(queue: asyncio.Queue, job: HSCategoryJob):
-        for record in job.result[job.start_idx:job.end_idx]:
-            category_info.add(record=record)
-        await queue.put(job)
 
     temp_file = build_temp_file(out_file, account_type, hs_type)
 
@@ -78,7 +74,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
             for i, w in enumerate(hs_scrape_workers):
                 T.append(asyncio.create_task(
                     w.run(req=req, request_fn=request_hs_page,
-                          enqueue_fn=enqueue_hs_page, delay=i * 0.1)
+                          enqueue_fn=partial(enqueue_analyse_page_category, category_info=category_info), delay=i * 0.1)
                 ))
             await asyncio.gather(*T)
         except FinishedScript:
