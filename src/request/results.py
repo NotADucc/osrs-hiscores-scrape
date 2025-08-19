@@ -56,7 +56,7 @@ class PlayerRecord:
         elif hs_type.is_misc():
             val = self.misc.get(hs_type.name, 0)
         return val
-    
+
     def lacks_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
         return not self.meets_requirements(requirements=requirements)
 

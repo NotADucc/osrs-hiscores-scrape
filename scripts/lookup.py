@@ -24,16 +24,16 @@ async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
         player_record: PlayerRecord = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
-        
+
         convert = player_record.to_dict() if not hs_type else \
             {
                 "rank": player_record.rank,
                 "username": player_record.username,
                 "timestamp": player_record.ts.isoformat(),
                 hs_type.name: player_record.get_stat(hs_type=hs_type),
-            }
+        }
         json_output = json_wrapper.to_json(convert, indent=1)
-        
+
         print(json_output)
 
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
                         help="Name that you want info about.")
     parser.add_argument('--account-type', default='regular',
                         type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
-    parser.add_argument('--hs-type', type=HSType.from_string, 
+    parser.add_argument('--hs-type', type=HSType.from_string,
                         choices=list(HSType), help="Filter on specific hiscore category")
 
     script_running_in_cmd_guard(parser)
