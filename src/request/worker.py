@@ -49,16 +49,19 @@ async def request_user_stats(req: Requests, job: HSLookupJob):
 async def enqueue_hs_page(queue: Queue, job: HSCategoryJob):
     await queue.put(job)
 
+
 async def enqueue_analyse_page_category(queue: Queue, job: HSCategoryJob, category_info: CategoryInfo):
     for record in job.result[job.start_idx:job.end_idx]:
         category_info.add(record=record)
     await queue.put(job)
+
 
 async def enqueue_page_usernames(queue: Queue, job: HSCategoryJob):
     for record in job.result[job.start_idx:job.end_idx]:
         outjob = HSLookupJob(
             priority=record.rank, username=record.username, account_type=job.account_type)
         await queue.put(outjob)
+
 
 async def enqueue_user_stats_filter(queue: asyncio.Queue, job: HSLookupJob, filter: dict[HSType, int]):
     if job.result.meets_requirements(filter):

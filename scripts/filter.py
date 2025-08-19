@@ -1,18 +1,19 @@
 import argparse
 import asyncio
-from functools import partial
 import re
 import sys
+from functools import partial
 
 import aiohttp
 
 from src.request.common import HSAccountTypes, HSType, get_default_workers_size
 from src.request.errors import FinishedScript
-from src.request.job import (GetMaxHighscorePageRequest, HSLookupJob,
-                             JobCounter, JobQueue, get_hs_page_job)
+from src.request.job import (GetMaxHighscorePageRequest, JobCounter, JobQueue,
+                             get_hs_page_job)
 from src.request.request import Requests
-from src.request.worker import (Worker, enqueue_page_usernames, enqueue_user_stats_filter,
-                                request_hs_page, request_user_stats)
+from src.request.worker import (Worker, enqueue_page_usernames,
+                                enqueue_user_stats_filter, request_hs_page,
+                                request_user_stats)
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
