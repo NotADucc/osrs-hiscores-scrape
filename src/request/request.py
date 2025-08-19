@@ -54,7 +54,7 @@ class Requests():
 
         while l <= r:
             middle = (l + r) >> 1
-            last_idx = await retry(
+            last_idx: int = await retry(
                 get_last_idx,
                 hs_request=GetHighscorePageRequest(
                     page_num=middle, hs_type=input.hs_type, account_type=input.account_type)

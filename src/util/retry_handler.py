@@ -8,7 +8,7 @@ from src.util.log import get_logger
 logger = get_logger()
 
 
-async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: int = 5, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any:
+async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_delay: int = 5, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> Any | None:
     retries = 1
     while retries <= max_retries:
         try:
