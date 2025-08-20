@@ -16,14 +16,15 @@ python -m pip install -r requirements.txt -e .
 - Filter usernames based on skills/bossing achievements and save that resultset on a file.
 - Pull an individual's stats from OSRS hiscores.
 - Analyse a highscore category (Count, total-, max- and min scores)
+- Get maximum page of a hiscore category
 
 > [!Note]
 > Use apostrophes/quotes when you have an argument value that contains a space.
-> Look at [Filter Codeblock](#Filterpy) for an example.
+> Look at [Filter Codeblock](#filterpy) for an example.
 
 # Usage
 
-## Filter.py
+## filter.py
 ```console
 py .\scripts\filter.py --out-file output.txt --filter 'ranged=50,attack<50'
 py .\scripts\filter.py --out-file output.txt --filter 'ranged>50 , attack>=50'
@@ -39,7 +40,7 @@ py .\scripts\filter.py --out-file output.txt --filter 'ranged<=50, attack=50'
 | `--filter`  | Yes      | Custom filter on what the accounts should have |
 | `--num-workers`  | No      | Number of concurrent scraping threads (default: 15) |
 
-## Scrape_hs.py
+## scrape_hs.py
 ```console
 py .\scripts\scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
 ```
@@ -53,7 +54,7 @@ py .\scripts\scrape_hs.py --out-file output.txt --account-type pure --hs-type zu
 | `--rank-end`  | No      | Hiscore rank number it should end at (default: end of category) |
 | `--num-workers`  | No      | Number of concurrent scraping threads (default: 15) |
 
-## Lookup.py
+## lookup.py
 ```console
 py .\scripts\lookup.py --name Cow1337Killer
 ```
@@ -73,6 +74,15 @@ py .\scripts\analyse_category.py --out-file output.txt --hs-type zuk --account-t
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--hs-type`  | Yes      | Hiscore category it should pull from        |
 | `--account-type`  | Yes      | Account type it should pull from       |
+
+## max_page.py
+```console
+py .\scripts\max_page.py --account-type hc --hs-type zuk
+```
+| Argument      | Required | Description                                |
+| ------------- | -------- | ------------------------------------------ |
+| `--account-type`  | Yes      | Account type it should scout   |
+| `--hs-type`  | Yes      | Highscore Category it should scout  |
 
 # Logging
 A logger (and progressbar) is used to report progress. A "done" message is logged once processing is complete.
