@@ -13,6 +13,24 @@ ENCODING = "utf-8"
 
 
 async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable, total: int):
+    """
+    Asynchronously writes records from a queue to a file.
+
+    This coroutine reads items from an asyncio.Queue and writes them to a specified file.
+    Each item is formatted using the provided formatting function before being written.
+    The function writes a total number of items specified by `total`. A progress bar is 
+    displayed during writing. If the file already exists, data will be appended; otherwise, 
+    a new file will be created.
+
+    Args:
+        in_queue (asyncio.Queue): The queue from which to retrieve items.
+        out_file (str): Path to the output file.
+        format (Callable): A function that converts a queue item into a string for writing.
+        total (int): The total number of items to process from the queue.
+
+    Raises:
+        FinishedScript: Custom exception indicating that writing has finished.
+    """
     exists = os.path.isfile(out_file)
     with open(out_file, mode='w' if not exists else 'a', encoding=ENCODING) as f:
         for _ in tqdm(range(total), smoothing=0.01, desc=f'writing to {out_file}'):
