@@ -42,7 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('--hs-type', type=HSType.from_string, required=True,
                         choices=list(HSType), help="Highscore Category it should scout")
 
-    script_running_in_cmd_guard(parser)
+    script_running_in_cmd_guard()
     args = parser.parse_args()
 
     try:

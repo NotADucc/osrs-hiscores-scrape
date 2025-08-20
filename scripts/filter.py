@@ -127,7 +127,7 @@ if __name__ == '__main__':
     parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
                         help="Number of concurrent scraping threads")
 
-    script_running_in_cmd_guard(parser)
+    script_running_in_cmd_guard()
     args = parser.parse_args()
 
     try:

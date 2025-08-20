@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('--hs-type', type=HSType.from_string,
                         choices=list(HSType), help="Filter on specific hiscore category")
 
-    script_running_in_cmd_guard(parser)
+    script_running_in_cmd_guard()
     args = parser.parse_args()
 
     try:
