@@ -13,7 +13,7 @@ class IsRateLimited(Exception):
 
 
 class NotFound(Exception):
-    """ Raised when data for a request does not exist. """
+    """ Raised when data for a request does not exist. (404) """
     def __init__(self, message: str, details=None):
         self.details = details
         super().__init__(message)
