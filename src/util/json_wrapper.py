@@ -15,7 +15,6 @@ def to_json(data: Any, **kwargs) -> str:
     Returns:
         str: The JSON-formatted string representation of `data`.
     """
-
     return _json_lib.dumps(data, **kwargs)
 
 
@@ -30,5 +29,4 @@ def from_json(json_string: str, **kwargs) -> Any:
     Returns:
         Any: The resulting object.
     """
-
     return _json_lib.loads(json_string, **kwargs)

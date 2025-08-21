@@ -9,7 +9,6 @@ def script_running_in_cmd_guard():
         Guard clause to try and ensure the script is executed from a real terminal
         (cmd, PowerShell, bash, zsh, etc.), not by double-clicking in a file manager.
     """
-
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         _exit_with_message(
             "This script must be run from a terminal, not as a background process.")
@@ -23,7 +22,6 @@ def script_running_in_cmd_guard():
 
 def _exit_with_message(msg: str):
     """Helper to show a red error message and exit."""
-
     print(f"\033[91m{msg}\033[0m\n", file=sys.stderr)
     print("Read the README for more information.")
     input("Press Enter to exit...")
