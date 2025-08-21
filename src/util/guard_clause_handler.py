@@ -23,7 +23,7 @@ def script_running_in_cmd_guard():
 
 def _exit_with_message(msg: str):
     """Helper to show a red error message and exit."""
-    
+
     print(f"\033[91m{msg}\033[0m\n", file=sys.stderr)
     print("Read the README for more information.")
     input("Press Enter to exit...")

@@ -123,6 +123,6 @@ def build_temp_file(out_file: str, account_type: HSAccountTypes, hs_type: HSType
     Returns:
         str: The constructed temporary file path.
     """
-    
+
     base, _ = os.path.splitext(out_file)
     return ".".join([base, str(account_type), str(hs_type), "temp"])

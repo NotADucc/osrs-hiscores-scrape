@@ -91,7 +91,7 @@ def finished_script(callback: Callable):
     Returns:
         Callable: An asynchronous wrapper coroutine.
     """
-    
+
     @functools.wraps(callback)
     async def wrapper(*args, **kwargs):
         result = callback(*args, **kwargs)

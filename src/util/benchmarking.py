@@ -19,7 +19,7 @@ def benchmark(callback: Callable):
         Returns:
             Callable: An asynchronous wrapper coroutine
     """
-    
+
     @functools.wraps(callback)
     async def wrapper(*args, **kwargs):
         start_mem = mem_profile.memory_usage_psutil()

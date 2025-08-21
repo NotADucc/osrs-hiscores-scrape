@@ -27,7 +27,7 @@ async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_del
         NotFound: If the callable raises this exception.
         RetryFailed: If all retry attempts fail.
     """
-    
+
     retries = 1
     while retries <= max_retries:
         try:
