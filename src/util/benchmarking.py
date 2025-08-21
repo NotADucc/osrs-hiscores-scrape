@@ -17,7 +17,7 @@ def benchmark(callback: Callable):
             callback (Callable): The method that needs benchmarking.
 
         Returns:
-            Callable: An asynchronous wrapper function
+            Callable: An asynchronous wrapper coroutine
     """
     @functools.wraps(callback)
     async def wrapper(*args, **kwargs):
