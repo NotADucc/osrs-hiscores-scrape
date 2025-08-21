@@ -37,7 +37,7 @@ def calc_lvl(experience: int) -> int:
         int: The corresponding level. Returns 126 if the experience
         exceeds the maximum defined in the XP table.
     """
-    
+
     xp_table = {
         1: 0, 2: 83, 3: 174, 4: 276, 5: 388, 6: 512, 7: 650, 8: 801, 9: 969, 10: 1_154,
         11: 1_358, 12: 1_584, 13: 1_833, 14: 2_107, 15: 2_411, 16: 2_746, 17: 3_115, 18: 3_523, 19: 3_973, 20: 4_470,

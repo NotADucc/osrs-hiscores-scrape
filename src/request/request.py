@@ -30,6 +30,7 @@ class Requests():
         session (ClientSession): The aiohttp session used for HTTP requests.
         proxy_list (list[dict], optional): List of proxies to rotate through.
     """
+
     def __init__(self, session: ClientSession, proxy_list:  list | None = None):
         self.session = session
         self.proxy_list = proxy_list
@@ -85,7 +86,7 @@ class Requests():
 
         Raises:
             Any exceptions raised by `self.get_hs_page` or `retry`.
-        """        
+        """
         # max on hs is currently 80_000 pages
         l, r, res, PAGE_SIZE = 1, 100_000, 1, get_page_size()
 
@@ -141,7 +142,6 @@ class Requests():
                   'table': input.hs_type.get_category_value(), 'page': input.page_num, }
         page = await self.https_request(input.account_type.lookup_overall(), params)
         return Requests.extract_highscore_records(page)
-
 
     async def https_request(self, url: str, params: Dict[str, str]) -> str:
         """

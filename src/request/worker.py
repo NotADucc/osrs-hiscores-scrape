@@ -30,6 +30,7 @@ class Worker:
         NotFound: Simply increments the job counter and continues.
         CancelledError, RetryFailed: Requeues the job forcibly and re-raises the exception.
     """
+
     def __init__(self, in_queue: JobQueue, out_queue: Queue, job_counter: JobCounter):
         self.in_q = in_queue
         self.out_q = out_queue

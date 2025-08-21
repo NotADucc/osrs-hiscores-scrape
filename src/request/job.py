@@ -71,6 +71,7 @@ class JobCounter:
         nextcalled (asyncio.Event): An event triggered whenever
             the counter is incremented.
     """
+
     def __init__(self, value: int):
         self.v = value
         self.nextcalled = asyncio.Event()
@@ -104,6 +105,7 @@ class JobQueue:
         max_size (int | None): Optional maximum number of items in
             the queue. If None, the queue is unbounded.
     """
+
     def __init__(self, max_size=None):
         self.q = asyncio.PriorityQueue()
         self.got = asyncio.Event()

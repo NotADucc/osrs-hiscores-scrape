@@ -69,6 +69,7 @@ class HSAccountTypes(Enum):
 
 class HSValue():
     """ Internal value type to help with 'HSType'. """
+
     def __init__(self, category: int, category_value: int, csv_value: int):
         self.category = category
         self.category_value = category_value
@@ -77,6 +78,7 @@ class HSValue():
 
 class HSIncrementer():
     """ Internal incrementer to help with 'HSType'. """
+
     def __init__(self):
         self.arr = [0] * 3
 

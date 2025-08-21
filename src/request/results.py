@@ -22,6 +22,7 @@ class PlayerRecord:
         skills (dict[str, int]): Mapping of skill names to their levels.
         misc (dict[str, int]): Mapping of miscellaneous categories to their counts.
     """
+
     def __init__(self, username: str, csv: List[str], ts: datetime):
         self.username = username
 
@@ -145,6 +146,7 @@ class CategoryRecord:
         score (int): The player's score in this category.
         username (str): The player's username.
     """
+
     def __init__(self, rank: int, score: int, username: str):
         self.rank = rank
         self.score = score
@@ -198,6 +200,7 @@ class CategoryInfo:
         max (CategoryRecord | None): Record with the worst rank (highest number).
         min (CategoryRecord | None): Record with the best rank (lowest number).
     """
+
     def __init__(self, name: str, ts: datetime):
         self.name = name
         self.ts = ts
