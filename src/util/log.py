@@ -19,6 +19,7 @@ class CustomFormatter(logging.Formatter):
     Format:
         %(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)
     """
+
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
@@ -44,6 +45,7 @@ class CustomFormatter(logging.Formatter):
         Returns:
             str: The formatted and colorized log message.
         """
+
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
@@ -73,6 +75,7 @@ def get_logger() -> logging:
     Returns:
         logging.Logger: The global logger instance.
     """
+
     global logger
     logger = setup_custom_logger() if logger is None else logger
     return logger
@@ -88,6 +91,7 @@ def finished_script(callback: Callable):
     Returns:
         Callable: An asynchronous wrapper coroutine.
     """
+    
     @functools.wraps(callback)
     async def wrapper(*args, **kwargs):
         result = callback(*args, **kwargs)

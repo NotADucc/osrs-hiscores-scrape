@@ -12,6 +12,7 @@ def memory_usage_psutil():
     Returns:
         float: Memory usage in MB.
     """
+    
     process = psutil.Process(os.getpid())
     mem = process.memory_info().rss / (1024 ** 2)
     return mem
