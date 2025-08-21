@@ -72,7 +72,7 @@ def get_logger() -> logging:
 
     Returns:
         logging.Logger: The global logger instance.
-    """     
+    """
     global logger
     logger = setup_custom_logger() if logger is None else logger
     return logger
