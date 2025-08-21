@@ -1,10 +1,7 @@
 import os
 import sys
 
-try:
-    import psutil 
-except ImportError:
-    psutil = None
+import psutil 
 
 
 def script_running_in_cmd_guard():
@@ -15,11 +12,10 @@ def script_running_in_cmd_guard():
     if not sys.stdin.isatty() or not sys.stdout.isatty():
         _exit_with_message("This script must be run from a terminal, not as a background process.")
 
-    if psutil:
-        parent = psutil.Process(os.getppid()).parent()
-        parent_name = parent.name().lower()
-        if any(x in parent_name for x in {"finder", "nautilus", "dolphin", "explorer", "explorer.exe"}):
-            _exit_with_message("This script must be run from a terminal (bash, zsh, etc.), not the file manager.")
+    parent = psutil.Process(os.getppid()).parent()
+    parent_name = parent.name().lower()
+    if any(x in parent_name for x in {"finder", "nautilus", "dolphin", "explorer", "explorer.exe"}):
+        _exit_with_message("This script must be run from a terminal (bash, zsh, etc.), not the file manager.")
 
 
 def _exit_with_message(msg: str):
