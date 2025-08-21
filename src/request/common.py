@@ -3,14 +3,39 @@ from enum import Enum
 
 
 def get_page_size() -> int:
+    """
+    Return the number of items per osrs hiscore page.
+
+    Returns:
+        int: The default page size (25).
+    """
     return 25
 
 
 def get_default_workers_size() -> int:
+    """
+    Return the default number of workers for a script.
+
+    Returns:
+        int: The default worker size (15).
+    """
     return 15
 
 
 class HSAccountTypes(Enum):
+    """
+    Enum of OSRS hiscore account types.
+
+    Each type maps to the corresponding hiscore endpoint used to retrieve stats.
+
+    Attributes:
+        regular
+        pure
+        im.
+        uim
+        hc
+        skiller
+    """
     regular = 'hiscore_oldschool'
     pure = 'hiscore_oldschool_skiller_defence'
     im = 'hiscore_oldschool_ironman'
@@ -43,6 +68,7 @@ class HSAccountTypes(Enum):
 
 
 class HSValue():
+    """ Internal value type to help with 'HSType'. """
     def __init__(self, category: int, category_value: int, csv_value: int):
         self.category = category
         self.category_value = category_value
@@ -50,6 +76,7 @@ class HSValue():
 
 
 class HSIncrementer():
+    """ Internal incrementer to help with 'HSType'. """
     def __init__(self):
         self.arr = [0] * 3
 
@@ -70,6 +97,9 @@ HSCategoryMapperIncrementer = HSIncrementer()
 
 
 class HSType(Enum):
+    """ 
+    Enum of osrs hiscore categories, each value contains data to make hiscore lookup easier.
+    """
     overall = HSCategoryMapperIncrementer.skill_increment()
     attack = HSCategoryMapperIncrementer.skill_increment()
     defence = HSCategoryMapperIncrementer.skill_increment()
