@@ -98,7 +98,7 @@ HSCategoryMapperIncrementer = HSIncrementer()
 
 class HSType(Enum):
     """ 
-    Enum of osrs hiscore categories, each value contains data to make hiscore lookup easier.
+    Enum of OSRS hiscore categories, each value contains data to make hiscore lookup easier.
     """
     overall = HSCategoryMapperIncrementer.skill_increment()
     attack = HSCategoryMapperIncrementer.skill_increment()
