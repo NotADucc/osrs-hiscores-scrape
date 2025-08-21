@@ -7,7 +7,18 @@ logger = None
 
 
 class CustomFormatter(logging.Formatter):
+    """
+    Custom logging formatter that applies color codes based on log level.
 
+    Colors:
+        DEBUG, INFO: Grey
+        WARNING: Yellow
+        ERROR: Red
+        CRITICAL: Bold Red
+
+    Format:
+        %(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)
+    """
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
@@ -24,12 +35,28 @@ class CustomFormatter(logging.Formatter):
     }
 
     def format(self, record):
+        """
+        Format a log record with the color corresponding to its level.
+
+        Args:
+            record (logging.LogRecord): The log record to format.
+
+        Returns:
+            str: The formatted and colorized log message.
+        """
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
 
 def setup_custom_logger() -> logging:
+    """
+    Set up a custom logger with a colorized stream handler.
+
+    Returns:
+        logging.Logger: Configured logger instance with DEBUG level and custom formatting.
+    """
+
     handler = logging.StreamHandler()
     handler.setFormatter(CustomFormatter())
 
@@ -40,12 +67,27 @@ def setup_custom_logger() -> logging:
 
 
 def get_logger() -> logging:
+    """
+    Retrieve the global custom logger instance, creating it if necessary.
+
+    Returns:
+        logging.Logger: The global logger instance.
+    """     
     global logger
     logger = setup_custom_logger() if logger is None else logger
     return logger
 
 
 def finished_script(callback: Callable):
+    """
+    Decorator that logs when a (async) method has finished.
+
+    Args:
+        callback (Callable): The function to wrap.
+
+    Returns:
+        Callable: An asynchronous wrapper function.
+    """
     @functools.wraps(callback)
     async def wrapper(*args, **kwargs):
         result = callback(*args, **kwargs)
