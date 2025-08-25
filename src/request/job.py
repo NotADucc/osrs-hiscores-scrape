@@ -26,7 +26,7 @@ class HSCategoryJob:
     account_type: HSAccountTypes
     start_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
     end_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
-    result: List[CategoryRecord] = None 
+    result: List[CategoryRecord] = None # type: ignore
 
 
 @dataclass(order=True)
@@ -40,7 +40,7 @@ class HSLookupJob:
     priority: int
     username: str
     account_type: HSAccountTypes
-    result: PlayerRecord = None 
+    result: PlayerRecord = None # type: ignore
 
 
 class JobCounter:

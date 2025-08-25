@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Any, Awaitable, Callable, TypeVar
+from typing import Any, Awaitable, Callable, TypeVar, cast
 
 from src.request.errors import NotFound, RetryFailed
 from src.util.log import get_logger
@@ -22,12 +22,13 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
             result = callback(**kwargs)
             if inspect.isawaitable(result):
                 result = await result
-            return result 
+            return cast(T, result) 
         except NotFound as err:
             logger.error(f"{err} | {err.details}", exc_info=exc_info)
             raise
         except Exception as err:
-            warning_mess = f"Attempt {retries} err: {err} | {err.details}" if getattr(err, "details", None) else f"Attempt {retries} err: {err}" 
+            details = getattr(err, "details", None)
+            warning_mess = f"Attempt {retries} err: {err}" + (f" | {details}" if details else "")
             logger.error(f"{warning_mess} | {kwargs}", exc_info=exc_info)
         retries += 1
         await asyncio.sleep(retries * initial_delay)

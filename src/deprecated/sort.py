@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--in-file', required=True,
                         help="Path to the input file")
 
-    script_running_in_cmd_guard(parser)
+    script_running_in_cmd_guard()
     args = parser.parse_args()
 
     main(args.in_file)

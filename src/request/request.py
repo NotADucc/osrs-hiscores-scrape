@@ -101,7 +101,7 @@ class Requests():
             while l <= r:
                 middle = (l + r) >> 1
 
-                records: list[CategoryRecord] = await retry(
+                records = await retry(
                     self.get_hs_page,
                     hs_request=GetHighscorePageRequest(
                         page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
@@ -160,6 +160,8 @@ class Requests():
                 predicate=predicate,
                 left_bias=False
             )
+        else: 
+            raise ValueError(f"Unsupported operator: '{sign}'")
 
         start_rank =  await self.get_first_rank(hs_request=GetHighscorePageRequest(page_num=start_page, hs_type=input.hs_type, account_type=input.account_type))
         end_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=end_page, hs_type=input.hs_type, account_type=input.account_type))
@@ -178,7 +180,7 @@ class Requests():
         params = {'category_type': hs_request.hs_type.get_category(),
                   'table': hs_request.hs_type.get_category_value(), 'page': hs_request.page_num, }
         page = await self.https_request(hs_request.account_type.lookup_overall(), params)
-        return _extract_highscore_records(page)
+        return _extract_hs_page_records(page)
 
     async def https_request(self, url: str, params: Dict[str, Any]) -> str:
         """
@@ -221,50 +223,50 @@ class Requests():
         except ClientConnectionError as e:
             raise RequestFailed(f"client connection error: {e}")
 
-    async def get_hs_ranks(self, hs_request: GetHighscorePageRequest) -> list[int] | None:
-        """ Gets the ranks of a hs page, None if page doesnt exist """
+    async def get_hs_ranks(self, hs_request: GetHighscorePageRequest) -> list[int]:
+        """ Gets the ranks of a hs page, empty list if page doesnt exist """
         extracted_records = await self.get_hs_page(hs_request=hs_request)
 
         if not extracted_records:
-            return None
+            return []
         
         return [record.rank for record in extracted_records]
 
-    async def get_first_rank(self, hs_request: GetHighscorePageRequest) -> int | None:
-        """ Gets the first rank of a hs page, None if page doesnt exist """
+    async def get_first_rank(self, hs_request: GetHighscorePageRequest) -> int:
+        """ Gets the first rank of a hs page, -1 if page doesnt exist """
         extracted_ranks = await self.get_hs_ranks(hs_request=hs_request)
-        return None if not extracted_ranks else extracted_ranks[0]
+        return extracted_ranks[0] if extracted_ranks else -1
 
-    async def get_last_rank(self, hs_request: GetHighscorePageRequest) -> int | None:
-        """ Gets the last rank of a hs page, None if page doesnt exist """
+    async def get_last_rank(self, hs_request: GetHighscorePageRequest) -> int:
+        """ Gets the last rank of a hs page, -1 if page doesnt exist """
         extracted_ranks = await self.get_hs_ranks(hs_request=hs_request)
-        return None if not extracted_ranks else extracted_ranks[-1]
+        return extracted_ranks[-1] if extracted_ranks else -1
     
-    async def get_hs_scores(self, hs_request: GetHighscorePageRequest) -> list[int] | None:
-        """ Gets the scores of a hs page, None if page doesnt exist """
+    async def get_hs_scores(self, hs_request: GetHighscorePageRequest) -> list[int]:
+        """ Gets the scores of a hs page, empty list if page doesnt exist """
         extracted_records = await self.get_hs_page(hs_request=hs_request)
 
         if not extracted_records:
-            return None
+            return []
         
         return _extract_record_scores(records=extracted_records, hs_type=hs_request.hs_type)
         
-    async def get_first_score(self, hs_request: GetHighscorePageRequest) -> int | None:
-        """ Gets the first score of a hs page, None if page doesnt exist """
+    async def get_first_score(self, hs_request: GetHighscorePageRequest) -> int:
+        """ Gets the first score of a hs page, -1 if page doesnt exist """
         extracted_scores = await self.get_hs_scores(hs_request=hs_request)
-        return extracted_scores[0] if extracted_scores else None
+        return extracted_scores[0] if extracted_scores else -1
     
-    async def get_last_score(self, hs_request: GetHighscorePageRequest) -> int | None:
-        """ Gets the last score of a hs page, None if page doesnt exist """
+    async def get_last_score(self, hs_request: GetHighscorePageRequest) -> int:
+        """ Gets the last score of a hs page, -1 if page doesnt exist """
         extracted_scores = await self.get_hs_scores(hs_request=hs_request)
-        return extracted_scores[-1] if extracted_scores else None
+        return extracted_scores[-1] if extracted_scores else -1
 
 
 def _is_rate_limited(page: str) -> bool:
     """ Check if a hiscore page indicates a rate limit has been triggered. """
     return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
 
-def _extract_highscore_records(page: str) -> list[CategoryRecord]:
+def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
     """
     Parse a hiscore page of OSRS personal highscores and extract rank, username, and score records.
 
@@ -282,11 +284,11 @@ def _extract_highscore_records(page: str) -> list[CategoryRecord]:
     result = []
 
     for record in records:
-        td_right = record.find_all('td', class_='right') 
+        td_right = record.find_all('td', class_='right')  # type: ignore
 
         rank = int(td_right[0].text.replace(',', '').strip())
         # some names contain special char - "non-breaking space."
-        username = record.find('td', class_='left').a.text.strip().replace('Ā', ' ').replace('\xa0', ' ') 
+        username = record.find('td', class_='left').a.text.strip().replace('Ā', ' ').replace('\xa0', ' ')  # type: ignore
         score = int(td_right[1].text.replace(',', '').strip())
         result.append(CategoryRecord(
             rank=rank, score=score, username=username))

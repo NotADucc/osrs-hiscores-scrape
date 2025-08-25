@@ -224,11 +224,12 @@ class HSType(Enum):
             "ranged", "prayer", "magic", "combat"
         }
 
-    def debug(self) -> list:
-        return [f'{v}: {v.value}' for v in HSType]
-
     def __str__(self) -> str:
         return self.name
+
+    @staticmethod
+    def debug() -> list[str]:
+        return [f'{v}: {v.get_csv_value()}' for v in HSType]
 
     @staticmethod
     def from_string(s: str) -> 'HSType':

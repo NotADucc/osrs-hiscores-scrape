@@ -33,7 +33,7 @@ async def main(out_file: str, proxy_file: str | None, start_rank: int, account_t
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
-        filtered: dict[HSType, Callable[[int], bool]] = dict(filter(lambda kvp: kvp[0] == hs_type, hs_filter.items()))
+        filtered = dict(filter(lambda kvp: kvp[0] == hs_type, hs_filter.items()))
         
         if filtered:
             start_job_prio, end_job_prio, hs_scrape_joblist = 1, MAX_CATEGORY_SIZE, []

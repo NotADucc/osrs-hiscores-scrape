@@ -14,7 +14,7 @@ def script_running_in_cmd_guard():
             "This script must be run from a terminal, not as a background process.")
 
     parent = psutil.Process(os.getppid()).parent()
-    parent_name = parent.name().lower()
+    parent_name = parent.name().lower() if parent else ""
     if any(x in parent_name for x in {"finder", "nautilus", "dolphin", "explorer", "explorer.exe"}):
         _exit_with_message(
             "This script must be run from a terminal (bash, zsh, etc.), not the file manager.")

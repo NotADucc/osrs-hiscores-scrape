@@ -32,7 +32,7 @@ class PlayerRecord:
             if csv_val == -1:
                 continue
             
-            splitted = [int(x) for x in csv[0].split(',')]
+            splitted = [int(x) for x in csv[csv_val].split(',')]
 
             if hstypes.is_skill():
                 # self.skills[mapper_val.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
@@ -51,7 +51,12 @@ class PlayerRecord:
         self.combat_lvl = cmb_level
 
     def get_stat(self, hs_type: HSType) -> int | float:
-        """ Retrieve record value for a given highscore type. """
+        """ 
+        Retrieve record value for a given highscore type. 
+        
+        Raises:
+            ValueError raised if `HSType` is unknown.
+        """
         if hs_type is HSType.overall:
             val = self.total_level
         elif hs_type is HSType.combat:
@@ -60,6 +65,9 @@ class PlayerRecord:
             val = self.skills.get(hs_type.name, 0)
         elif hs_type.is_misc():
             val = self.misc.get(hs_type.name, 0)
+        else: 
+            raise ValueError(f"Unknown hs type: {hs_type.name}")
+        
         return val
 
     def lacks_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:
@@ -84,7 +92,7 @@ class PlayerRecord:
             return False
         return not self < other and not other < self
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "rank": self.rank,
             "username": self.username,
@@ -121,7 +129,7 @@ class CategoryRecord:
             return False
         return self.rank > other.rank
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "rank": self.rank,
             "score": self.score,
@@ -163,7 +171,7 @@ class CategoryInfo:
         if not self.min or self.min.is_better_rank_than(record):
             self.min = record
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "timestamp": self.ts.isoformat(),

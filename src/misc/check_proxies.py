@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import threading
+from typing import Any
 
 import aiohttp
 
@@ -11,8 +12,8 @@ from src.util.log import finished_script, get_logger
 logger = get_logger()
 file_lock = threading.Lock()
 
-async def process(proxy: str, **args: dict) -> None:
-    out_file = args["out_file"]
+async def process(proxy: str, **kwargs) -> None:
+    out_file: str = kwargs["out_file"]
     try:
         if proxy.startswith(("https://", "http://", "socks4://", "socks5://")):
             proxy_url = proxy
@@ -24,12 +25,12 @@ async def process(proxy: str, **args: dict) -> None:
                 else f"http://{splitted[0]}:{splitted[1]}"
 
         async with aiohttp.ClientSession() as session:
-            async with session.get("http://httpbin.org/ip", proxy=proxy_url, timeout=10) as resp:
+            async with session.get("http://httpbin.org/ip", proxy=proxy_url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                 if resp.status == 200:
                     ip_info = await resp.json()
                     logger.info(f'{ip_info}')
                     with file_lock:
-                        with open(out_file, "a") as f:
+                        with open(out_file, "a", encoding="utf-8") as f:
                             f.write(f'{proxy_url}\n')
                 else:
                     print(f"{proxy_url} | status {resp.status}")

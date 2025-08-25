@@ -1,5 +1,5 @@
 import dis
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 
 def get_comparison(f: Callable[[Any], bool]) -> str:
@@ -21,24 +21,23 @@ def get_comparison(f: Callable[[Any], bool]) -> str:
         names = set(co.co_names) if co else set()
 
         if func.__closure__:
-            try:
-                cell_val = cell.cell_contents
-            except ValueError:
-                continue
-
             for cell in func.__closure__:
+                try:
+                    cell_val = cell.cell_contents
+                except ValueError:
+                    continue
                 if callable(cell.cell_contents):
-                    stack.append(cell.cell_contents)
-            else:
-                for name in names | {"p", "pred", "predicate"}:
-                    attr = getattr(cell_val, name, None)
-                    if callable(attr):
-                        stack.append(attr)
+                    stack.append(cast(Callable[[Any], bool], cell.cell_contents))
+                else:
+                    for name in names | {"p", "pred", "predicate"}:
+                        attr = getattr(cell_val, name, None)
+                        if callable(attr):
+                            stack.append(cast(Callable[[Any], bool], attr))
 
         globs = getattr(func, "__globals__", {}) or {}
         for name in names:
             g = globs.get(name)
             if callable(g):
-                stack.append(g)
+                stack.append(cast(Callable[[Any], bool], g))
 
     raise ValueError("Input given is not a simple comparison predicate")
