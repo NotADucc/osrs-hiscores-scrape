@@ -24,7 +24,7 @@ class GetFilteredPageRangeRequest:
     hs_type: HSType
     predicate: Callable[[int], bool]
     account_type: HSAccountTypes
-    
+
 
 @dataclass
 class GetFilteredPageRangeResult:

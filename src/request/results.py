@@ -31,7 +31,7 @@ class PlayerRecord:
 
             if csv_val == -1:
                 continue
-            
+
             splitted = [int(x) for x in csv[csv_val].split(',')]
 
             if hstypes.is_skill():
@@ -53,7 +53,7 @@ class PlayerRecord:
     def get_stat(self, hs_type: HSType) -> int | float:
         """ 
         Retrieve record value for a given highscore type. 
-        
+
         Raises:
             ValueError raised if `HSType` is unknown.
         """
@@ -65,9 +65,9 @@ class PlayerRecord:
             val = self.skills.get(hs_type.name, 0)
         elif hs_type.is_misc():
             val = self.misc.get(hs_type.name, 0)
-        else: 
+        else:
             raise ValueError(f"Unknown hs type: {hs_type.name}")
-        
+
         return val
 
     def lacks_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:

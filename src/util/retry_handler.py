@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Any, Awaitable, Callable, TypeVar, cast
+from typing import Awaitable, Callable, TypeVar, cast
 
 from src.request.errors import NotFound, RetryFailed
 from src.util.log import get_logger
@@ -8,6 +8,8 @@ from src.util.log import get_logger
 logger = get_logger()
 
 T = TypeVar("T")
+
+
 async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10, initial_delay: int = 5, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> T:
     """
     Retry a callable with exponential backoff on failure.
@@ -22,13 +24,14 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
             result = callback(**kwargs)
             if inspect.isawaitable(result):
                 result = await result
-            return cast(T, result) 
+            return cast(T, result)
         except NotFound as err:
             logger.error(f"{err} | {err.details}", exc_info=exc_info)
             raise
         except Exception as err:
             details = getattr(err, "details", None)
-            warning_mess = f"Attempt {retries} err: {err}" + (f" | {details}" if details else "")
+            warning_mess = f"Attempt {retries} err: {err}" + \
+                (f" | {details}" if details else "")
             logger.error(f"{warning_mess} | {kwargs}", exc_info=exc_info)
         retries += 1
         await asyncio.sleep(retries * initial_delay)

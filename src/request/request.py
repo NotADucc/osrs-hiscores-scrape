@@ -1,21 +1,23 @@
 import datetime
 import threading
-from typing import Any, Awaitable, Callable, Coroutine, Dict
+from typing import Any, Callable, Dict
 
 from aiohttp import ClientConnectionError, ClientSession, ClientTimeout
 from bs4 import BeautifulSoup, Tag
 from fake_useragent import UserAgent
 
-from src.request.common import HS_PAGE_SIZE, MAX_CATEGORY_SIZE, HSAccountTypes, HSType
-from src.request.dto import (GetFilteredPageRangeRequest, GetFilteredPageRangeResult, GetHighscorePageRequest,
+from src.request.common import HS_PAGE_SIZE, MAX_CATEGORY_SIZE, HSType
+from src.request.dto import (GetFilteredPageRangeRequest,
+                             GetFilteredPageRangeResult,
+                             GetHighscorePageRequest,
                              GetMaxHighscorePageRequest,
                              GetMaxHighscorePageResult, GetPlayerRequest)
 from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
                                 RequestFailed, ServerBusy)
 from src.request.results import CategoryRecord, PlayerRecord
 from src.stats.common import calc_lvl
-from src.util.predicate_utils import get_comparison
 from src.util.log import get_logger
+from src.util.predicate_utils import get_comparison
 from src.util.retry_handler import retry
 
 logger = get_logger()
@@ -86,7 +88,6 @@ class Requests():
         logger.info(f"Max page found: {res}")
         return GetMaxHighscorePageResult(page_nr=res, rank_nr=last_rank)
 
-
     async def get_filtered_page_range(self, input: GetFilteredPageRangeRequest) -> GetFilteredPageRangeResult:
         """
         Determine the highscore ranges on a given predicate.
@@ -114,7 +115,8 @@ class Requests():
                     r = middle - 1
                     continue
 
-                scores = _extract_record_scores(records=records, hs_type=input.hs_type)
+                scores = _extract_record_scores(
+                    records=records, hs_type=input.hs_type)
 
                 if predicate(scores):
                     res = middle
@@ -130,9 +132,9 @@ class Requests():
 
             return res
 
-
         sign = get_comparison(input.predicate)
-        predicate: Callable = lambda values: any(input.predicate(v) for v in values)
+        predicate: Callable = lambda values: any(
+            input.predicate(v) for v in values)
 
         if sign in ("<", "<="):
             start_page = await binary_search_hs_page(
@@ -154,21 +156,22 @@ class Requests():
                 predicate=predicate,
                 left_bias=False
             )
-        elif sign in (">", ">=") :
+        elif sign in (">", ">="):
             start_page = 1
             end_page = await binary_search_hs_page(
                 predicate=predicate,
                 left_bias=False
             )
-        else: 
+        else:
             raise ValueError(f"Unsupported operator: '{sign}'")
 
-        start_rank =  await self.get_first_rank(hs_request=GetHighscorePageRequest(page_num=start_page, hs_type=input.hs_type, account_type=input.account_type))
+        start_rank = await self.get_first_rank(hs_request=GetHighscorePageRequest(page_num=start_page, hs_type=input.hs_type, account_type=input.account_type))
         end_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=end_page, hs_type=input.hs_type, account_type=input.account_type))
-        
-        logger.info(f"Page range found: {start_page}-{end_page} ({start_rank}-{end_rank})")
+
+        logger.info(
+            f"Page range found: {start_page}-{end_page} ({start_rank}-{end_rank})")
         return GetFilteredPageRangeResult(start_page=start_page, start_rank=start_rank, end_page=end_page, end_rank=end_rank)
-    
+
     async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
         """ Fetch and parse a player's stats from OSRS hiscores. """
         csv = await self.https_request(input.account_type.api_csv(), {'player': input.username})
@@ -229,7 +232,7 @@ class Requests():
 
         if not extracted_records:
             return []
-        
+
         return [record.rank for record in extracted_records]
 
     async def get_first_rank(self, hs_request: GetHighscorePageRequest) -> int:
@@ -241,21 +244,21 @@ class Requests():
         """ Gets the last rank of a hs page, -1 if page doesnt exist """
         extracted_ranks = await self.get_hs_ranks(hs_request=hs_request)
         return extracted_ranks[-1] if extracted_ranks else -1
-    
+
     async def get_hs_scores(self, hs_request: GetHighscorePageRequest) -> list[int]:
         """ Gets the scores of a hs page, empty list if page doesnt exist """
         extracted_records = await self.get_hs_page(hs_request=hs_request)
 
         if not extracted_records:
             return []
-        
+
         return _extract_record_scores(records=extracted_records, hs_type=hs_request.hs_type)
-        
+
     async def get_first_score(self, hs_request: GetHighscorePageRequest) -> int:
         """ Gets the first score of a hs page, -1 if page doesnt exist """
         extracted_scores = await self.get_hs_scores(hs_request=hs_request)
         return extracted_scores[0] if extracted_scores else -1
-    
+
     async def get_last_score(self, hs_request: GetHighscorePageRequest) -> int:
         """ Gets the last score of a hs page, -1 if page doesnt exist """
         extracted_scores = await self.get_hs_scores(hs_request=hs_request)
@@ -265,6 +268,7 @@ class Requests():
 def _is_rate_limited(page: str) -> bool:
     """ Check if a hiscore page indicates a rate limit has been triggered. """
     return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
+
 
 def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
     """
@@ -278,8 +282,8 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
 
     if not table or not isinstance(table, Tag):
         raise ParsingFailed("Could not find hiscore table")
-    
-    records = table.find_all(class_='personal-hiscores__row') 
+
+    records = table.find_all(class_='personal-hiscores__row')
 
     result = []
 
@@ -288,15 +292,18 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
 
         rank = int(td_right[0].text.replace(',', '').strip())
         # some names contain special char - "non-breaking space."
-        username = record.find('td', class_='left').a.text.strip().replace('Ā', ' ').replace('\xa0', ' ')  # type: ignore
+        username = record.find('td', class_='left').a.text.strip().replace(
+            'Ā', ' ').replace('\xa0', ' ')  # type: ignore
         score = int(td_right[1].text.replace(',', '').strip())
         result.append(CategoryRecord(
             rank=rank, score=score, username=username))
 
     return result
 
+
 def _extract_record_scores(records: list[CategoryRecord], hs_type: HSType) -> list[int]:
     return [
-        calc_lvl(record.score, show_virtual_lvl=False) if hs_type.is_skill() else record.score
+        calc_lvl(record.score, show_virtual_lvl=False) if hs_type.is_skill(
+        ) else record.score
         for record in records
     ]

@@ -27,7 +27,8 @@ def get_comparison(f: Callable[[Any], bool]) -> str:
                 except ValueError:
                     continue
                 if callable(cell.cell_contents):
-                    stack.append(cast(Callable[[Any], bool], cell.cell_contents))
+                    stack.append(
+                        cast(Callable[[Any], bool], cell.cell_contents))
                 else:
                     for name in names | {"p", "pred", "predicate"}:
                         attr = getattr(cell_val, name, None)
