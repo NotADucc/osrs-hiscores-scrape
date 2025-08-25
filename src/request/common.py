@@ -65,13 +65,13 @@ class HSIncrementer():
     def __init__(self):
         self.arr = [0] * 3
 
-    def skill_increment(self) -> int:
+    def skill_increment(self) -> HSValue:
         cat_val, csv_val = self.arr[0], self.arr[2]
         self.arr[0] += 1
         self.arr[2] += 1
         return HSValue(0, cat_val, csv_val)
 
-    def misc_increment(self) -> int:
+    def misc_increment(self) -> HSValue:
         cat_val, csv_val = self.arr[1], self.arr[2]
         self.arr[1] += 1
         self.arr[2] += 1
@@ -256,7 +256,7 @@ class HSType(Enum):
             "ranged", "prayer", "magic", "combat"
         }
 
-    def debug() -> list:
+    def debug(self) -> list:
         return [f'{v}: {v.value}' for v in HSType]
 
     def __str__(self) -> str:
