@@ -30,11 +30,11 @@ class CustomFormatter(logging.Formatter):
     message_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
 
     FORMATS = {
-        logging.DEBUG: grey + message_format + reset, 
-        logging.INFO: grey + message_format + reset, 
-        logging.WARNING: yellow + message_format + reset, 
-        logging.ERROR: red + message_format + reset, 
-        logging.CRITICAL: bold_red + message_format + reset  
+        logging.DEBUG: grey + message_format + reset,
+        logging.INFO: grey + message_format + reset,
+        logging.WARNING: yellow + message_format + reset,
+        logging.ERROR: red + message_format + reset,
+        logging.CRITICAL: bold_red + message_format + reset
     }
 
     def format(self, record):
