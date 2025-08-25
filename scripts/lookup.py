@@ -54,5 +54,5 @@ if __name__ == '__main__':
     except NotFound:
         sys.exit(0)
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         sys.exit(2)

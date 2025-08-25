@@ -205,13 +205,13 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, inp
     if end_rank > 0 and start_rank > end_rank:
         raise ValueError("Start rank is greater than end rank")
     
-    range = await req.get_filtered_page_range(input=input)
+    page_range = await req.get_filtered_page_range(input=input)
     
-    if start_page < range.start_page:
-        start_page = range.start_page
-        start_rank = range.start_rank
+    if start_page < page_range.start_page:
+        start_page = page_range.start_page
+        start_rank = page_range.start_rank
 
-    max_page, max_rank = range.end_page, range.end_rank
+    max_page, max_rank = page_range.end_page, page_range.end_rank
 
     if end_rank <= 0 or end_rank >= max_rank:
         end_page = max_page

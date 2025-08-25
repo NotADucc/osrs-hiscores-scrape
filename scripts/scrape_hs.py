@@ -87,5 +87,5 @@ if __name__ == '__main__':
         asyncio.run(main(args.out_file, args.proxy_file,
                          args.account_type, args.hs_type, args.rank_start, args.rank_end, args.num_workers))
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         sys.exit(2)

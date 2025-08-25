@@ -48,5 +48,5 @@ if __name__ == '__main__':
     try:
         asyncio.run(main(args.account_type, args.hs_type))
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         sys.exit(2)
