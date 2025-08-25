@@ -27,7 +27,7 @@ class Requests():
     rotating proxies and cookie management.
     """
 
-    def __init__(self, session: ClientSession, proxy_list:  list | None = None):
+    def __init__(self, session: ClientSession, proxy_list: list[str] | None = None):
         self.session = session
         self.proxy_list = proxy_list
         self._proxy_idx = 0
