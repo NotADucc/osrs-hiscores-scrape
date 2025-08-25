@@ -1,8 +1,8 @@
 import datetime
 import threading
-from typing import Awaitable, Callable, Coroutine, Dict
+from typing import Any, Awaitable, Callable, Coroutine, Dict
 
-from aiohttp import ClientConnectionError, ClientSession
+from aiohttp import ClientConnectionError, ClientSession, ClientTimeout
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
@@ -38,7 +38,7 @@ class Requests():
         self._proxy_lock = threading.Lock()
         self._session_lock = threading.Lock()
 
-    def remove_cookies(self) -> ClientSession:
+    def remove_cookies(self) -> None:
         """
         Clear all cookies in the current session.
 
@@ -57,7 +57,7 @@ class Requests():
         """
         return self.session
 
-    def get_proxy(self) -> dict | None:
+    def get_proxy(self) -> str | None:
         """
         Get the next proxy in the rotation.
 
@@ -127,7 +127,7 @@ class Requests():
             Any exceptions raised by `self.get_hs_page` or `retry`.
         """
 
-        async def binary_search_hs_page(predicate: Callable[[int], bool], left_bias: bool) -> int:
+        async def binary_search_hs_page(predicate: Callable[[list[int]], bool], left_bias: bool) -> int:
             l, r, res = 1, MAX_CATEGORY_SIZE, 1
             predicate_bias = get_comparison(predicate) in ("<", "<=", "==")
             while l <= r:
@@ -228,7 +228,7 @@ class Requests():
         page = await self.https_request(hs_request.account_type.lookup_overall(), params)
         return _extract_highscore_records(page)
 
-    async def https_request(self, url: str, params: Dict[str, str]) -> str:
+    async def https_request(self, url: str, params: Dict[str, Any]) -> str:
         """
         Perform an asynchronous HTTP GET request with optional proxy support.
 
@@ -256,7 +256,7 @@ class Requests():
         session = self.get_session()
 
         try:
-            async with session.get(url, headers=headers, params=params, proxy=proxy, timeout=30) as resp:
+            async with session.get(url, headers=headers, params=params, proxy=proxy, timeout=ClientTimeout(total=30)) as resp:
                 text = await resp.text()
                 if _is_rate_limited(text):
                     raise IsRateLimited(
@@ -276,7 +276,7 @@ class Requests():
         except ClientConnectionError as e:
             raise RequestFailed(f"client connection error: {e}")
 
-    async def get_hs_ranks(self, hs_request: GetHighscorePageRequest) -> int | None:
+    async def get_hs_ranks(self, hs_request: GetHighscorePageRequest) -> list[int] | None:
         """ Gets the ranks of a hs page, None if page doesnt exist """
         extracted_records = await self.get_hs_page(hs_request=hs_request)
 
@@ -295,14 +295,14 @@ class Requests():
         extracted_ranks = await self.get_hs_ranks(hs_request=hs_request)
         return None if not extracted_ranks else extracted_ranks[-1]
     
-    async def get_hs_scores(self, hs_request: GetHighscorePageRequest) -> list[int]:
+    async def get_hs_scores(self, hs_request: GetHighscorePageRequest) -> list[int] | None:
         """ Gets the scores of a hs page, None if page doesnt exist """
         extracted_records = await self.get_hs_page(hs_request=hs_request)
 
         if not extracted_records:
             return None
         
-        return _extract_record_scores(scores=extracted_records, hs_type=hs_request.hs_type)
+        return _extract_record_scores(records=extracted_records, hs_type=hs_request.hs_type)
         
     async def get_first_score(self, hs_request: GetHighscorePageRequest) -> int | None:
         """ Gets the first score of a hs page, None if page doesnt exist """
