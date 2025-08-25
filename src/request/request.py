@@ -3,7 +3,7 @@ import threading
 from typing import Any, Awaitable, Callable, Coroutine, Dict
 
 from aiohttp import ClientConnectionError, ClientSession, ClientTimeout
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from fake_useragent import UserAgent
 
 from src.request.common import HS_PAGE_SIZE, MAX_CATEGORY_SIZE, HSAccountTypes, HSType
@@ -94,7 +94,7 @@ class Requests():
 
             logger.info(f'current range: ({l}-{r}) middle: {middle}')
 
-            first_rank: int = await retry(
+            first_rank = await retry(
                 self.get_first_rank,
                 hs_request=GetHighscorePageRequest(
                     page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
@@ -341,22 +341,21 @@ def _extract_highscore_records(page: str) -> list[CategoryRecord]:
         ParsingFailed: If the hiscore table cannot be found on the page.
     """
     soup = BeautifulSoup(page, "html.parser")
-    table = soup.find_all(class_='personal-hiscores__table')
+    table = soup.find(class_='personal-hiscores__table')
 
-    if len(table) == 0:
+    if not table or not isinstance(table, Tag):
         raise ParsingFailed("Could not find hiscore table")
-
-    records = table[0].find_all(class_='personal-hiscores__row')
+    
+    records = table.find_all(class_='personal-hiscores__row') 
 
     result = []
 
     for record in records:
-        td_right = record.find_all('td', class_='right')
+        td_right = record.find_all('td', class_='right') 
 
         rank = int(td_right[0].text.replace(',', '').strip())
         # some names contain special char - "non-breaking space."
-        username = record.find('td', class_='left').a.text.strip().replace(
-            'Ā', ' ').replace('\xa0', ' ')
+        username = record.find('td', class_='left').a.text.strip().replace('Ā', ' ').replace('\xa0', ' ') 
         score = int(td_right[1].text.replace(',', '').strip())
         result.append(CategoryRecord(
             rank=rank, score=score, username=username))
