@@ -292,7 +292,7 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
 
         rank = int(td_right[0].text.replace(',', '').strip())
         # some names contain special char - "non-breaking space."
-        username = record.find('td', class_='left').a.text.strip().replace(
+        username = record.find('td', class_='left').a.text.strip().replace( # type: ignore
             'Ā', ' ').replace('\xa0', ' ')  # type: ignore
         score = int(td_right[1].text.replace(',', '').strip())
         result.append(CategoryRecord(
