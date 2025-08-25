@@ -25,10 +25,6 @@ class Requests():
     """
     Wrapper for an aiohttp ClientSession that optionally supports
     rotating proxies and cookie management.
-
-    Attributes:
-        session (ClientSession): The aiohttp session used for HTTP requests.
-        proxy_list (list[dict], optional): List of proxies to rotate through.
     """
 
     def __init__(self, session: ClientSession, proxy_list:  list | None = None):
@@ -39,31 +35,16 @@ class Requests():
         self._session_lock = threading.Lock()
 
     def remove_cookies(self) -> None:
-        """
-        Clear all cookies in the current session.
-
-        Returns:
-            ClientSession: The session with cleared cookies.
-        """
+        """ Clear all cookies in the current session. """
         with self._session_lock:
             self.session.cookie_jar.clear()
 
     def get_session(self) -> ClientSession:
-        """
-        Get the current ClientSession.
-
-        Returns:
-            ClientSession: The active session.
-        """
+        """ Get the current ClientSession. """
         return self.session
 
     def get_proxy(self) -> str | None:
-        """
-        Get the next proxy in the rotation.
-
-        Returns:
-            dict | None: The next proxy if available, otherwise None.
-        """
+        """ Get the next proxy in the rotation. """
         if not self.proxy_list or len(self.proxy_list) == 0:
             return None
 
@@ -76,12 +57,6 @@ class Requests():
     async def get_max_page(self, input: GetMaxHighscorePageRequest) -> GetMaxHighscorePageResult:
         """
         Determine the maximum available highscore page and its last rank.
-
-        Args:
-            input (GetMaxHighscorePageRequest).
-
-        Returns:
-            GetMaxHighscorePageResult.
 
         Raises:
             Any exceptions raised by `self.get_hs_page` or `retry`.
@@ -115,13 +90,6 @@ class Requests():
     async def get_filtered_page_range(self, input: GetFilteredPageRangeRequest) -> GetFilteredPageRangeResult:
         """
         Determine the highscore ranges on a given predicate.
-
-        Args:
-            pred (Callable[[int], bool]).
-            input (GetFilteredPageRangeRequest).
-
-        Returns:
-            GetFilteredPageRangeRequest.
 
         Raises:
             Any exceptions raised by `self.get_hs_page` or `retry`.
@@ -200,29 +168,13 @@ class Requests():
         return GetFilteredPageRangeResult(start_page=start_page, start_rank=start_rank, end_page=end_page, end_rank=end_rank)
     
     async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
-        """
-        Fetch and parse a player's stats from OSRS hiscores.
-
-        Args:
-            input (GetPlayerRequest).
-
-        Returns:
-            PlayerRecord.
-        """
+        """ Fetch and parse a player's stats from OSRS hiscores. """
         csv = await self.https_request(input.account_type.api_csv(), {'player': input.username})
         csv = csv.split('\n')
         return PlayerRecord(username=input.username, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
 
     async def get_hs_page(self, hs_request: GetHighscorePageRequest) -> list[CategoryRecord]:
-        """
-        Fetch and parse a page of highscores for a specific category and account type.
-
-        Args:
-            input (GetHighscorePageRequest).
-
-        Returns:
-            list[CategoryRecord].
-        """
+        """ Fetch and parse a page of highscores for a specific category and account type. """
         params = {'category_type': hs_request.hs_type.get_category(),
                   'table': hs_request.hs_type.get_category_value(), 'page': hs_request.page_num, }
         page = await self.https_request(hs_request.account_type.lookup_overall(), params)
@@ -231,13 +183,6 @@ class Requests():
     async def https_request(self, url: str, params: Dict[str, Any]) -> str:
         """
         Perform an asynchronous HTTP GET request with optional proxy support.
-
-        Args:
-            url (str): The target URL to request.
-            params (Dict[str, str]): Query parameters to include in the request.
-
-        Returns:
-            str: The response body as text if the request succeeds.
 
         Raises:
             IsRateLimited: If the server response indicates rate limiting.
@@ -316,26 +261,12 @@ class Requests():
 
 
 def _is_rate_limited(page: str) -> bool:
-    """
-    Check if a hiscore page indicates a rate limit has been triggered.
-
-    Args:
-        page (str): The highscore content of the page.
-
-    Returns:
-        bool: True if the page contains a rate limit message, False otherwise.
-    """
+    """ Check if a hiscore page indicates a rate limit has been triggered. """
     return "your IP has been temporarily blocked" in BeautifulSoup(page, "html.parser").text
 
 def _extract_highscore_records(page: str) -> list[CategoryRecord]:
     """
     Parse a hiscore page of OSRS personal highscores and extract rank, username, and score records.
-
-    Args:
-        page (str): HTML content of the highscores page.
-
-    Returns:
-        list[CategoryRecord].
 
     Raises:
         ParsingFailed: If the hiscore table cannot be found on the page.

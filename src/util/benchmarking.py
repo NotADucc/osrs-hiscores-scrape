@@ -10,15 +10,7 @@ logger = get_logger()
 
 
 def benchmark(callback: Callable):
-    """
-        Decorator that benchmarks a method by logging time spend and memory usage.
-
-        Args:
-            callback (Callable): The method that needs benchmarking.
-
-        Returns:
-            Callable: An asynchronous wrapper coroutine
-    """
+    """ Decorator that benchmarks a method by logging time spend and memory usage. """
     @functools.wraps(callback)
     async def wrapper(*args, **kwargs):
         start_mem = mem_profile.memory_usage_psutil()

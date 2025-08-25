@@ -17,18 +17,6 @@ class HSCategoryJob:
     hiscores, extracting rank/username data, and enqueueing the 1-25
     usernames in rank order. Internal bookkeeping indices are used
     to simplify mapping between ranks and list slices.
-
-    Attributes:
-        priority (int): The priority of the job in a queue.
-        page_num (int): The hiscore page number to fetch.
-        start_rank (int): The starting rank on this page.
-        end_rank (int): The ending rank on this page.
-        hs_type (HSType): The hiscore category type (e.g., overall, attack).
-        account_type (HSAccountTypes): The account type (e.g., regular, ironman).
-        start_idx (int): Internal index marking the slice start for usernames.
-        end_idx (int): Internal index marking the slice end for usernames.
-        result (List[CategoryRecord] | None): Parsed records from the page,
-            default is None until processing completes.
     """
     priority: int
     page_num: int
@@ -48,13 +36,6 @@ class HSLookupJob:
 
     Each job targets one username on a specific hiscore endpoint. 
     The result is populated in a `PlayerRecord` once the lookup succesfully completes.
-
-    Attributes:
-        priority (int): The priority of the job in a queue.
-        username (str): The username of the player to look up.
-        account_type (HSAccountTypes): The hiscore account type.
-        result (PlayerRecord | None): The parsed player data, or None 
-            if the player does not exist or until the lookup has been processed.
     """
     priority: int
     username: str
@@ -63,14 +44,7 @@ class HSLookupJob:
 
 
 class JobCounter:
-    """
-    A counter utility for tracking and awaiting job progress.
-
-    Attributes:
-        v[alue] (int): The current counter value.
-        nextcalled (asyncio.Event): An event triggered whenever
-            the counter is incremented.
-    """
+    """ A counter utility for tracking and awaiting job progress. """
 
     def __init__(self, value: int):
         self.v = value
@@ -92,19 +66,7 @@ class JobCounter:
 
 
 class JobQueue:
-    """
-    An asynchronous priority queue.
-
-    This queue wraps `asyncio.PriorityQueue` and adds:
-        - Optional maximum size limiting (`max_size`).
-
-    Attributes:
-        q (asyncio.PriorityQueue): The underlying priority queue.
-        got (asyncio.Event): Event triggered when an item is removed,
-            allowing `put` to resume if it was blocked by `max_size`.
-        max_size (int | None): Optional maximum number of items in
-            the queue. If None, the queue is unbounded.
-    """
+    """ An asynchronous priority queue. """
 
     def __init__(self, max_size=None):
         self.q = asyncio.PriorityQueue()
@@ -142,20 +104,9 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
     This function calculates which hiscore pages correspond to the given
     rank range, and retrieves the maximum available page and rank.
 
-    Args:
-        req (Requests): An instance capable of performing hiscore requests.
-        start_rank (int): The starting rank (1-based) for the query.
-        end_rank (int): The ending rank (inclusive). If <= 0, fetches until
-            the maximum rank.
-        input (GetMaxHighscorePageRequest): Request details including
-            hiscore type and account type.
-
     Raises:
         ValueError: If `start_rank` is less than 1, or if
             `start_rank > end_rank` when `end_rank` > 0.
-
-    Returns:
-        List[HSCategoryJob]: A list of category jobs, one per hs page.
     """
     start_page = (start_rank - 1) // 25 + 1
     end_page = (end_rank - 1) // 25 + 1
@@ -196,6 +147,16 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
 
 
 async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, input: GetFilteredPageRangeRequest) -> List[HSCategoryJob]:
+    """
+    Generate jobs for fetching OSRS hiscore pages within a rank range.
+
+    This function calculates which hiscore pages correspond to the given
+    rank range, and retrieves a range based on a given predicate.
+
+    Raises:
+        ValueError: If `start_rank` is less than 1, or if
+            `start_rank > end_rank` when `end_rank` > 0.
+    """
     start_page = (start_rank - 1) // 25 + 1
     end_page = (end_rank - 1) // 25 + 1
 

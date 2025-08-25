@@ -11,16 +11,6 @@ from src.util import json_wrapper
 class PlayerRecord:
     """
     Represents an OSRS player record parsed from the highscore CSV API endpoint.
-
-    Attributes:
-        username (str): The player's username.
-        ts (datetime): Timestamp of when this record was retrieved.
-        rank (int): Overall rank of the player.
-        total_level (int): Total level across all skills.
-        combat_lvl (int): Calculated combat level based on relevant skills.
-        total_xp (int): Total experience points across all skills.
-        skills (dict[str, int]): Mapping of skill names to their levels.
-        misc (dict[str, int]): Mapping of miscellaneous categories to their counts.
     """
 
     def __init__(self, username: str, csv: List[str], ts: datetime):
@@ -61,15 +51,7 @@ class PlayerRecord:
         self.combat_lvl = cmb_level
 
     def get_stat(self, hs_type: HSType) -> int | float:
-        """
-        Retrieve record value for a given highscore type.
-
-        Args:
-            hs_type (HSType): The highscore type to query (skill, misc, overall, or combat).
-
-        Returns:
-            int: The value corresponding to the given type. Returns 0 if the type is missing.
-        """
+        """ Retrieve record value for a given highscore type. """
         if hs_type is HSType.overall:
             val = self.total_level
         elif hs_type is HSType.combat:
@@ -81,29 +63,11 @@ class PlayerRecord:
         return val
 
     def lacks_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:
-        """
-        Check if the player fails any of the given requirements.
-
-        Args:
-            requirements (dict[HSType, Callable[[Any], bool]]): A mapping of HSType keys to
-                predicate functions that take a stat value and return True/False.
-
-        Returns:
-            bool: True if the player fails at least one requirement, False if all are met.
-        """
+        """ Check if the player fails any of the given requirements. """
         return not self.meets_requirements(requirements=requirements)
 
     def meets_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:
-        """
-        Check if the player satisfies all given requirements.
-
-        Args:
-            requirements (dict[HSType, Callable[[Any], bool]]): A mapping of HSType keys to
-                predicate functions that take a stat value and return True/False.
-
-        Returns:
-            bool: True if all requirements are met, False otherwise.
-        """
+        """ Check if the player satisfies all given requirements. """
         return all(pred(self.get_stat(key)) for key, pred in requirements.items())
 
     def __lt__(self, other) -> bool:
@@ -138,14 +102,7 @@ class PlayerRecord:
 
 @total_ordering
 class CategoryRecord:
-    """
-    Represents a single entry in a highscore category.
-
-    Attributes:
-        rank (int): The player's rank in this category.
-        score (int): The player's score in this category.
-        username (str): The player's username.
-    """
+    """ Represents a single entry in a highscore category. """
 
     def __init__(self, rank: int, score: int, username: str):
         self.rank = rank
@@ -153,17 +110,13 @@ class CategoryRecord:
         self.username = username
 
     def is_better_rank_than(self, other: 'CategoryRecord') -> bool:
-        """
-        Determine if this record has a better (lower) rank than another record.
-        """
+        """ Determine if this record has a better (lower) rank than another record. """
         if other is None:
             return False
         return self.rank < other.rank
 
     def is_worse_rank_than(self, other: 'CategoryRecord') -> bool:
-        """
-        Determine if this record has a worse (higher) rank than another record.
-        """
+        """ Determine if this record has a worse (higher) rank than another record. """
         if other is None:
             return False
         return self.rank > other.rank
@@ -189,17 +142,7 @@ class CategoryRecord:
 
 
 class CategoryInfo:
-    """
-    Aggregates statistics for a highscore category over multiple records.
-
-    Attributes:
-        name (str): The name of the category.
-        ts (datetime): Timestamp when the aggregation started.
-        count (int): Number of records added.
-        total_score (int): Sum of scores of all records added.
-        max (CategoryRecord | None): Record with the worst rank (highest number).
-        min (CategoryRecord | None): Record with the best rank (lowest number).
-    """
+    """ Aggregates statistics for a highscore category over multiple records. """
 
     def __init__(self, name: str, ts: datetime):
         self.name = name
@@ -210,12 +153,7 @@ class CategoryInfo:
         self.min = None
 
     def add(self, record: CategoryRecord) -> None:
-        """
-        Add a CategoryRecord to the aggregation and update statistics.
-
-        Args:
-            record (CategoryRecord): The highscore record to add.
-        """
+        """ Add a CategoryRecord to the aggregation and update statistics. """
         self.count += 1
         self.total_score += record.score
         # the > and < should technically be reversed since smaller rank is greate rthan larger rank

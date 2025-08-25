@@ -38,15 +38,7 @@ class CustomFormatter(logging.Formatter):
     }
 
     def format(self, record):
-        """
-        Format a log record with the color corresponding to its level.
-
-        Args:
-            record (logging.LogRecord): The log record to format.
-
-        Returns:
-            str: The formatted and colorized log message.
-        """
+        """ Format a log record with the color corresponding to its level. """
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
@@ -91,37 +83,19 @@ class LoggerWrapper:
 
 
 def setup_custom_logger() -> LoggerWrapper:
-    """
-    Set up a custom logger with a colorized stream handler.
-
-    Returns:
-        LoggerWrapper: Configured logger instance with DEBUG level and custom formatting.
-    """
+    """ Set up a custom logger with a colorized stream handler. """
     return LoggerWrapper()
 
 
 def get_logger() -> LoggerWrapper:
-    """
-    Retrieve the global custom logger instance, creating it if necessary.
-
-    Returns:
-        logging.Logger: The global logger instance.
-    """
+    """ Retrieve the global custom logger instance, creating it if necessary. """
     global logger
     logger = setup_custom_logger() if logger is None else logger
     return logger
 
 
 def finished_script(callback: Callable):
-    """
-    Decorator that logs when a (async) method has finished, also displays the count of logs per type.
-
-    Args:
-        callback (Callable): The function to wrap.
-
-    Returns:
-        Callable: An asynchronous wrapper coroutine.
-    """
+    """ Decorator that logs when a (async) method has finished, also displays the count of logs per type. """
     @functools.wraps(callback)
     async def wrapper(*args, **kwargs):
         try: 

@@ -3,6 +3,7 @@ from typing import Any, Callable
 
 
 def get_comparison(f: Callable[[Any], bool]) -> str:
+    """ Tries to retrieve the comparison symbol from a predicate """
     visited = set()
     stack = [f]
 

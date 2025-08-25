@@ -1,21 +1,7 @@
 
 
 def calc_cmb(att: int, de: int, st: int, hp: int, ra: int, pr: int, ma: int) -> float:
-    """
-    Calculate the combat level based on osrs stats.
-
-    Args:
-        att (int): Attack level.
-        de (int): Defence level.
-        st (int): Strength level.
-        hp (int): Hitpoints level.
-        ra (int): Ranged level.
-        pr (int): Prayer level.
-        ma (int): Magic level.
-
-    Returns:
-        float: The calculated combat level.
-    """
+    """ Calculate the combat level based on osrs stats. """
 
     base = 0.25 * (de + hp + pr // 2)
     melee = 0.325 * (att + st)
@@ -27,16 +13,7 @@ def calc_cmb(att: int, de: int, st: int, hp: int, ra: int, pr: int, ma: int) -> 
 
 
 def calc_lvl(experience: int, show_virtual_lvl: bool = True) -> int:
-    """
-    Determine the level based on total experience points.
-
-    Args:
-        experience (int): The total accumulated experience points.
-        show_virtual_lvl (bool): If False, cap level at 99. If True, include virtual levels up to 126.
-
-    Returns:
-        int: The corresponding level.
-    """
+    """ Determine the level based on total experience points. """
 
     xp_table = {
         1: 0, 2: 83, 3: 174, 4: 276, 5: 388, 6: 512, 7: 650, 8: 801, 9: 969, 10: 1_154,

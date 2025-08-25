@@ -12,17 +12,6 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
     """
     Retry a callable with exponential backoff on failure.
 
-    Args:
-        callback: Function or coroutine to execute.
-        max_retries: Max retry attempts (default 10).
-        initial_delay: Base delay in seconds between retries (default 5).
-        out_file: Prefix for logging failed attempts (default "error_log").
-        exc_info: Include exception info in logs (default False).
-        **kwargs: Arguments to pass to the callback.
-
-    Returns:
-        Result of `callback` if successful.
-
     Raises:
         NotFound: If the callable raises this exception.
         RetryFailed: If all retry attempts fail.
