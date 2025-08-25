@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Callable
 
 from src.request.common import HSAccountTypes, HSType
 
@@ -27,6 +28,33 @@ class GetMaxHighscorePageResult:
     """
     page_nr: int
     rank_nr: int
+
+
+@dataclass
+class GetFilteredPageRangeRequest:
+    """
+    Request object for fetching the filtered page range.
+    """
+    hs_type: HSType
+    predicate: Callable[[int], bool]
+    account_type: HSAccountTypes
+    
+
+@dataclass
+class GetFilteredPageRangeResult:
+    """
+    Result object containing the filtered page range.
+
+    Attributes:
+        start_page (int): The start page index (1-based).
+        start_rank (int): The starting rank on this page.
+        end_page (int): The end page index (1-based).
+        end_rank (int): The ending rank on this page.
+    """
+    start_page: int
+    start_rank: int
+    end_page: int
+    end_rank: int
 
 
 @dataclass

@@ -26,16 +26,16 @@ def calc_cmb(att: int, de: int, st: int, hp: int, ra: int, pr: int, ma: int) -> 
     return base + mx
 
 
-def calc_lvl(experience: int) -> int:
+def calc_lvl(experience: int, show_virtual_lvl: bool = True) -> int:
     """
-    Determine the level based on total experience points, this includes virtual levels.
+    Determine the level based on total experience points.
 
     Args:
         experience (int): The total accumulated experience points.
+        show_virtual_lvl (bool): If False, cap level at 99. If True, include virtual levels up to 126.
 
     Returns:
-        int: The corresponding level. Returns 126 if the experience
-        exceeds the maximum defined in the XP table.
+        int: The corresponding level.
     """
 
     xp_table = {
@@ -57,8 +57,10 @@ def calc_lvl(experience: int) -> int:
         121: 115_126_838, 122: 127110260, 123: 140_341_028, 124: 154_948_977, 125: 171_077_457, 126: 188_884_740
     }
 
-    for level, required_xp in xp_table.items():
-        if experience < required_xp:
+    max_lvl = 126 if show_virtual_lvl else 99
+
+    for level in range(1, max_lvl + 1):
+        if experience < xp_table[level]:
             return level - 1
 
-    return list(xp_table.keys())[-1]
+    return max_lvl

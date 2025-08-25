@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from functools import total_ordering
 from typing import Any, Callable, List
 
@@ -26,7 +26,7 @@ class PlayerRecord:
     def __init__(self, username: str, csv: List[str], ts: datetime):
         self.username = username
 
-        first_record = list(map(int, csv[0].split(',')))
+        first_record = [int(x) for x in csv[0].split(',')]
 
         self.ts = ts
         self.rank = first_record[0]
@@ -41,8 +41,8 @@ class PlayerRecord:
 
             if csv_val == -1:
                 continue
-
-            splitted = list(map(int, csv[csv_val].split(',')))
+            
+            splitted = [int(x) for x in csv[0].split(',')]
 
             if hstypes.is_skill():
                 # self.skills[mapper_val.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
@@ -60,7 +60,7 @@ class PlayerRecord:
                              self.skills[HSType.strength.name], self.skills[HSType.hitpoints.name], self.skills[HSType.ranged.name], self.skills[HSType.prayer.name], self.skills[HSType.magic.name])
         self.combat_lvl = cmb_level
 
-    def get_stat(self, hs_type: HSType) -> int:
+    def get_stat(self, hs_type: HSType) -> int | float:
         """
         Retrieve record value for a given highscore type.
 
@@ -80,7 +80,7 @@ class PlayerRecord:
             val = self.misc.get(hs_type.name, 0)
         return val
 
-    def lacks_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
+    def lacks_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:
         """
         Check if the player fails any of the given requirements.
 
@@ -93,7 +93,7 @@ class PlayerRecord:
         """
         return not self.meets_requirements(requirements=requirements)
 
-    def meets_requirements(self, requirements: dict[HSType, Callable[[Any], bool]]) -> bool:
+    def meets_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:
         """
         Check if the player satisfies all given requirements.
 

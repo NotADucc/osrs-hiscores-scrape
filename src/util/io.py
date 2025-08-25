@@ -55,7 +55,7 @@ def write_record(out_file: str, data: str):
         f.write(data + '\n')
 
 
-def read_proxies(proxy_file: str) -> list[str]:
+def read_proxies(proxy_file: str | None) -> list[str]:
     """
     Reads a list of proxies from a file.
 

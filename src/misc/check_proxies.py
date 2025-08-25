@@ -11,7 +11,6 @@ from src.util.log import finished_script, get_logger
 logger = get_logger()
 file_lock = threading.Lock()
 
-
 async def process(proxy: str, **args: dict) -> None:
     out_file = args["out_file"]
     try:
@@ -38,7 +37,7 @@ async def process(proxy: str, **args: dict) -> None:
     except Exception as err:
         print(err)
 
-
+@finished_script
 async def main(proxy_file: str):
     with open(proxy_file, "r") as f:
         proxies = f.read().splitlines()
@@ -52,10 +51,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--proxy-file', required=True,
                         help="Path to the proxy file")
-    script_running_in_cmd_guard(parser)
+    script_running_in_cmd_guard()
 
     args = parser.parse_args()
 
     asyncio.run(main(args.proxy_file))
-
-    finished_script()

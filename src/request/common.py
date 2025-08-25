@@ -1,26 +1,9 @@
 import argparse
 from enum import Enum
 
-
-def get_page_size() -> int:
-    """
-    Return the number of items per osrs hiscore page.
-
-    Returns:
-        int: The default page size (25).
-    """
-    return 25
-
-
-def get_default_workers_size() -> int:
-    """
-    Return the default number of workers for a script.
-
-    Returns:
-        int: The default worker size (15).
-    """
-    return 15
-
+HS_PAGE_SIZE: int = 25
+MAX_CATEGORY_SIZE: int = 80_000
+DEFAULT_WORKER_SIZE: int = 15
 
 class HSAccountTypes(Enum):
     """

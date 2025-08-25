@@ -39,7 +39,7 @@ async def retry(callback: Callable[..., Any], max_retries: int = 10, initial_del
             raise
         except Exception as err:
             warning_mess = f"Attempt {retries} err: {err} | {err.details}" \
-                if err.details else f"Attempt {retries} err: {err}"
+                if getattr(err, "details", None) else f"Attempt {retries} err: {err}"
             logger.error(f"{warning_mess} | {kwargs}", exc_info=exc_info)
         retries += 1
         await asyncio.sleep(retries * initial_delay)

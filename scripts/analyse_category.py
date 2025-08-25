@@ -6,7 +6,7 @@ from functools import partial
 
 import aiohttp
 
-from src.request.common import HSAccountTypes, HSType, get_default_workers_size
+from src.request.common import DEFAULT_WORKER_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest
 from src.request.errors import FinishedScript
 from src.request.job import JobCounter, JobQueue, get_hs_page_job
@@ -94,7 +94,7 @@ if __name__ == '__main__':
                         type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should pull from")
     parser.add_argument('--hs-type', required=True,
                         type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
-    parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
+    parser.add_argument('--num-workers', default=DEFAULT_WORKER_SIZE, type=int,
                         help="Number of concurrent scraping threads")
 
     script_running_in_cmd_guard()

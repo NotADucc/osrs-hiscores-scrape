@@ -3,12 +3,14 @@ import asyncio
 import re
 import sys
 from functools import partial
+from typing import Callable, List
 
 import aiohttp
 
-from src.request.common import HSAccountTypes, HSType, get_default_workers_size
+from src.request.common import DEFAULT_WORKER_SIZE, MAX_CATEGORY_SIZE, HSAccountTypes, HSType
+from src.request.dto import GetFilteredPageRangeRequest
 from src.request.errors import FinishedScript
-from src.request.job import (GetMaxHighscorePageRequest, JobCounter, JobQueue,
+from src.request.job import (GetMaxHighscorePageRequest, HSCategoryJob, JobCounter, JobQueue, get_hs_filtered_job,
                              get_hs_page_job)
 from src.request.request import Requests
 from src.request.worker import (Worker, enqueue_page_usernames,
@@ -27,16 +29,39 @@ N_SCRAPE_SIZE = 100
 
 @finished_script
 @benchmark
-async def main(out_file: str, proxy_file: str | None, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, filter: dict[HSType, int], num_workers: int):
+async def main(out_file: str, proxy_file: str | None, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]], num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
-        hs_scrape_joblist = await get_hs_page_job(req=req,
-                                                  start_rank=start_rank,
-                                                  end_rank=-1,
-                                                  input=GetMaxHighscorePageRequest(
-                                                      hs_type=hs_type, account_type=account_type)
-                                                  )
+        filtered: dict[HSType, Callable[[int], bool]] = dict(filter(lambda kvp: kvp[0] == hs_type, hs_filter.items()))
+        
+        if filtered:
+            start_job_prio, end_job_prio, hs_scrape_joblist = 1, MAX_CATEGORY_SIZE, []
+
+            for pred in filtered.values():
+                temp_joblist = await get_hs_filtered_job(req=req,
+                                                start_rank=start_rank,
+                                                end_rank=-1,
+                                                input=GetFilteredPageRangeRequest(
+                                                    predicate=pred,
+                                                    hs_type=hs_type, 
+                                                    account_type=account_type)
+                                                )
+                if not hs_scrape_joblist:
+                    hs_scrape_joblist = temp_joblist
+                else:
+                    start_job_prio = start_job_prio if start_job_prio > temp_joblist[0].priority else temp_joblist[0].priority
+                    end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
+                
+            hs_scrape_joblist = [x for x in hs_scrape_joblist if start_job_prio <= x.priority <= end_job_prio]
+        else :
+            hs_scrape_joblist = await get_hs_page_job(req=req,
+                                            start_rank=start_rank,
+                                            end_rank=-1,
+                                            input=GetMaxHighscorePageRequest(
+                                                hs_type=hs_type, account_type=account_type)
+                                            )
+
         hs_scrape_job_q = JobQueue()
         for job in hs_scrape_joblist:
             await hs_scrape_job_q.put(job)
@@ -69,7 +94,7 @@ async def main(out_file: str, proxy_file: str | None, start_rank: int, account_t
         for i, w in enumerate(filter_workers):
             T.append(asyncio.create_task(
                 w.run(req=req, request_fn=request_user_stats,
-                      enqueue_fn=partial(enqueue_user_stats_filter, filter=filter), delay=i * 0.1)
+                      enqueue_fn=partial(enqueue_user_stats_filter, hs_filter=hs_filter), delay=i * 0.1)
             ))
 
         try:
@@ -82,7 +107,7 @@ async def main(out_file: str, proxy_file: str | None, start_rank: int, account_t
             await asyncio.gather(*T, return_exceptions=True)
 
 if __name__ == '__main__':
-    def parse_key_value_pairs(arg):
+    def parse_key_value_pairs(arg) -> dict[HSType, Callable[[int | float], bool]]:
         kv_pairs = arg.split(',')
         result = {}
 
@@ -93,8 +118,14 @@ if __name__ == '__main__':
 
             key_str, op, value_str = match.groups()
             key = HSType.from_string(key_str.strip())
-            value = int(value_str.strip())
-
+            value_str = value_str.strip()
+            try:
+                value = float(value_str)
+                if value.is_integer():
+                    value = int(value)
+            except ValueError:
+                raise ValueError(f"Invalid number: {value_str}")
+            
             if op == '=':
                 def func(x, v=value): return x == v
             elif op == '<':
@@ -124,7 +155,7 @@ if __name__ == '__main__':
                         type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
     parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
                         help="Custom filter on what the accounts should have")
-    parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
+    parser.add_argument('--num-workers', default=DEFAULT_WORKER_SIZE, type=int,
                         help="Number of concurrent scraping threads")
 
     script_running_in_cmd_guard()
@@ -134,5 +165,5 @@ if __name__ == '__main__':
         asyncio.run(main(args.out_file, args.proxy_file, args.rank_start,
                     args.account_type, args.hs_type, args.filter, args.num_workers))
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         sys.exit(2)

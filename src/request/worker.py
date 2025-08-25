@@ -31,7 +31,7 @@ class Worker:
         CancelledError, RetryFailed: Requeues the job forcibly and re-raises the exception.
     """
 
-    def __init__(self, in_queue: JobQueue, out_queue: Queue, job_counter: JobCounter):
+    def __init__(self, in_queue: JobQueue, out_queue: Queue | JobQueue, job_counter: JobCounter):
         self.in_q = in_queue
         self.out_q = out_queue
         self.job_counter = job_counter
@@ -133,7 +133,7 @@ async def enqueue_page_usernames(queue: JobQueue | Queue, job: HSCategoryJob):
         await queue.put(outjob)
 
 
-async def enqueue_user_stats_filter(queue: JobQueue | Queue, job: HSLookupJob, filter: dict[HSType, int]):
+async def enqueue_user_stats_filter(queue: JobQueue | Queue, job: HSLookupJob, hs_filter: dict[HSType, Callable[[int | float], bool]]):
     """
     Enqueue a HSLookupJob if its result meets specified filter requirements;
     otherwise enqueue None to indicate the job does not match.
@@ -144,7 +144,7 @@ async def enqueue_user_stats_filter(queue: JobQueue | Queue, job: HSLookupJob, f
         filter (dict[HSType, int]): Dictionary mapping HSTypes to minimum
             values required for the job to pass the filter.
     """
-    if job.result.meets_requirements(filter):
+    if job.result.meets_requirements(hs_filter):
         await queue.put(job)
     else:
         await queue.put(None)
