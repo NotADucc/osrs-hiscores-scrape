@@ -23,7 +23,7 @@ logger = get_logger()
 async def main(account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
-        max_page_res: GetMaxHighscorePageResult = await retry(req.get_max_page, input=GetMaxHighscorePageRequest(account_type=account_type, hs_type=hs_type))
+        max_page_res = await retry(req.get_max_page, input=GetMaxHighscorePageRequest(account_type=account_type, hs_type=hs_type))
 
         convert = {
             "max_page": max_page_res.page_nr,
@@ -48,5 +48,5 @@ if __name__ == '__main__':
     try:
         asyncio.run(main(args.account_type, args.hs_type))
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         sys.exit(2)

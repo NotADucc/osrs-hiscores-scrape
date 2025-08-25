@@ -1,32 +1,13 @@
 import argparse
 from enum import Enum
 
-
-def get_page_size() -> int:
-    """
-    Return the number of items per osrs hiscore page.
-
-    Returns:
-        int: The default page size (25).
-    """
-    return 25
-
-
-def get_default_workers_size() -> int:
-    """
-    Return the default number of workers for a script.
-
-    Returns:
-        int: The default worker size (15).
-    """
-    return 15
-
+HS_PAGE_SIZE: int = 25
+MAX_CATEGORY_SIZE: int = 80_000
+DEFAULT_WORKER_SIZE: int = 15
 
 class HSAccountTypes(Enum):
     """
-    Enum of OSRS hiscore account types.
-
-    Each type maps to the corresponding hiscore endpoint used to retrieve stats.
+    Enum of OSRS hiscore account types, each type maps to the corresponding hiscore endpoint used to retrieve stats.
 
     Attributes:
         regular
@@ -82,13 +63,13 @@ class HSIncrementer():
     def __init__(self):
         self.arr = [0] * 3
 
-    def skill_increment(self) -> int:
+    def skill_increment(self) -> HSValue:
         cat_val, csv_val = self.arr[0], self.arr[2]
         self.arr[0] += 1
         self.arr[2] += 1
         return HSValue(0, cat_val, csv_val)
 
-    def misc_increment(self) -> int:
+    def misc_increment(self) -> HSValue:
         cat_val, csv_val = self.arr[1], self.arr[2]
         self.arr[1] += 1
         self.arr[2] += 1
@@ -217,67 +198,38 @@ class HSType(Enum):
     combat = HSValue(-1, -1, -1)
 
     def get_category(self) -> int:
-        """
-        OSRS hiscore category type.
-
-        Returns:
-            int: indicating wether a category is a skill (0) or misc (1).
-        """
+        """ OSRS hiscore category type. """
         return self.value.category
 
     def get_category_value(self) -> int:
-        """
-        OSRS hiscore category type value.
-
-        Returns:
-            int: table value of the category.
-        """
+        """ OSRS hiscore category type value. """
         return self.value.category_value
 
     def get_csv_value(self) -> int:
-        """
-        OSRS hiscore csv value.
-
-        Returns:
-            int: offset that matches with the csv API endpoint result.
-        """
+        """ OSRS hiscore csv value. """
         return self.value.csv_value
 
     def is_skill(self) -> bool:
-        """
-        Determine whether the OSRS category represents a skill.
-
-        Returns:
-            bool: True if the category is a skill, False otherwise.
-        """
+        """ Determine whether the OSRS category represents a skill. """
         return self.get_category() == 0
 
     def is_misc(self) -> bool:
-        """
-        Determine whether the OSRS category represents misc.
-
-        Returns:
-            bool: True if the category is misc, False otherwise.
-        """
+        """ Determine whether the OSRS category represents misc. """
         return self.get_category() == 1
 
     def is_combat(self) -> bool:
-        """
-        Determine whether the OSRS category represents a combat stat.
-
-        Returns:
-            bool: True if the category is a combat stat, False otherwise.
-        """
+        """ Determine whether the OSRS category represents a combat stat. """
         return self.name in {
             "attack", "defence", "strength", "hitpoints",
             "ranged", "prayer", "magic", "combat"
         }
 
-    def debug() -> list:
-        return [f'{v}: {v.value}' for v in HSType]
-
     def __str__(self) -> str:
         return self.name
+
+    @staticmethod
+    def debug() -> list[str]:
+        return [f'{v}: {v.get_csv_value()}' for v in HSType]
 
     @staticmethod
     def from_string(s: str) -> 'HSType':

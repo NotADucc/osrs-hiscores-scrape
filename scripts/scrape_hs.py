@@ -4,7 +4,7 @@ import sys
 
 import aiohttp
 
-from src.request.common import HSAccountTypes, HSType, get_default_workers_size
+from src.request.common import DEFAULT_WORKER_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest
 from src.request.errors import FinishedScript
 from src.request.job import JobCounter, JobQueue, get_hs_page_job
@@ -77,7 +77,7 @@ if __name__ == '__main__':
                         help="Hiscore rank number it should start at (default: 1)")
     parser.add_argument('--rank-end', default=-1, type=int,
                         help="Hiscore rank number it should end at (default: end of category)")
-    parser.add_argument('--num-workers', default=get_default_workers_size(), type=int,
+    parser.add_argument('--num-workers', default=DEFAULT_WORKER_SIZE, type=int,
                         help="Number of concurrent scraping threads (default: 15)")
 
     script_running_in_cmd_guard()
@@ -87,5 +87,5 @@ if __name__ == '__main__':
         asyncio.run(main(args.out_file, args.proxy_file,
                          args.account_type, args.hs_type, args.rank_start, args.rank_end, args.num_workers))
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         sys.exit(2)
