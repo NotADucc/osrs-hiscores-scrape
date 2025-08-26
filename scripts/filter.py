@@ -11,7 +11,7 @@ from src.request.common import (DEFAULT_WORKER_SIZE, MAX_CATEGORY_SIZE,
                                 HSAccountTypes, HSType)
 from src.request.dto import GetFilteredPageRangeRequest
 from src.request.errors import FinishedScript
-from src.request.job import (GetMaxHighscorePageRequest, JobCounter, JobQueue,
+from src.request.job import (GetMaxHighscorePageRequest, HSCategoryJob, JobCounter, JobQueue,
                              get_hs_filtered_job, get_hs_page_job)
 from src.request.request import Requests
 from src.request.worker import (Worker, enqueue_page_usernames,
@@ -20,7 +20,7 @@ from src.request.worker import (Worker, enqueue_page_usernames,
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.io import read_proxies, write_records
+from src.util.io import read_hs_records, read_proxies, write_records
 from src.util.log import finished_script, get_logger
 
 logger = get_logger()
@@ -28,53 +28,75 @@ N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
 
+async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]]) -> tuple[list[HSCategoryJob], int, JobQueue]:
+    """ Prepares the scraping job list and export queue based if theres an in file or not. """
+    potential_records = list(read_hs_records(in_file))
+
+    if potential_records:
+        hs_scrape_export_q = JobQueue()
+        for record in potential_records:
+            await hs_scrape_export_q.put(record)
+        return [], len(potential_records), hs_scrape_export_q
+
+
+    filtered = {k: v for k, v in hs_filter.items() if k == hs_type}
+
+    if filtered:
+        hs_scrape_joblist, start_job_prio, end_job_prio = [], 1, MAX_CATEGORY_SIZE
+
+        for pred in filtered.values():
+            temp_joblist = await get_hs_filtered_job(req=req,
+                                                        start_rank=start_rank,
+                                                        end_rank=-1,
+                                                        input=GetFilteredPageRangeRequest(
+                                                            predicate=pred,
+                                                            hs_type=hs_type,
+                                                            account_type=account_type)
+                                                        )
+
+            if not hs_scrape_joblist:
+                hs_scrape_joblist = temp_joblist
+            else:
+                start_job_prio = start_job_prio if start_job_prio > temp_joblist[0].priority else temp_joblist[0].priority
+                end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
+
+
+        hs_scrape_joblist = [x for x in hs_scrape_joblist if start_job_prio <= x.priority <= end_job_prio]
+    else:
+        hs_scrape_joblist = await get_hs_page_job(req=req,
+                                                    start_rank=start_rank,
+                                                    end_rank=-1,
+                                                    input=GetMaxHighscorePageRequest(
+                                                        hs_type=hs_type, account_type=account_type)
+                                                    )
+
+    return hs_scrape_joblist, hs_scrape_joblist[-1].end_rank - hs_scrape_joblist[0].start_rank + 1, JobQueue(max_size=N_SCRAPE_SIZE)
+
 @finished_script
 @benchmark
-async def main(out_file: str, proxy_file: str | None, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]], num_workers: int):
+async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]], num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
-        filtered = dict(
-            filter(lambda kvp: kvp[0] == hs_type, hs_filter.items()))
+        hs_scrape_joblist, record_count, hs_scrape_export_q = await prepare_scrape_jobs(
+            req=req,
+            in_file=in_file,
+            start_rank=start_rank,
+            account_type=account_type,
+            hs_type=hs_type,
+            hs_filter=hs_filter
+        )
 
-        if filtered:
-            start_job_prio, end_job_prio, hs_scrape_joblist = 1, MAX_CATEGORY_SIZE, []
+        if hs_scrape_joblist:
+            hs_scrape_job_q = JobQueue()
+            for job in hs_scrape_joblist:
+                await hs_scrape_job_q.put(job)
 
-            for pred in filtered.values():
-                temp_joblist = await get_hs_filtered_job(req=req,
-                                                         start_rank=start_rank,
-                                                         end_rank=-1,
-                                                         input=GetFilteredPageRangeRequest(
-                                                             predicate=pred,
-                                                             hs_type=hs_type,
-                                                             account_type=account_type)
-                                                         )
-                if not hs_scrape_joblist:
-                    hs_scrape_joblist = temp_joblist
-                else:
-                    start_job_prio = start_job_prio if start_job_prio > temp_joblist[
-                        0].priority else temp_joblist[0].priority
-                    end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
-
-            hs_scrape_joblist = [
-                x for x in hs_scrape_joblist if start_job_prio <= x.priority <= end_job_prio]
-        else:
-            hs_scrape_joblist = await get_hs_page_job(req=req,
-                                                      start_rank=start_rank,
-                                                      end_rank=-1,
-                                                      input=GetMaxHighscorePageRequest(
-                                                          hs_type=hs_type, account_type=account_type)
-                                                      )
-
-        hs_scrape_job_q = JobQueue()
-        for job in hs_scrape_joblist:
-            await hs_scrape_job_q.put(job)
-
-        hs_scrape_export_q = JobQueue(max_size=N_SCRAPE_SIZE)
-
-        current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
-        hs_scrape_workers = [Worker(in_queue=hs_scrape_job_q, out_queue=hs_scrape_export_q, job_counter=current_page)
-                             for _ in range(N_SCRAPE_WORKERS)]
+            current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
+            hs_scrape_workers = [Worker(in_queue=hs_scrape_job_q, out_queue=hs_scrape_export_q, job_counter=current_page)
+                                for _ in range(N_SCRAPE_WORKERS)]
+        else :
+            hs_scrape_workers = []
 
         filter_q = asyncio.Queue()
         current_rank = JobCounter(value=start_rank)
@@ -84,8 +106,7 @@ async def main(out_file: str, proxy_file: str | None, start_rank: int, account_t
         T = [asyncio.create_task(
             write_records(in_queue=filter_q,
                           out_file=out_file,
-                          total=hs_scrape_joblist[-1].end_rank -
-                          hs_scrape_joblist[0].start_rank + 1,
+                          total=record_count,
                           format=lambda job: json_wrapper.to_json(
                               {"rank": job.priority, "record": job.result.to_dict()})
                           )
@@ -93,7 +114,7 @@ async def main(out_file: str, proxy_file: str | None, start_rank: int, account_t
         for w in hs_scrape_workers:
             T.append(asyncio.create_task(
                 w.run(req=req, request_fn=request_hs_page,
-                      enqueue_fn=enqueue_page_usernames, delay=0.2)
+                    enqueue_fn=enqueue_page_usernames, delay=0.2)
             ))
         for i, w in enumerate(filter_workers):
             T.append(asyncio.create_task(
@@ -150,6 +171,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
+    parser.add_argument('--in-file',
+                        help="Path to the in file, reads from highscores if this argument is missing.")
     parser.add_argument('--proxy-file', help="Path to the proxy file")
     parser.add_argument('--rank-start', default=1, type=int,
                         help="Rank number that it should start filtering at (default: 1)")
@@ -166,7 +189,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     try:
-        asyncio.run(main(args.out_file, args.proxy_file, args.rank_start,
+        asyncio.run(main(args.out_file, args.in_file, args.proxy_file, args.rank_start,
                     args.account_type, args.hs_type, args.filter, args.num_workers))
     except Exception as e:
         logger.error(str(e))
