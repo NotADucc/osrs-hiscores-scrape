@@ -38,7 +38,7 @@ py .\scripts\filter.py --out-file output.txt --filter 'ranged<=50, attack=50'
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
 | `--out-file`  | Yes      | Path to the output file                    |
-| `--in-file`  | No      | Path to the in file, reads from highscores if this argument is missing. |
+| `--in-file`  | No      | Path to the input file, reads from highscores if this argument is missing |
 | `--proxy-file`  | No      | Path to the proxy file                    |
 | `--rank-start`  | No      | Rank number that it should start filtering at (default: 1) |
 | `--account-type`  | No      | Account type it should look at (default: 'regular') |
