@@ -1,7 +1,6 @@
 import argparse
 import asyncio
 import threading
-from typing import Any
 
 import aiohttp
 
@@ -11,6 +10,7 @@ from src.util.log import finished_script, get_logger
 
 logger = get_logger()
 file_lock = threading.Lock()
+
 
 async def process(proxy: str, **kwargs) -> None:
     out_file: str = kwargs["out_file"]
@@ -37,6 +37,7 @@ async def process(proxy: str, **kwargs) -> None:
 
     except Exception as err:
         print(err)
+
 
 @finished_script
 async def main(proxy_file: str):

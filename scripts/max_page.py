@@ -6,8 +6,7 @@ import sys
 import aiohttp
 
 from src.request.common import HSAccountTypes, HSType
-from src.request.dto import (GetMaxHighscorePageRequest,
-                             GetMaxHighscorePageResult)
+from src.request.dto import GetMaxHighscorePageRequest
 from src.request.request import Requests
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark

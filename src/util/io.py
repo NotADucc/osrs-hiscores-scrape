@@ -6,7 +6,8 @@ from tqdm import tqdm
 
 from src.request.common import HSAccountTypes, HSType
 from src.request.errors import FinishedScript
-from src.request.results import CategoryRecord
+from src.request.job import HSLookupJob
+from src.request.results import CategoryRecord, PlayerRecord
 from src.util import json_wrapper
 
 ENCODING = "utf-8"
@@ -35,18 +36,14 @@ async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable
 
 
 def write_record(out_file: str, data: str):
-    """
-    Writes a single string record to a file, each record is written on a new line.
-    """
+    """ Writes a single string record to a file, each record is written on a new line. """
     exists = os.path.isfile(out_file)
     with open(out_file, mode='w' if not exists else 'a', encoding=ENCODING) as f:
         f.write(data + '\n')
 
 
 def read_proxies(proxy_file: str | None) -> list[str]:
-    """
-    Reads a list of proxies from a file,e ach line in the file is treated as a separate proxy.
-    """
+    """ Reads a list of proxies from a file,e ach line in the file is treated as a separate proxy. """
     if proxy_file is not None and os.path.isfile(proxy_file):
         with open(proxy_file, "r", encoding=ENCODING) as f:
             proxies = f.read().splitlines()
@@ -57,9 +54,7 @@ def read_proxies(proxy_file: str | None) -> list[str]:
 
 
 def read_hs_records(file: str) -> Iterator[CategoryRecord]:
-    """
-    Reads a list of category records from a file, each line in the file is treated as a separate record.
-    """
+    """ Reads a list of category records from a file, each line in the file is treated as a separate record. """
     if not os.path.isfile(file):
         return iter([])
 
@@ -71,6 +66,26 @@ def read_hs_records(file: str) -> Iterator[CategoryRecord]:
 
             data = json_wrapper.from_json(line)
             yield CategoryRecord(**data)
+
+
+def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
+    """ Reads a list of filtered records from a file, each line in the file is treated as a separate record. """
+    if not os.path.isfile(file):
+        return iter([])
+
+    with open(file, "r", encoding=ENCODING) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+
+            data = json_wrapper.from_json(line)["record"]
+            yield PlayerRecord(**data)
+
+
+def filtered_result_formatter() -> Callable[[HSLookupJob], str]:
+    """ Lambda function for formatting `HSLookupJob` job result. """
+    return lambda job: json_wrapper.to_json({"rank": job.priority, "record": job.result.to_dict()})
 
 
 def build_temp_file(out_file: str, account_type: HSAccountTypes, hs_type: HSType) -> str:

@@ -1,8 +1,8 @@
-from collections import defaultdict
 import functools
 import inspect
 import logging
 import threading
+from collections import defaultdict
 from typing import Any, Callable, TypeVar, cast
 
 LOGGER_LEVEL = logging.DEBUG
@@ -27,14 +27,14 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)" # type: ignore
+    message_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
 
     FORMATS = {
-        logging.DEBUG: grey + format + reset, # type: ignore
-        logging.INFO: grey + format + reset, # type: ignore
-        logging.WARNING: yellow + format + reset, # type: ignore
-        logging.ERROR: red + format + reset, # type: ignore
-        logging.CRITICAL: bold_red + format + reset # type: ignore
+        logging.DEBUG: grey + message_format + reset,
+        logging.INFO: grey + message_format + reset,
+        logging.WARNING: yellow + message_format + reset,
+        logging.ERROR: red + message_format + reset,
+        logging.CRITICAL: bold_red + message_format + reset
     }
 
     def format(self, record):
@@ -95,6 +95,8 @@ def get_logger() -> LoggerWrapper:
 
 
 T = TypeVar("T", bound=Callable[..., Any])
+
+
 def finished_script(func: T) -> T:
     """Decorator that logs when a (async) or (sync) method has finished,
     also displays the count of logs per type.
@@ -108,7 +110,8 @@ def finished_script(func: T) -> T:
             except KeyboardInterrupt:
                 raise
             finally:
-                get_logger().info(f"log type count: {get_logger().get_counts()}")
+                get_logger().info(
+                    f"log type count: {get_logger().get_counts()}")
                 get_logger().info("done")
             return result
 
@@ -122,7 +125,8 @@ def finished_script(func: T) -> T:
             except KeyboardInterrupt:
                 raise
             finally:
-                get_logger().info(f"log type count: {get_logger().get_counts()}")
+                get_logger().info(
+                    f"log type count: {get_logger().get_counts()}")
                 get_logger().info("done")
             return result
 

@@ -8,7 +8,6 @@ from src.request.common import HSAccountTypes, HSType
 from src.request.dto import GetPlayerRequest
 from src.request.errors import NotFound
 from src.request.request import Requests
-from src.request.results import PlayerRecord
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard

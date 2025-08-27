@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from typing import Any, Generic, List, TypeVar
 
 from src.request.common import HS_PAGE_SIZE, HSAccountTypes, HSType
-from src.request.dto import GetMaxHighscorePageRequest, GetFilteredPageRangeRequest
+from src.request.dto import (GetFilteredPageRangeRequest,
+                             GetMaxHighscorePageRequest)
 from src.request.request import Requests
 from src.request.results import CategoryRecord, PlayerRecord
 
@@ -32,7 +33,7 @@ class HSCategoryJob(IJob):
     account_type: HSAccountTypes
     start_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
     end_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
-    result: List[CategoryRecord] = None # type: ignore
+    result: List[CategoryRecord] = None  # type: ignore
 
 
 @dataclass(order=True)
@@ -46,7 +47,7 @@ class HSLookupJob(IJob):
     priority: int
     username: str
     account_type: HSAccountTypes
-    result: PlayerRecord = None # type: ignore
+    result: PlayerRecord = None  # type: ignore
 
 
 class JobCounter:
@@ -177,9 +178,9 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, inp
 
     if end_rank > 0 and start_rank > end_rank:
         raise ValueError("Start rank is greater than end rank")
-    
+
     page_range = await req.get_filtered_page_range(input=input)
-    
+
     if start_page < page_range.start_page:
         start_page = page_range.start_page
         start_rank = page_range.start_rank

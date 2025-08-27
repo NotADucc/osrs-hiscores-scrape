@@ -5,9 +5,10 @@ from src.util.log import finished_script, get_logger
 
 logger = get_logger()
 
+
 @finished_script
 def main():
-    logger.debug(', '.join(HSType.debug())) 
+    logger.debug(', '.join(HSType.debug()))
     input()
 
 
