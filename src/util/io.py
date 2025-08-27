@@ -80,7 +80,7 @@ def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
                 continue
 
             data = json_wrapper.from_json(line)["record"]
-            yield PlayerRecord(**data)
+            yield PlayerRecord.from_dict(data)
 
 
 def filtered_result_formatter() -> Callable[[HSLookupJob], str]:
