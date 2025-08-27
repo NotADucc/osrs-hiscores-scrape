@@ -69,7 +69,7 @@ class Requests():
         while l <= r:
             middle = (l + r) >> 1
 
-            logger.info(f'current range: ({l}-{r}) middle: {middle}')
+            logger.debug(f'current range: ({l}-{r}) middle: {middle}')
 
             first_rank = await retry(
                 self.get_first_rank,
@@ -109,7 +109,7 @@ class Requests():
                 )
                 expected_first_rank = (middle - 1) * HS_PAGE_SIZE + 1
 
-                logger.info(f'current range: ({l}-{r}) middle: {middle}')
+                logger.debug(f'current range: ({l}-{r}) middle: {middle}')
 
                 if not records or records[0].rank != expected_first_rank:
                     r = middle - 1

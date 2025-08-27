@@ -110,7 +110,7 @@ def finished_script(func: T) -> T:
             except KeyboardInterrupt:
                 raise
             finally:
-                get_logger().info(
+                get_logger().debug(
                     f"log type count: {get_logger().get_counts()}")
                 get_logger().info("done")
             return result
@@ -125,7 +125,7 @@ def finished_script(func: T) -> T:
             except KeyboardInterrupt:
                 raise
             finally:
-                get_logger().info(
+                get_logger().debug(
                     f"log type count: {get_logger().get_counts()}")
                 get_logger().info("done")
             return result

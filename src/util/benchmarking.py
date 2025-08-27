@@ -30,7 +30,7 @@ def benchmark(callback: Callable):
         except TypeError:
             filename = "unknown"
 
-        logger.info(
+        logger.debug(
             f"[{filename}] - {callback.__name__} took {datetime.timedelta(seconds=end_time - start_time)} and {end_mem - start_mem:.6f} MB")
         return result
     return wrapper
