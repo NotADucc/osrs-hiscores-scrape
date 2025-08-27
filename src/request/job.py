@@ -82,36 +82,41 @@ class JobCounter:
 
 JQ = TypeVar('JQ')
 class JobQueue(Generic[JQ]):
-    """ An asynchronous priority queue. """
+    """ An asynchronous priority queue wrapper. """
 
-    def __init__(self, max_size=None):
-        self.q = asyncio.PriorityQueue()
-        self.got = asyncio.Event()
-        self.max_size = max_size
+    def __init__(self, maxsize=None):
+        self._q = asyncio.PriorityQueue[JQ]()
+        self._got = asyncio.Event()
+        self._max_size = maxsize
 
     def __len__(self) -> int:
-        return self.q.qsize()
+        return self._q.qsize()
 
-    async def put(self, item: IJob, force=False):
+    async def put(self, item: JQ, force=False):
         """
         Asynchronously add an item to the queue. 
         If `max_size` is set, waits until there is room unless `force=True`
         """
-        if self.max_size and not force:
-            while self.q.qsize() >= self.max_size:
-                await self.got.wait()
-                self.got.clear()
-        await self.q.put(item)
+        if self._max_size and not force:
+            while self._q.qsize() >= self._max_size:
+                await self._got.wait()
+                self._got.clear()
+        await self._q.put(item)
 
-    async def get(self) -> IJob:
+    async def get(self) -> JQ:
         """
         Asynchronously remove and return the highest-priority item from the queue. 
         Triggers the `got` event to unblock `put`
         """
-        item = await self.q.get()
-        self.got.set()
+        item = await self._q.get()
+        self._got.set()
         return item
 
+    async def peek(self) -> JQ:
+        """ Asynchronously return the highest-priority item from the queue without removing it. """
+        if self._q.empty():
+            raise asyncio.QueueEmpty("peeking an empty JobQueue")
+        return self._q._queue[0] # type: ignore
 
 async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
     """
