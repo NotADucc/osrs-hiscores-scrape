@@ -5,7 +5,8 @@ from typing import Callable
 from src.request.common import HSType
 from src.request.dto import GetHighscorePageRequest, GetPlayerRequest
 from src.request.errors import NotFound, RetryFailed
-from src.request.job import HSCategoryJob, HSLookupJob, IJob, JobCounter, JobQueue
+from src.request.job import (HSCategoryJob, HSLookupJob, IJob, JobCounter,
+                             JobQueue)
 from src.request.request import Requests
 from src.request.results import CategoryInfo
 from src.util.retry_handler import retry
@@ -104,4 +105,4 @@ async def enqueue_user_stats_filter(queue: JobQueue[IJob] | Queue[IJob], job: HS
     if job.result.meets_requirements(hs_filter):
         await queue.put(job)
     else:
-        await queue.put(None) # type: ignore
+        await queue.put(None)  # type: ignore

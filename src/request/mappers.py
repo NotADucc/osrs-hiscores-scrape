@@ -2,6 +2,7 @@ from src.request.common import HSAccountTypes
 from src.request.job import HSLookupJob
 from src.request.results import CategoryRecord, PlayerRecord
 
+
 def map_player_record_to_lookup_job(priority: int, account_type: HSAccountTypes, input: PlayerRecord) -> HSLookupJob:
     """ function that maps a `PlayerRecord` to a `HSLookupJob` """
     return HSLookupJob(priority=priority, account_type=account_type, username=input.username)

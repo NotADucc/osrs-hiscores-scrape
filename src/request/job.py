@@ -1,5 +1,5 @@
-from abc import ABC
 import asyncio
+from abc import ABC
 from dataclasses import dataclass
 from typing import Any, Generic, List, TypeVar
 
@@ -81,6 +81,8 @@ class JobCounter:
 
 
 JQ = TypeVar('JQ')
+
+
 class JobQueue(Generic[JQ]):
     """ An asynchronous priority queue wrapper. """
 
@@ -115,13 +117,14 @@ class JobQueue(Generic[JQ]):
     async def peek(self) -> JQ:
         """ 
         Asynchronously return the highest-priority item from the queue without removing it. 
-        
+
         Raises:
             QueueEmpty raised if Q is empty.
         """
         if self._q.empty():
             raise asyncio.QueueEmpty("peeking an empty JobQueue")
-        return self._q._queue[0] # type: ignore
+        return self._q._queue[0]  # type: ignore
+
 
 async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
     """
