@@ -113,7 +113,12 @@ class JobQueue(Generic[JQ]):
         return item
 
     async def peek(self) -> JQ:
-        """ Asynchronously return the highest-priority item from the queue without removing it. """
+        """ 
+        Asynchronously return the highest-priority item from the queue without removing it. 
+        
+        Raises:
+            QueueEmpty raised if Q is empty.
+        """
         if self._q.empty():
             raise asyncio.QueueEmpty("peeking an empty JobQueue")
         return self._q._queue[0] # type: ignore
