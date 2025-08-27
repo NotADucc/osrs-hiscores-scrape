@@ -61,6 +61,9 @@ class JobCounter:
     def value(self):
         return self.v
 
+    # created incase i need it later, currently we assume that there are no gaps in priority in the Q
+    # so if there is one, it would indefinitely halt
+    # now you can say that it's the job of the interface user to create a correct Q
     def set(self, n):
         """ set the value to `n` and signal waiting tasks. """
         self.v = n
