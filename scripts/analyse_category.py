@@ -9,7 +9,7 @@ import aiohttp
 from src.request.common import DEFAULT_WORKER_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest
 from src.request.errors import FinishedScript
-from src.request.job import JobCounter, JobQueue, get_hs_page_job
+from src.request.job import IJob, JobCounter, JobQueue, get_hs_page_job
 from src.request.request import Requests
 from src.request.results import CategoryInfo
 from src.request.worker import (Worker, enqueue_analyse_page_category,
@@ -46,7 +46,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
 
-        hs_scrape_q = JobQueue()
+        hs_scrape_q = JobQueue[IJob]()
         for job in hs_scrape_joblist:
             await hs_scrape_q.put(job)
 
