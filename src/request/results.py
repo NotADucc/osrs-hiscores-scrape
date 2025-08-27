@@ -16,6 +16,7 @@ class PlayerRecord:
     def __init__(self, username: str, csv: List[str], ts: datetime):
         self.username = username
 
+        # first line is rank, total lvl and total xp
         first_record = [int(x) for x in csv[0].split(',')]
 
         self.ts = ts
@@ -26,25 +27,30 @@ class PlayerRecord:
         self.skills = {}
         self.misc = {}
 
-        for hstypes in list(HSType)[1:]:
-            csv_val = hstypes.get_csv_value()
+        hs_types = list(HSType)
+
+        if len(hs_types) - 1 != len(csv):
+            return
+
+        for hs_type in hs_types[1:]:
+            csv_val = hs_type.get_csv_value()
 
             if csv_val == -1:
                 continue
 
             splitted = [int(x) for x in csv[csv_val].split(',')]
 
-            if hstypes.is_skill():
+            if hs_type.is_skill():
                 # self.skills[mapper_val.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
                 # just lvl for now, saving rank, lvl, xp and maybe virtual lvl is gonna be too much
                 # or have a flag that can enable it
-                self.skills[hstypes.name] = splitted[1]
+                self.skills[hs_type.name] = splitted[1]
 
-            elif hstypes.is_misc():
+            elif hs_type.is_misc():
                 if splitted[0] == -1:
                     continue
                 # self.misc[mapper_val.name] = { 'rank': splitted[0], 'kc': splitted[1] }
-                self.misc[hstypes.name] = splitted[1]
+                self.misc[hs_type.name] = splitted[1]
 
         cmb_level = calc_cmb(self.skills[HSType.attack.name], self.skills[HSType.defence.name],
                              self.skills[HSType.strength.name], self.skills[HSType.hitpoints.name], self.skills[HSType.ranged.name], self.skills[HSType.prayer.name], self.skills[HSType.magic.name])
@@ -103,6 +109,18 @@ class PlayerRecord:
             "skills": self.skills,
             "misc": self.misc,
         }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> 'PlayerRecord':
+        """ Reconstructs a PlayerRecord from a dict produced by to_dict(). """
+        ts = datetime.fromisoformat(data["timestamp"])
+        fake_csv = [f"{data['rank']},{data['total_level']},{data['total_xp']}"]
+        obj = cls(data["username"], fake_csv, ts)
+        obj.combat_lvl = data["combat_lvl"]
+        obj.skills = data["skills"]
+        obj.misc = data["misc"]
+
+        return obj
 
     def __str__(self):
         return json_wrapper.to_json(self.to_dict(), separators=(',', ':'))

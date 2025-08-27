@@ -11,16 +11,17 @@ from src.request.common import (DEFAULT_WORKER_SIZE, MAX_CATEGORY_SIZE,
                                 HSAccountTypes, HSType)
 from src.request.dto import GetFilteredPageRangeRequest
 from src.request.errors import FinishedScript
-from src.request.job import (GetMaxHighscorePageRequest, HSCategoryJob,
+from src.request.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                              JobCounter, JobQueue, get_hs_filtered_job,
                              get_hs_page_job)
+from src.request.mappers import map_category_records_to_lookup_jobs, map_player_records_to_lookup_jobs
 from src.request.request import Requests
 from src.request.worker import (Worker, enqueue_page_usernames,
                                 enqueue_user_stats_filter, request_hs_page,
                                 request_user_stats)
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.io import (filtered_result_formatter, read_hs_records,
+from src.util.io import (filtered_result_formatter, read_filtered_result, read_hs_records,
                          read_proxies, write_records)
 from src.util.log import finished_script, get_logger
 
@@ -29,12 +30,15 @@ N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
 
-async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]]) -> tuple[list[HSCategoryJob], int, JobQueue]:
+async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
     """ Prepares the scraping job list and export queue based if theres an in-file or not. """
-    potential_records = list(read_hs_records(in_file))
+    potential_records = map_category_records_to_lookup_jobs(account_type=account_type, input=list(read_hs_records(in_file)))
+
+    if not potential_records:
+        potential_records = map_player_records_to_lookup_jobs(account_type=account_type, input=list(read_filtered_result(in_file)))
 
     if potential_records:
-        hs_scrape_export_q = JobQueue()
+        hs_scrape_export_q = JobQueue[IJob]()
         for record in potential_records:
             await hs_scrape_export_q.put(record)
         return [], len(potential_records), hs_scrape_export_q
@@ -71,7 +75,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
 
-    return hs_scrape_joblist, hs_scrape_joblist[-1].end_rank - hs_scrape_joblist[0].start_rank + 1, JobQueue(max_size=N_SCRAPE_SIZE)
+    return hs_scrape_joblist, hs_scrape_joblist[-1].end_rank - hs_scrape_joblist[0].start_rank + 1, JobQueue(maxsize=N_SCRAPE_SIZE)
 
 
 @finished_script
@@ -90,18 +94,20 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
         )
 
         if hs_scrape_joblist:
-            hs_scrape_job_q = JobQueue()
+            hs_scrape_job_q = JobQueue[IJob]()
             for job in hs_scrape_joblist:
                 await hs_scrape_job_q.put(job)
 
             current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
             hs_scrape_workers = [Worker(in_queue=hs_scrape_job_q, out_queue=hs_scrape_export_q, job_counter=current_page)
                                  for _ in range(N_SCRAPE_WORKERS)]
+            filter_start = hs_scrape_joblist[0].start_rank
         else:
             hs_scrape_workers = []
+            filter_start = (await hs_scrape_export_q.peek()).priority
 
         filter_q = asyncio.Queue()
-        current_rank = JobCounter(value=start_rank)
+        current_rank = JobCounter(value=filter_start)
         filter_workers = [Worker(in_queue=hs_scrape_export_q, out_queue=filter_q, job_counter=current_rank)
                           for _ in range(num_workers)]
 

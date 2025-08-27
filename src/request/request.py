@@ -175,7 +175,7 @@ class Requests():
     async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
         """ Fetch and parse a player's stats from OSRS hiscores. """
         csv = await self.https_request(input.account_type.api_csv(), {'player': input.username})
-        csv = csv.split('\n')
+        csv = [line for line in csv.split('\n') if line]
         return PlayerRecord(username=input.username, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
 
     async def get_hs_page(self, hs_request: GetHighscorePageRequest) -> list[CategoryRecord]:
