@@ -18,10 +18,10 @@ from src.request.request import Requests
 from src.request.worker import (Worker, enqueue_page_usernames,
                                 enqueue_user_stats_filter, request_hs_page,
                                 request_user_stats)
-from src.util import json_wrapper
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.io import read_hs_records, read_proxies, filtered_result_formatter, write_records
+from src.util.io import (filtered_result_formatter, read_hs_records,
+                         read_proxies, write_records)
 from src.util.log import finished_script, get_logger
 
 logger = get_logger()
