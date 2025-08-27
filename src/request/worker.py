@@ -5,7 +5,7 @@ from typing import Callable
 from src.request.common import HSType
 from src.request.dto import GetHighscorePageRequest, GetPlayerRequest
 from src.request.errors import NotFound, RetryFailed
-from src.request.job import HSCategoryJob, HSLookupJob, JobCounter, JobQueue
+from src.request.job import HSCategoryJob, HSLookupJob, IJob, JobCounter, JobQueue
 from src.request.request import Requests
 from src.request.results import CategoryInfo
 from src.util.retry_handler import retry
@@ -21,7 +21,7 @@ class Worker:
     then enqueues the result using a provided enqueue function.
     """
 
-    def __init__(self, in_queue: JobQueue, out_queue: Queue | JobQueue, job_counter: JobCounter):
+    def __init__(self, in_queue: JobQueue[IJob], out_queue: Queue[IJob] | JobQueue[IJob], job_counter: JobCounter):
         self.in_q = in_queue
         self.out_q = out_queue
         self.job_counter = job_counter
@@ -96,7 +96,7 @@ async def enqueue_page_usernames(queue: JobQueue | Queue, job: HSCategoryJob):
         await queue.put(outjob)
 
 
-async def enqueue_user_stats_filter(queue: JobQueue | Queue, job: HSLookupJob, hs_filter: dict[HSType, Callable[[int | float], bool]]):
+async def enqueue_user_stats_filter(queue: JobQueue[IJob] | Queue[IJob], job: HSLookupJob, hs_filter: dict[HSType, Callable[[int | float], bool]]):
     """
     Enqueue a HSLookupJob if its result meets specified filter requirements;
     otherwise enqueue None to indicate the job does not match.
@@ -104,4 +104,4 @@ async def enqueue_user_stats_filter(queue: JobQueue | Queue, job: HSLookupJob, h
     if job.result.meets_requirements(hs_filter):
         await queue.put(job)
     else:
-        await queue.put(None)
+        await queue.put(None) # type: ignore

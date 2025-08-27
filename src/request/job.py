@@ -1,6 +1,7 @@
+from abc import ABC
 import asyncio
 from dataclasses import dataclass
-from typing import List
+from typing import Any, Generic, List, TypeVar
 
 from src.request.common import HS_PAGE_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest, GetFilteredPageRangeRequest
@@ -8,8 +9,13 @@ from src.request.request import Requests
 from src.request.results import CategoryRecord, PlayerRecord
 
 
+class IJob(ABC):
+    priority: int
+    result: Any
+
+
 @dataclass(order=True)
-class HSCategoryJob:
+class HSCategoryJob(IJob):
     """
     Represents a job for fetching and processing hiscore data.
 
@@ -30,7 +36,7 @@ class HSCategoryJob:
 
 
 @dataclass(order=True)
-class HSLookupJob:
+class HSLookupJob(IJob):
     """
     Represents a job for looking up a player's hiscore data.
 
@@ -54,8 +60,13 @@ class JobCounter:
     def value(self):
         return self.v
 
+    def set(self, n):
+        """ set the value to `n` and signal waiting tasks. """
+        self.v = n
+        self.nextcalled.set()
+
     def next(self, n=1):
-        """ Increment the counter by ``n`` (default 1) and signal waiting tasks. """
+        """ Increment the counter by `n` (default 1) and signal waiting tasks. """
         self.v += n
         self.nextcalled.set()
 
@@ -65,7 +76,8 @@ class JobCounter:
         self.nextcalled.clear()
 
 
-class JobQueue:
+JQ = TypeVar('JQ')
+class JobQueue(Generic[JQ]):
     """ An asynchronous priority queue. """
 
     def __init__(self, max_size=None):
@@ -73,10 +85,10 @@ class JobQueue:
         self.got = asyncio.Event()
         self.max_size = max_size
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.q.qsize()
 
-    async def put(self, item, force=False):
+    async def put(self, item: IJob, force=False):
         """
         Asynchronously add an item to the queue. 
         If `max_size` is set, waits until there is room unless `force=True`
@@ -87,7 +99,7 @@ class JobQueue:
                 self.got.clear()
         await self.q.put(item)
 
-    async def get(self):
+    async def get(self) -> IJob:
         """
         Asynchronously remove and return the highest-priority item from the queue. 
         Triggers the `got` event to unblock `put`
