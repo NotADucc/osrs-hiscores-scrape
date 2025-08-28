@@ -6,7 +6,6 @@ from tqdm import tqdm
 
 from src.request.common import HSAccountTypes, HSType
 from src.request.errors import FinishedScript
-from src.request.job import HSLookupJob
 from src.request.results import CategoryRecord, PlayerRecord
 from src.util import json_wrapper
 from src.util.log import get_logger
