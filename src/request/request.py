@@ -210,7 +210,7 @@ class Requests():
                 text = await resp.text()
                 if _is_rate_limited(text):
                     raise IsRateLimited(
-                        f"limited on '{url}'", details={"params": params, "proxy": proxy})
+                        f"rate limited: '{url}'", details={"url": resp.url, "params": params, "proxy": proxy})
 
                 if resp.status == 404:
                     raise NotFound(f"Not found", details={
@@ -220,7 +220,7 @@ class Requests():
                     return text
 
                 raise RequestFailed(f"failed on '{url}'", details={
-                                    "code": resp.status, "params": params, "proxy": proxy})
+                        "code": resp.status, "reason": resp.reason, "url": resp.url, "params": params, "proxy": proxy})
         except TimeoutError:
             raise ServerBusy("timed out")
         except ClientConnectionError as e:
