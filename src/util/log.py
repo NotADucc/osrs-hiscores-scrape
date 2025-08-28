@@ -60,6 +60,7 @@ class LoggerWrapper:
     def _log(self, level: str, msg: str, *args, **kwargs):
         with self._lock:
             self._counts[level] += 1
+        kwargs.setdefault("stacklevel", 3)
         getattr(self.logger, level.lower())(msg, *args, **kwargs)
 
     def info(self, msg: str, *args, **kwargs):
