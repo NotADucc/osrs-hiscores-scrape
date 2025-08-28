@@ -44,7 +44,7 @@ def write_record(out_file: str, data: str):
 
 def read_proxies(proxy_file: str | None) -> list[str]:
     """ Reads a list of proxies from a file,e ach line in the file is treated as a separate proxy. """
-    if proxy_file is not None and os.path.isfile(proxy_file):
+    if proxy_file and os.path.isfile(proxy_file):
         with open(proxy_file, "r", encoding=ENCODING) as f:
             proxies = f.read().splitlines()
     else:
@@ -55,7 +55,7 @@ def read_proxies(proxy_file: str | None) -> list[str]:
 
 def read_hs_records(file: str) -> Iterator[CategoryRecord]:
     """ Reads a list of category records from a file, each line in the file is treated as a separate record. """
-    if not os.path.isfile(file):
+    if not file or not os.path.isfile(file):
         return iter([])
 
     with open(file, "r", encoding=ENCODING) as f:
@@ -70,7 +70,7 @@ def read_hs_records(file: str) -> Iterator[CategoryRecord]:
 
 def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
     """ Reads a list of filtered records from a file, each line in the file is treated as a separate record. """
-    if not os.path.isfile(file):
+    if not file or not os.path.isfile(file):
         return iter([])
 
     with open(file, "r", encoding=ENCODING) as f:
@@ -83,9 +83,9 @@ def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
             yield PlayerRecord.from_dict(data)
 
 
-def filtered_result_formatter() -> Callable[[HSLookupJob], str]:
-    """ Lambda function for formatting `HSLookupJob` job result. """
-    return lambda job: json_wrapper.to_json({"rank": job.priority, "record": job.result.to_dict()})
+def filtered_result_formatter(job) -> str:
+    """ Function for formatting `HSLookupJob` job result. """
+    return json_wrapper.to_json({"rank": job.priority, "record": job.result.to_dict()})
 
 
 def build_temp_file(out_file: str, account_type: HSAccountTypes, hs_type: HSType) -> str:
