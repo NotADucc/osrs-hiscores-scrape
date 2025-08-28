@@ -9,7 +9,9 @@ from src.request.errors import FinishedScript
 from src.request.job import HSLookupJob
 from src.request.results import CategoryRecord, PlayerRecord
 from src.util import json_wrapper
+from src.util.log import get_logger
 
+logger = get_logger()
 ENCODING = "utf-8"
 
 
@@ -65,7 +67,11 @@ def read_hs_records(file: str) -> Iterator[CategoryRecord]:
                 continue
 
             data = json_wrapper.from_json(line)
-            yield CategoryRecord(**data)
+            try:
+                yield CategoryRecord(**data)
+            except Exception as e:
+                logger.warning(f"Skipping invalid record in {file}: {e}")
+                continue
 
 
 def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
@@ -80,7 +86,11 @@ def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
                 continue
 
             data = json_wrapper.from_json(line)["record"]
-            yield PlayerRecord.from_dict(data)
+            try:
+                yield PlayerRecord.from_dict(data)
+            except Exception as e:
+                logger.warning(f"Skipping invalid record in {file}: {e}")
+                continue
 
 
 def filtered_result_formatter(job) -> str:
