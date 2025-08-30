@@ -44,7 +44,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
             write_records(in_queue=export_q,
                           out_file=out_file,
                           total=hs_scrape_joblist[-1].page_num -
-                          current_page.value + 1,
+                          hs_scrape_joblist[0].page_num + 1,
                           format=lambda job: '\n'.join(
                               str(item) for item in job.result[job.start_idx:job.end_idx])
                           )
