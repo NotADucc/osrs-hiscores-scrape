@@ -1,7 +1,6 @@
 import asyncio
 from asyncio import CancelledError, Queue
-from gc import is_finalized
-from typing import Callable, NoReturn
+from typing import Callable
 
 from src.request.common import HSType
 from src.request.dto import GetHighscorePageRequest, GetPlayerRequest

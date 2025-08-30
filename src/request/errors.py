@@ -44,7 +44,3 @@ class ServerBusy(Exception):
     def __init__(self, message: str, details=None):
         self.details = details
         super().__init__(message)
-
-
-class FinishedScript(Exception):
-    """ Raised when script is done. """

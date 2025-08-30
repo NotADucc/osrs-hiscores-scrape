@@ -8,7 +8,6 @@ import aiohttp
 
 from src.request.common import DEFAULT_WORKER_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest
-from src.request.errors import FinishedScript
 from src.request.request import Requests
 from src.request.results import CategoryInfo
 from src.util.benchmarking import benchmark
@@ -17,8 +16,7 @@ from src.util.io import (build_temp_file, read_hs_records, read_proxies,
                          write_record, write_records)
 from src.util.log import finished_script, get_logger
 from src.worker.job import IJob, JobManager, JobQueue, get_hs_page_job
-from src.worker.worker import (Worker, create_workers, enqueue_analyse_page_category,
-                               request_hs_page)
+from src.worker.worker import (create_workers, enqueue_analyse_page_category, request_hs_page)
 
 logger = get_logger()
 

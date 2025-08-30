@@ -1,7 +1,6 @@
 import asyncio
 from abc import ABC
 from dataclasses import dataclass
-from gc import is_finalized
 from typing import Any, Generic, List, TypeVar
 
 from src.request.common import HS_PAGE_SIZE, HSAccountTypes, HSType
