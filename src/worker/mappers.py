@@ -1,5 +1,5 @@
 from src.request.common import HSAccountTypes
-from src.request.job import HSLookupJob
+from src.worker.job import HSLookupJob
 from src.request.results import CategoryRecord, PlayerRecord
 
 

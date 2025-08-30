@@ -11,13 +11,13 @@ from src.request.common import (DEFAULT_WORKER_SIZE, MAX_CATEGORY_SIZE,
                                 HSAccountTypes, HSType)
 from src.request.dto import GetFilteredPageRangeRequest
 from src.request.errors import FinishedScript
-from src.request.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
+from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                              JobCounter, JobQueue, get_hs_filtered_job,
                              get_hs_page_job)
-from src.request.mappers import (map_category_records_to_lookup_jobs,
+from src.worker.mappers import (map_category_records_to_lookup_jobs,
                                  map_player_records_to_lookup_jobs)
 from src.request.request import Requests
-from src.request.worker import (Worker, enqueue_page_usernames,
+from src.worker.worker import (Worker, enqueue_page_usernames,
                                 enqueue_user_stats_filter, request_hs_page,
                                 request_user_stats)
 from src.util.benchmarking import benchmark

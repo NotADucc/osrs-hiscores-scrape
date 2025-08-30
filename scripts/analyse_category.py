@@ -9,10 +9,10 @@ import aiohttp
 from src.request.common import DEFAULT_WORKER_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest
 from src.request.errors import FinishedScript
-from src.request.job import IJob, JobCounter, JobQueue, get_hs_page_job
+from src.worker.job import IJob, JobCounter, JobQueue, get_hs_page_job
 from src.request.request import Requests
 from src.request.results import CategoryInfo
-from src.request.worker import (Worker, enqueue_analyse_page_category,
+from src.worker.worker import (Worker, enqueue_analyse_page_category,
                                 request_hs_page)
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
