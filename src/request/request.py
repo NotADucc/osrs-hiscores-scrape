@@ -47,7 +47,7 @@ class Requests():
 
     def get_proxy(self) -> str | None:
         """ Get the next proxy in the rotation. """
-        if not self.proxy_list or len(self.proxy_list) == 0:
+        if not self.proxy_list:
             return None
 
         with self._proxy_lock:
