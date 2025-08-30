@@ -16,8 +16,8 @@ from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import (build_temp_file, read_hs_records, read_proxies,
                          write_record, write_records)
 from src.util.log import finished_script, get_logger
-from src.worker.job import IJob, JobCounter, JobQueue, get_hs_page_job
-from src.worker.worker import (Worker, enqueue_analyse_page_category,
+from src.worker.job import IJob, JobManager, JobQueue, get_hs_page_job
+from src.worker.worker import (Worker, create_workers, enqueue_analyse_page_category,
                                request_hs_page)
 
 logger = get_logger()
@@ -46,38 +46,45 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
 
-        hs_scrape_q = JobQueue[IJob]()
+        hs_scrape_job_q = JobQueue[IJob]()
         for job in hs_scrape_joblist:
-            await hs_scrape_q.put(job)
+            await hs_scrape_job_q.put(job)
 
-        T: list[asyncio.Task] = []
-        try:
-            if len(hs_scrape_q) == 0:
-                logger.info("bypass scraping, temp file contains all the data")
-                raise FinishedScript
+        if not hs_scrape_job_q:
+            logger.info("bypass scraping, temp file contains all the data")
+            write_record(out_file=out_file, data=f'{category_info}')
+            return
 
-            temp_export_q = asyncio.Queue()
+        temp_export_q = asyncio.Queue()
 
-            current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
-            hs_scrape_workers = [Worker(in_queue=hs_scrape_q, out_queue=temp_export_q, job_counter=current_page)
-                                 for _ in range(num_workers)]
+        scrape_job_manager = JobManager(start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
+        hs_scrape_workers = create_workers(        
+                req=req,
+                in_queue=hs_scrape_job_q,
+                out_queue=temp_export_q,
+                job_manager=scrape_job_manager,
+                request_fn=request_hs_page,
+                enqueue_fn=partial(enqueue_analyse_page_category, category_info=category_info),
+                num_workers=num_workers
+            )
 
+        T = [asyncio.create_task(
+            write_records(in_queue=temp_export_q,
+                            out_file=temp_file,
+                            total=hs_scrape_joblist[-1].page_num -
+                            scrape_job_manager.value + 1,
+                            format=lambda job: '\n'.join(
+                                str(item) for item in job.result[job.start_idx:job.end_idx])
+                            )
+        )]
+
+        for i, w in enumerate(hs_scrape_workers):
             T.append(asyncio.create_task(
-                write_records(in_queue=temp_export_q,
-                              out_file=temp_file,
-                              total=hs_scrape_joblist[-1].page_num -
-                              current_page.value + 1,
-                              format=lambda job: '\n'.join(
-                                  str(item) for item in job.result[job.start_idx:job.end_idx])
-                              )
+                w.run(initial_delay=i * 0.1)
             ))
-            for i, w in enumerate(hs_scrape_workers):
-                T.append(asyncio.create_task(
-                    w.run(req=req, request_fn=request_hs_page,
-                          enqueue_fn=partial(enqueue_analyse_page_category, category_info=category_info), delay=i * 0.1)
-                ))
+
+        try:
             await asyncio.gather(*T)
-        except FinishedScript:
             write_record(out_file=out_file, data=f'{category_info}')
         finally:
             for task in T:

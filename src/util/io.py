@@ -22,18 +22,13 @@ async def write_records(in_queue: asyncio.Queue, out_file: str, format: Callable
     Each item is formatted using the provided formatting function before being written.
     The function writes a total number of items specified by `total`. A progress bar is 
     displayed during writing.
-
-    Raises:
-        FinishedScript: Custom exception indicating that writing has finished.
     """
     exists = os.path.isfile(out_file)
     with open(out_file, mode='w' if not exists else 'a', encoding=ENCODING) as f:
         for _ in tqdm(range(total), smoothing=0.01, desc=f'writing to {out_file}'):
-            job = await in_queue.get()
-            if job is not None:
-                f.write(format(job) + '\n')
-
-        raise FinishedScript
+            record = await in_queue.get()
+            if record is not None:
+                f.write(format(record) + '\n')
 
 
 def write_record(out_file: str, data: str):

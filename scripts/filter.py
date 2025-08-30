@@ -18,11 +18,11 @@ from src.util.io import (filtered_result_formatter, read_filtered_result,
                          read_hs_records, read_proxies, write_records)
 from src.util.log import finished_script, get_logger
 from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
-                            JobCounter, JobQueue, get_hs_filtered_job,
+                            JobManager, JobQueue, get_hs_filtered_job,
                             get_hs_page_job)
 from src.worker.mappers import (map_category_records_to_lookup_jobs,
                                 map_player_records_to_lookup_jobs)
-from src.worker.worker import (Worker, enqueue_page_usernames,
+from src.worker.worker import (Worker, create_workers, enqueue_page_usernames,
                                enqueue_user_stats_filter, request_hs_page,
                                request_user_stats)
 
@@ -101,20 +101,38 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             for job in hs_scrape_joblist:
                 await hs_scrape_job_q.put(job)
 
-            current_page = JobCounter(value=hs_scrape_joblist[0].page_num)
-            hs_scrape_workers = [Worker(in_queue=hs_scrape_job_q, out_queue=hs_scrape_export_q, job_counter=current_page)
-                                 for _ in range(N_SCRAPE_WORKERS)]
+            scrape_job_manager = JobManager(start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
+            hs_scrape_workers = create_workers(        
+                    req=req,
+                    in_queue=hs_scrape_job_q,
+                    out_queue=hs_scrape_export_q,
+                    job_manager=scrape_job_manager,
+                    request_fn=request_hs_page,
+                    enqueue_fn=enqueue_page_usernames,
+                    num_workers=N_SCRAPE_WORKERS
+                )
+
             filter_start = hs_scrape_joblist[0].start_rank
+            filter_end = hs_scrape_joblist[0].end_rank
         else:
             hs_scrape_workers = []
-            filter_start = (await hs_scrape_export_q.peek()).priority
+            filter_start = hs_scrape_export_q.peek().priority
+            filter_end = hs_scrape_export_q.last().priority
 
         filter_q = asyncio.Queue()
-        current_rank = JobCounter(value=filter_start)
-        filter_workers = [Worker(in_queue=hs_scrape_export_q, out_queue=filter_q, job_counter=current_rank)
-                          for _ in range(num_workers)]
+        filter_job_manager = JobManager(start=filter_start, end=filter_end)
+        filter_workers = create_workers(        
+                req=req,
+                in_queue=hs_scrape_export_q,
+                out_queue=filter_q,
+                job_manager=filter_job_manager,
+                request_fn=request_user_stats,
+                enqueue_fn=partial(enqueue_user_stats_filter, hs_filter=hs_filter),
+                num_workers=num_workers
+            )
 
-        T = [asyncio.create_task(
+
+        T: list[asyncio.Task[None]] = [asyncio.create_task(
             write_records(in_queue=filter_q,
                           out_file=out_file,
                           total=record_count,
@@ -123,19 +141,14 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
         )]
         for w in hs_scrape_workers:
             T.append(asyncio.create_task(
-                w.run(req=req, request_fn=request_hs_page,
-                      enqueue_fn=enqueue_page_usernames, delay=0.2)
+                w.run(initial_delay=0.2)
             ))
         for i, w in enumerate(filter_workers):
             T.append(asyncio.create_task(
-                w.run(req=req, request_fn=request_user_stats,
-                      enqueue_fn=partial(enqueue_user_stats_filter, hs_filter=hs_filter), delay=i * 0.1)
+                w.run(initial_delay=i * 0.1)
             ))
-
         try:
             await asyncio.gather(*T)
-        except FinishedScript:
-            pass
         finally:
             for task in T:
                 task.cancel()

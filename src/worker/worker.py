@@ -1,6 +1,7 @@
 import asyncio
 from asyncio import CancelledError, Queue
-from typing import Callable
+from gc import is_finalized
+from typing import Callable, NoReturn
 
 from src.request.common import HSType
 from src.request.dto import GetHighscorePageRequest, GetPlayerRequest
@@ -8,7 +9,7 @@ from src.request.errors import NotFound, RetryFailed
 from src.request.request import Requests
 from src.request.results import CategoryInfo
 from src.util.retry_handler import retry
-from src.worker.job import (HSCategoryJob, HSLookupJob, IJob, JobCounter,
+from src.worker.job import (HSCategoryJob, HSLookupJob, IJob, JobManager,
                             JobQueue)
 
 
@@ -22,12 +23,23 @@ class Worker:
     then enqueues the result using a provided enqueue function.
     """
 
-    def __init__(self, in_queue: JobQueue[IJob], out_queue: Queue[IJob] | JobQueue[IJob], job_counter: JobCounter):
+    def __init__(
+        self,
+        req: Requests,
+        in_queue: JobQueue[IJob],
+        out_queue: Queue[IJob] | JobQueue[IJob],
+        job_manager: JobManager,
+        request_fn: Callable,
+        enqueue_fn: Callable,
+    ):
+        self.req = req
         self.in_q = in_queue
         self.out_q = out_queue
-        self.job_counter = job_counter
+        self.job_manager = job_manager
+        self.request_fn = request_fn
+        self.enqueue_fn = enqueue_fn
 
-    async def run(self, req: Requests, request_fn: Callable, enqueue_fn: Callable, delay: float = 0):
+    async def run(self, initial_delay: float = 0) -> None:
         """            
         Continuously process jobs from the input queue:
             1. Optionally wait for an initial delay.
@@ -41,24 +53,48 @@ class Worker:
             NotFound: Simply increments the job counter and continues.
             CancelledError, RetryFailed: Requeues the job forcibly and re-raises the exception.
         """
-        await asyncio.sleep(delay)
-        while True:
-            job = await self.in_q.get()
+        await asyncio.sleep(initial_delay)
+        while not self.job_manager.is_finished():
+            done, _ = await asyncio.wait(
+                [
+                    asyncio.create_task(self.in_q.get()),
+                    asyncio.create_task(self.job_manager.await_until_finished()),
+                ],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+
+            job = next(iter(done)).result()
+
+            if not job:
+                continue
+
             try:
                 if job.result is None:
-                    await retry(request_fn, req=req, job=job)
+                    await retry(self.request_fn, req=self.req, job=job)
 
-                while self.job_counter.v < job.priority:
-                    await self.job_counter.await_next()
+                while self.job_manager.value < job.priority:
+                    await self.job_manager.await_next()
 
-                await enqueue_fn(self.out_q, job)
-                self.job_counter.next()
+                await self.enqueue_fn(self.out_q, job)
+                self.job_manager.next()
 
             except NotFound:
-                self.job_counter.next()
+                self.job_manager.next()
             except (CancelledError, RetryFailed):
                 await self.in_q.put(job, force=True)
                 raise
+
+def create_workers(
+        req: Requests,
+        in_queue: JobQueue[IJob],
+        out_queue: Queue[IJob] | JobQueue[IJob],
+        job_manager: JobManager,
+        request_fn: Callable,
+        enqueue_fn: Callable,
+        num_workers: int
+    ):
+    return [Worker(req=req, request_fn=request_fn, enqueue_fn=enqueue_fn, in_queue=in_queue, out_queue=out_queue, job_manager=job_manager)
+                for _ in range(num_workers)]
 
 
 async def request_hs_page(req: Requests, job: HSCategoryJob):
