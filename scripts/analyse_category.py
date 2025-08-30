@@ -16,7 +16,8 @@ from src.util.io import (build_temp_file, read_hs_records, read_proxies,
                          write_record, write_records)
 from src.util.log import finished_script, get_logger
 from src.worker.job import IJob, JobManager, JobQueue, get_hs_page_job
-from src.worker.worker import (create_workers, enqueue_analyse_page_category, request_hs_page)
+from src.worker.worker import (create_workers, enqueue_analyse_page_category,
+                               request_hs_page)
 
 logger = get_logger()
 
@@ -55,25 +56,27 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 
         temp_export_q = asyncio.Queue()
 
-        scrape_job_manager = JobManager(start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
-        hs_scrape_workers = create_workers(        
-                req=req,
-                in_queue=hs_scrape_job_q,
-                out_queue=temp_export_q,
-                job_manager=scrape_job_manager,
-                request_fn=request_hs_page,
-                enqueue_fn=partial(enqueue_analyse_page_category, category_info=category_info),
-                num_workers=num_workers
-            )
+        scrape_job_manager = JobManager(
+            start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
+        hs_scrape_workers = create_workers(
+            req=req,
+            in_queue=hs_scrape_job_q,
+            out_queue=temp_export_q,
+            job_manager=scrape_job_manager,
+            request_fn=request_hs_page,
+            enqueue_fn=partial(enqueue_analyse_page_category,
+                               category_info=category_info),
+            num_workers=num_workers
+        )
 
         T = [asyncio.create_task(
             write_records(in_queue=temp_export_q,
-                            out_file=temp_file,
-                            total=hs_scrape_joblist[-1].page_num -
-                            scrape_job_manager.value + 1,
-                            format=lambda job: '\n'.join(
-                                str(item) for item in job.result[job.start_idx:job.end_idx])
-                            )
+                          out_file=temp_file,
+                          total=hs_scrape_joblist[-1].page_num -
+                          scrape_job_manager.value + 1,
+                          format=lambda job: '\n'.join(
+                              str(item) for item in job.result[job.start_idx:job.end_idx])
+                          )
         )]
 
         for i, w in enumerate(hs_scrape_workers):

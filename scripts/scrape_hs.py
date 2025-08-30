@@ -35,16 +35,17 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 
         export_q = asyncio.Queue()
 
-        scrape_job_manager = JobManager(start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
-        hs_scrape_workers = create_workers(        
-                req=req,
-                in_queue=hs_scrape_job_q,
-                out_queue=export_q,
-                job_manager=scrape_job_manager,
-                request_fn=request_hs_page,
-                enqueue_fn=enqueue_hs_page,
-                num_workers=num_workers
-            )
+        scrape_job_manager = JobManager(
+            start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
+        hs_scrape_workers = create_workers(
+            req=req,
+            in_queue=hs_scrape_job_q,
+            out_queue=export_q,
+            job_manager=scrape_job_manager,
+            request_fn=request_hs_page,
+            enqueue_fn=enqueue_hs_page,
+            num_workers=num_workers
+        )
 
         T: list[asyncio.Task[None]] = [asyncio.create_task(
             write_records(in_queue=export_q,

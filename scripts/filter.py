@@ -21,8 +21,9 @@ from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                             get_hs_page_job)
 from src.worker.mappers import (map_category_records_to_lookup_jobs,
                                 map_player_records_to_lookup_jobs)
-from src.worker.worker import (create_workers, enqueue_page_usernames, enqueue_user_stats_filter,
-                               request_hs_page, request_user_stats)
+from src.worker.worker import (create_workers, enqueue_page_usernames,
+                               enqueue_user_stats_filter, request_hs_page,
+                               request_user_stats)
 
 logger = get_logger()
 N_SCRAPE_WORKERS = 2
@@ -99,16 +100,17 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             for job in hs_scrape_joblist:
                 await hs_scrape_job_q.put(job)
 
-            scrape_job_manager = JobManager(start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
-            hs_scrape_workers = create_workers(        
-                    req=req,
-                    in_queue=hs_scrape_job_q,
-                    out_queue=hs_scrape_export_q,
-                    job_manager=scrape_job_manager,
-                    request_fn=request_hs_page,
-                    enqueue_fn=enqueue_page_usernames,
-                    num_workers=N_SCRAPE_WORKERS
-                )
+            scrape_job_manager = JobManager(
+                start=hs_scrape_joblist[0].page_num, end=hs_scrape_joblist[-1].page_num)
+            hs_scrape_workers = create_workers(
+                req=req,
+                in_queue=hs_scrape_job_q,
+                out_queue=hs_scrape_export_q,
+                job_manager=scrape_job_manager,
+                request_fn=request_hs_page,
+                enqueue_fn=enqueue_page_usernames,
+                num_workers=N_SCRAPE_WORKERS
+            )
 
             filter_start = hs_scrape_joblist[0].start_rank
             filter_end = hs_scrape_joblist[0].end_rank
@@ -119,16 +121,15 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
 
         filter_q = asyncio.Queue()
         filter_job_manager = JobManager(start=filter_start, end=filter_end)
-        filter_workers = create_workers(        
-                req=req,
-                in_queue=hs_scrape_export_q,
-                out_queue=filter_q,
-                job_manager=filter_job_manager,
-                request_fn=request_user_stats,
-                enqueue_fn=partial(enqueue_user_stats_filter, hs_filter=hs_filter),
-                num_workers=num_workers
-            )
-
+        filter_workers = create_workers(
+            req=req,
+            in_queue=hs_scrape_export_q,
+            out_queue=filter_q,
+            job_manager=filter_job_manager,
+            request_fn=request_user_stats,
+            enqueue_fn=partial(enqueue_user_stats_filter, hs_filter=hs_filter),
+            num_workers=num_workers
+        )
 
         T: list[asyncio.Task[None]] = [asyncio.create_task(
             write_records(in_queue=filter_q,

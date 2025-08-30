@@ -57,7 +57,8 @@ class Worker:
             done, _ = await asyncio.wait(
                 [
                     asyncio.create_task(self.in_q.get()),
-                    asyncio.create_task(self.job_manager.await_until_finished()),
+                    asyncio.create_task(
+                        self.job_manager.await_until_finished()),
                 ],
                 return_when=asyncio.FIRST_COMPLETED,
             )
@@ -83,17 +84,18 @@ class Worker:
                 await self.in_q.put(job, force=True)
                 raise
 
+
 def create_workers(
-        req: Requests,
-        in_queue: JobQueue[IJob],
-        out_queue: Queue[IJob] | JobQueue[IJob],
-        job_manager: JobManager,
-        request_fn: Callable,
-        enqueue_fn: Callable,
-        num_workers: int
-    ):
+    req: Requests,
+    in_queue: JobQueue[IJob],
+    out_queue: Queue[IJob] | JobQueue[IJob],
+    job_manager: JobManager,
+    request_fn: Callable,
+    enqueue_fn: Callable,
+    num_workers: int
+):
     return [Worker(req=req, request_fn=request_fn, enqueue_fn=enqueue_fn, in_queue=in_queue, out_queue=out_queue, job_manager=job_manager)
-                for _ in range(num_workers)]
+            for _ in range(num_workers)]
 
 
 async def request_hs_page(req: Requests, job: HSCategoryJob):

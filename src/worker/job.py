@@ -101,6 +101,7 @@ class JobManager:
             return
         await self.finished_event.wait()
 
+
 JQ = TypeVar('JQ')
 
 
@@ -154,8 +155,10 @@ class JobQueue(Generic[JQ]):
             QueueEmpty raised if Q is empty.
         """
         if self._q.empty():
-            raise asyncio.QueueEmpty("cannot retrieve last item from an empty JobQueue")
+            raise asyncio.QueueEmpty(
+                "cannot retrieve last item from an empty JobQueue")
         return self._q._queue[-1]  # type: ignore
+
 
 async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
     """
