@@ -9,3 +9,4 @@ __pycache__
 
 # whitelist
 !requirements.txt
+!tests/data/**/**.txt
