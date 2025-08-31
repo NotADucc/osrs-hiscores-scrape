@@ -131,7 +131,7 @@ def test_read_hs_records_valid():
         file.write(str(data).encode(encoding=ENCODING))
         file.flush()
 
-        hs_records = read_hs_records(file=file.name)
+        hs_records = read_hs_records(file_path=file.name)
         assert next(hs_records) == data
 
 def test_read_hs_records_valid_with_false_data():
@@ -142,7 +142,7 @@ def test_read_hs_records_valid_with_false_data():
         file.write(b'false data')
         file.flush()
 
-        hs_records = read_hs_records(file=file.name)
+        hs_records = read_hs_records(file_path=file.name)
         assert next(hs_records) == data
         assert next(hs_records, None) == None
 
@@ -153,16 +153,16 @@ def test_read_hs_records_valid_with_false_data_inline():
         file.write(b'false data')
         file.flush()
 
-        hs_records = read_hs_records(file=file.name)
+        hs_records = read_hs_records(file_path=file.name)
         assert next(hs_records, None) == None
 
 def test_read_hs_records_valid_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        hs_records = list(read_hs_records(file=file.name))
+        hs_records = list(read_hs_records(file_path=file.name))
         assert not hs_records
 
 def test_read_hs_records_valid_no_file():
-    hs_records = list(read_hs_records(file=None)) # type: ignore
+    hs_records = list(read_hs_records(file_path=None)) # type: ignore
     assert not hs_records
 
 def test_read_filtered_result_valid():
@@ -172,7 +172,7 @@ def test_read_filtered_result_valid():
         file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
         file.flush()
 
-        player_records = read_filtered_result(file=file.name)
+        player_records = read_filtered_result(file_path=file.name)
         assert next(player_records) == record
 
 def test_read_filtered_result_valid_with_false_data():
@@ -182,7 +182,7 @@ def test_read_filtered_result_valid_with_false_data():
         file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
         file.flush()
 
-        player_records = read_filtered_result(file=file.name)
+        player_records = read_filtered_result(file_path=file.name)
         assert next(player_records) == record
         assert next(player_records, None) == None
 
@@ -194,16 +194,16 @@ def test_read_filtered_result_valid_with_false_data_inline():
         file.write(b'false data')
         file.flush()
 
-        player_records = read_filtered_result(file=file.name)
+        player_records = read_filtered_result(file_path=file.name)
         assert next(player_records, None) == None
 
 def test_read_filtered_result_valid_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        hs_records = list(read_filtered_result(file=file.name))
+        hs_records = list(read_filtered_result(file_path=file.name))
         assert not hs_records
 
 def test_read_filtered_result_valid_no_file():
-    hs_records = list(read_filtered_result(file=None)) # type: ignore
+    hs_records = list(read_filtered_result(file_path=None)) # type: ignore
     assert not hs_records
 
 
@@ -220,5 +220,5 @@ def test_build_temp_file_valid():
     account_type = HSAccountTypes.regular
     hs_type = HSType.sol
 
-    temp_file = build_temp_file(out_file=file_name, account_type=account_type, hs_type=hs_type)
+    temp_file = build_temp_file(file_path=file_name, account_type=account_type, hs_type=hs_type)
     assert temp_file == "test.regular.sol.temp"

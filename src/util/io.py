@@ -49,12 +49,12 @@ def read_proxies(proxy_file: str | None) -> list[str]:
     return proxies
 
 
-def read_hs_records(file: str) -> Iterator[CategoryRecord]:
+def read_hs_records(file_path: str) -> Iterator[CategoryRecord]:
     """ Reads a list of category records from a file, each line in the file is treated as a separate record. """
-    if not file or not os.path.isfile(file):
+    if not file_path or not os.path.isfile(file_path):
         return iter([])
 
-    with open(file, "r", encoding=ENCODING) as f:
+    with open(file_path, "r", encoding=ENCODING) as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -64,16 +64,16 @@ def read_hs_records(file: str) -> Iterator[CategoryRecord]:
                 data = json_wrapper.from_json(line)
                 yield CategoryRecord(**data)
             except Exception as e:
-                logger.warning(f"Skipping invalid record in {file}: {e}")
+                logger.warning(f"Skipping invalid record in {file_path}: {e}")
                 continue
 
 
-def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
+def read_filtered_result(file_path: str) -> Iterator[PlayerRecord]:
     """ Reads a list of filtered records from a file, each line in the file is treated as a separate record. """
-    if not file or not os.path.isfile(file):
+    if not file_path or not os.path.isfile(file_path):
         return iter([])
 
-    with open(file, "r", encoding=ENCODING) as f:
+    with open(file_path, "r", encoding=ENCODING) as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -83,7 +83,7 @@ def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
                 data = json_wrapper.from_json(line)["record"]
                 yield PlayerRecord.from_dict(data)
             except Exception as e:
-                logger.warning(f"Skipping invalid record in {file}: {e}")
+                logger.warning(f"Skipping invalid record in {file_path}: {e}")
                 continue
 
 
@@ -92,7 +92,7 @@ def filtered_result_formatter(job: HSLookupJob) -> str:
     return json_wrapper.to_json({"rank": job.priority, "record": job.result.to_dict()})
 
 
-def build_temp_file(out_file: str, account_type: HSAccountTypes, hs_type: HSType) -> str:
+def build_temp_file(file_path: str, account_type: HSAccountTypes, hs_type: HSType) -> str:
     """
     Constructs a temporary file name based on the original file and account/type identifiers.
 
@@ -100,5 +100,5 @@ def build_temp_file(out_file: str, account_type: HSAccountTypes, hs_type: HSType
     extension) with the string representations of `account_type`, `hs_type`, and the suffix
     "temp", separated by periods.
     """
-    base, _ = os.path.splitext(out_file)
+    base, _ = os.path.splitext(file_path)
     return ".".join([base, str(account_type), str(hs_type), "temp"])
