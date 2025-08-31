@@ -2,11 +2,13 @@ import asyncio
 import datetime
 import tempfile
 
+from isort import file
 import pytest
 
-from src.request.common import HSAccountTypes
+from src.request.common import HSAccountTypes, HSType
 from src.request.results import CategoryRecord, PlayerRecord
-from src.util.io import filtered_result_formatter, read_filtered_result, read_hs_records, read_proxies, write_record, write_records
+from src.util import json_wrapper
+from src.util.io import build_temp_file, filtered_result_formatter, read_filtered_result, read_hs_records, read_proxies, write_record, write_records
 from src.worker.job import HSLookupJob
 
 
@@ -164,7 +166,7 @@ def test_read_hs_records_valid_no_file():
     assert not hs_records
 
 def test_read_filtered_result_valid():
-    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime.now(datetime.timezone.utc))
+    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username, account_type=HSAccountTypes.regular, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
@@ -174,7 +176,7 @@ def test_read_filtered_result_valid():
         assert next(player_records) == record
 
 def test_read_filtered_result_valid_with_false_data():
-    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime.now(datetime.timezone.utc))
+    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username, account_type=HSAccountTypes.regular, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
@@ -185,7 +187,7 @@ def test_read_filtered_result_valid_with_false_data():
         assert next(player_records, None) == None
 
 def test_read_filtered_result_valid_with_false_data_inline():
-    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime.now(datetime.timezone.utc))
+    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username, account_type=HSAccountTypes.regular, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
@@ -203,3 +205,20 @@ def test_read_filtered_result_valid_empty():
 def test_read_filtered_result_valid_no_file():
     hs_records = list(read_filtered_result(file=None)) # type: ignore
     assert not hs_records
+
+
+def test_filtered_result_formatter_valid():
+    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
+    job = HSLookupJob(priority=-1, username=record.username, account_type=HSAccountTypes.regular, result=record)
+    
+    json = filtered_result_formatter(job)
+    assert json == json_wrapper.to_json({"rank": job.priority, "record": job.result.to_dict()})
+
+
+def test_build_temp_file_valid():
+    file_name = "test.txt"
+    account_type = HSAccountTypes.regular
+    hs_type = HSType.sol
+
+    temp_file = build_temp_file(out_file=file_name, account_type=account_type, hs_type=hs_type)
+    assert temp_file == "test.regular.sol.temp"
