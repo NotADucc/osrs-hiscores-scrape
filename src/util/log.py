@@ -112,8 +112,8 @@ def finished_script(func: T) -> T:
             logger = get_logger()
             logger.debug(f"log type count: {logger.get_counts()}")
             logger.info("done")
-        return result 
-    
+        return result
+
     @functools.wraps(func)
     async def async_wrapper(*args, **kwargs):
         return await message_wrapper(*args, **kwargs)
