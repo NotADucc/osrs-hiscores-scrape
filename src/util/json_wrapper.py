@@ -12,5 +12,3 @@ def to_json(data: Any, **kwargs) -> str:
 def from_json(json_string: str, **kwargs) -> Any:
     """ Deserialize a JSON-formatted string into an object. """
     return _json_lib.loads(json_string, **kwargs)
-
-
