@@ -14,7 +14,7 @@ def get_comparison(f: Callable[[Any], bool]) -> str:
         visited.add(id(func))
 
         for instr in dis.get_instructions(func):
-            if instr.opname == "COMPARE_OP" and instr.argval in {"==", "<", "<=", ">", ">="}:
+            if instr.opname == "COMPARE_OP" and instr.argval in {"==", "!=", "<", "<=", ">", ">="}:
                 return instr.argval
 
         co = getattr(func, "__code__", None)
