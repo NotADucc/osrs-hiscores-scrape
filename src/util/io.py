@@ -8,6 +8,7 @@ from src.request.common import HSAccountTypes, HSType
 from src.request.results import CategoryRecord, PlayerRecord
 from src.util import json_wrapper
 from src.util.log import get_logger
+from src.worker.job import HSLookupJob
 
 logger = get_logger()
 ENCODING = "utf-8"
@@ -59,8 +60,8 @@ def read_hs_records(file: str) -> Iterator[CategoryRecord]:
             if not line:
                 continue
 
-            data = json_wrapper.from_json(line)
             try:
+                data = json_wrapper.from_json(line)
                 yield CategoryRecord(**data)
             except Exception as e:
                 logger.warning(f"Skipping invalid record in {file}: {e}")
@@ -78,15 +79,15 @@ def read_filtered_result(file: str) -> Iterator[PlayerRecord]:
             if not line:
                 continue
 
-            data = json_wrapper.from_json(line)["record"]
             try:
+                data = json_wrapper.from_json(line)["record"]
                 yield PlayerRecord.from_dict(data)
             except Exception as e:
                 logger.warning(f"Skipping invalid record in {file}: {e}")
                 continue
 
 
-def filtered_result_formatter(job) -> str:
+def filtered_result_formatter(job: HSLookupJob) -> str:
     """ Function for formatting `HSLookupJob` job result. """
     return json_wrapper.to_json({"rank": job.priority, "record": job.result.to_dict()})
 
