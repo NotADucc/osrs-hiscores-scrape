@@ -31,6 +31,35 @@ async def test_write_records_valid():
                 assert next(read_in_lines).decode(encoding=ENCODING).strip() == line
 
 
+@pytest.mark.asyncio
+async def test_write_records_valid_multiple_writes():
+    data = ["data", None, "data"]
+    double_data = [*data, *data]
+
+    fake_q = asyncio.Queue()
+    for rec in double_data:
+        await fake_q.put(rec)
+
+    with tempfile.NamedTemporaryFile(delete=False) as out_file:
+        await write_records(
+            in_queue=fake_q,
+            out_file=out_file.name, 
+            format=lambda res: res, 
+            total=fake_q.qsize() // 2
+            )
+        
+        await write_records(
+            in_queue=fake_q,
+            out_file=out_file.name, 
+            format=lambda res: res, 
+            total=fake_q.qsize()
+            )
+
+        read_in_lines = iter(out_file.readlines())
+        for line in double_data:
+            if line:
+                assert next(read_in_lines).decode(encoding=ENCODING).strip() == line
+
 def test_write_record_valid():
     data = "data"
 
