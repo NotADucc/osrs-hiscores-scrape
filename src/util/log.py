@@ -1,3 +1,4 @@
+import asyncio
 import functools
 import inspect
 import logging
@@ -102,33 +103,24 @@ def finished_script(func: T) -> T:
     """Decorator that logs when a (async) or (sync) method has finished,
     also displays the count of logs per type.
     """
+    async def message_wrapper(*args, **kwargs):
+        try:
+            result = await func(*args, **kwargs)
+        except KeyboardInterrupt:
+            raise
+        finally:
+            logger = get_logger()
+            logger.debug(f"log type count: {logger.get_counts()}")
+            logger.info("done")
+        return result
 
-    if inspect.iscoroutinefunction(func):
-        @functools.wraps(func)
-        async def async_wrapper(*args, **kwargs):
-            try:
-                result = await func(*args, **kwargs)
-            except KeyboardInterrupt:
-                raise
-            finally:
-                get_logger().debug(
-                    f"log type count: {get_logger().get_counts()}")
-                get_logger().info("done")
-            return result
+    @functools.wraps(func)
+    async def async_wrapper(*args, **kwargs):
+        return await message_wrapper(*args, **kwargs)
 
-        return cast(T, async_wrapper)
+    @functools.wraps(func)
+    def sync_wrapper(*args, **kwargs):
+        return asyncio.run(message_wrapper(*args, **kwargs))
 
-    else:
-        @functools.wraps(func)
-        def sync_wrapper(*args, **kwargs):
-            try:
-                result = func(*args, **kwargs)
-            except KeyboardInterrupt:
-                raise
-            finally:
-                get_logger().debug(
-                    f"log type count: {get_logger().get_counts()}")
-                get_logger().info("done")
-            return result
-
-        return cast(T, sync_wrapper)
+    return cast(T, async_wrapper) if inspect.iscoroutinefunction(func) \
+        else cast(T, sync_wrapper)
