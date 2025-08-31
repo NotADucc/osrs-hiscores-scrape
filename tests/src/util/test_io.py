@@ -142,6 +142,16 @@ def test_read_hs_records_valid_with_false_data():
         assert next(hs_records) == data
         assert next(hs_records, None) == None
 
+def test_read_hs_records_valid_with_false_data_inline():
+    data = CategoryRecord(rank=-1, score=-1, username="test")
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write(str(data).encode(encoding=ENCODING))
+        file.write(b'false data')
+        file.flush()
+
+        hs_records = read_hs_records(file=file.name)
+        assert next(hs_records, None) == None
+
 def test_read_hs_records_valid_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
         hs_records = list(read_hs_records(file=file.name))
