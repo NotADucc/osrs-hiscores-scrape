@@ -1,7 +1,10 @@
-name: format py code
+name: run py jobs
 
 on:
   push:
+    paths:
+      - '**.py'
+  pull_request:
     paths:
       - '**.py'
     branches: [ "main" ]
@@ -10,8 +13,9 @@ permissions:
   contents: write 
 
 jobs:
-  format:
+  format-job:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
 
     steps:
       - name: Checkout repository
@@ -47,3 +51,27 @@ jobs:
             git add .
             git commit -am "refactor: ran autopep, isort and autoflake" || true
             git push || git pull --rebase && git push
+
+
+  run-tests-job:
+    runs-on: [ubuntu-latest, windows-latest]
+    if: always()
+    needs:
+      - format-job
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: run tests
+        run: pytest
