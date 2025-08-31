@@ -4,8 +4,10 @@ import tempfile
 
 import pytest
 
+from src.request.common import HSAccountTypes
 from src.request.results import CategoryRecord, PlayerRecord
-from src.util.io import read_hs_records, read_proxies, write_record, write_records
+from src.util.io import filtered_result_formatter, read_filtered_result, read_hs_records, read_proxies, write_record, write_records
+from src.worker.job import HSLookupJob
 
 
 ENCODING = "utf-8"
@@ -161,3 +163,43 @@ def test_read_hs_records_valid_no_file():
     hs_records = list(read_hs_records(file=None)) # type: ignore
     assert not hs_records
 
+def test_read_filtered_result_valid():
+    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime.now(datetime.timezone.utc))
+    job = HSLookupJob(priority=-1, username=record.username, account_type=HSAccountTypes.regular, result=record)
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
+        file.flush()
+
+        player_records = read_filtered_result(file=file.name)
+        assert next(player_records) == record
+
+def test_read_filtered_result_valid_with_false_data():
+    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime.now(datetime.timezone.utc))
+    job = HSLookupJob(priority=-1, username=record.username, account_type=HSAccountTypes.regular, result=record)
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
+        file.flush()
+
+        player_records = read_filtered_result(file=file.name)
+        assert next(player_records) == record
+        assert next(player_records, None) == None
+
+def test_read_filtered_result_valid_with_false_data_inline():
+    record = PlayerRecord(username="test", csv=["-1,-1,-1"], ts=datetime.datetime.now(datetime.timezone.utc))
+    job = HSLookupJob(priority=-1, username=record.username, account_type=HSAccountTypes.regular, result=record)
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
+        file.write(b'false data')
+        file.flush()
+
+        player_records = read_filtered_result(file=file.name)
+        assert next(player_records, None) == None
+
+def test_read_filtered_result_valid_empty():
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        hs_records = list(read_filtered_result(file=file.name))
+        assert not hs_records
+
+def test_read_filtered_result_valid_no_file():
+    hs_records = list(read_filtered_result(file=None)) # type: ignore
+    assert not hs_records
