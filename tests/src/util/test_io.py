@@ -1,9 +1,11 @@
 import asyncio
+import datetime
 import tempfile
 
 import pytest
 
-from src.util.io import read_proxies, write_record, write_records
+from src.request.results import CategoryRecord, PlayerRecord
+from src.util.io import read_hs_records, read_proxies, write_record, write_records
 
 
 ENCODING = "utf-8"
@@ -106,14 +108,35 @@ def test_read_proxies_valid():
 def test_read_proxies_valid_empty():
     with tempfile.NamedTemporaryFile(delete=False) as proxy_file:
         proxy_files = read_proxies(proxy_file=proxy_file.name)
-        assert len(proxy_files) == 0
+        assert not proxy_files
 
 
 def test_read_proxies_valid_no_file():
     proxy_files = read_proxies(proxy_file=None)
-    assert len(proxy_files) == 0
+    assert not proxy_files
 
 
 def test_read_proxies_valid_false_file():
     proxy_files = read_proxies(proxy_file="false_file")
-    assert len(proxy_files) == 0
+    assert not proxy_files
+
+
+def test_read_hs_records_valid():
+    data = CategoryRecord(rank=-1, score=-1, username="test")
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        file.write(str(data).encode(encoding=ENCODING))
+        file.flush()
+
+        hs_records = read_hs_records(file=file.name)
+        assert next(hs_records) == data
+
+
+def test_read_hs_records_valid_empty():
+    with tempfile.NamedTemporaryFile(delete=False) as file:
+        hs_records = list(read_hs_records(file=file.name))
+        assert not hs_records
+
+def test_read_hs_records_valid_no_file():
+    hs_records = list(read_hs_records(file=None)) # type: ignore
+    assert not hs_records
+
