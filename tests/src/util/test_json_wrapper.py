@@ -1,5 +1,6 @@
-import pytest
 import json
+
+import pytest
 
 from src.util.json_wrapper import from_json, to_json
 
@@ -40,7 +41,8 @@ def test_to_json_with_kwargs():
 
 def test_from_json_with_kwargs():
     json_str = '{"a": 1, "b": 2}'
-    result = from_json(json_str, object_hook=lambda d: {k.upper(): v for k, v in d.items()})
+    result = from_json(json_str, object_hook=lambda d: {
+                       k.upper(): v for k, v in d.items()})
     assert result == {"A": 1, "B": 2}
 
 
