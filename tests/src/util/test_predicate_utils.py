@@ -47,16 +47,16 @@ def test_get_comparison_valid_wrapped_class_and_function():
     for sign, predicate in PREDICATES.items():
         wrapper = ValidWrapper(pred=predicate)
 
-        def pred(values): return any(wrapper.p(v) for v in values)
-        res = get_comparison(pred)
+        def pred1(values): return any(wrapper.p(v) for v in values)
+        res = get_comparison(pred1)
         assert res == sign
 
-        def pred(values): return any(wrapper.pred(v) for v in values)
-        res = get_comparison(pred)
+        def pred2(values): return any(wrapper.pred(v) for v in values)
+        res = get_comparison(pred2)
         assert res == sign
 
-        def pred(values): return any(wrapper.predicate(v) for v in values)
-        res = get_comparison(pred)
+        def pred3(values): return any(wrapper.predicate(v) for v in values)
+        res = get_comparison(pred3)
         assert res == sign
 
 
