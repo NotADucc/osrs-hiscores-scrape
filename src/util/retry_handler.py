@@ -36,20 +36,22 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
             raise
         except Exception as err:
             details = getattr(err, "details", None)
-            base_message = f"{err}" + (f" | {details}" if details else "") + f" | {kwargs}"
-            logger.error(f"Attempt {retries} err: {base_message}", exc_info=exc_info)
+            base_message = f"{err}" + \
+                (f" | {details}" if details else "") + f" | {kwargs}"
+            logger.error(
+                f"Attempt {retries} err: {base_message}", exc_info=exc_info)
             potential_error = base_message
         retries += 1
         await asyncio.sleep(retries * initial_delay)
-    
-    if inspect.ismethod(callback): 
+
+    if inspect.ismethod(callback):
         cls_name = callback.__self__.__class__.__name__
         func_name = callback.__func__.__name__
         name = f"{cls_name}.{func_name}"
-    else:  
+    else:
         name = getattr(callback, "__qualname__", str(callback))
 
-    message = f"{potential_error},{name}" 
+    message = f"{potential_error},{name}"
 
     with open(err_file, "a") as f:
         f.write(f'{message}\n')
