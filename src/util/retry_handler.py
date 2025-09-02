@@ -10,7 +10,7 @@ logger = get_logger()
 T = TypeVar("T")
 
 
-async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10, initial_delay: int = 5, out_file: str = "error_log", exc_info: bool = False, **kwargs) -> T:
+async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10, initial_delay: int = 5, err_file: str = "error_log.err", exc_info: bool = False, **kwargs) -> T:
     """
     Retry a callable with exponential backoff on failure.
 
@@ -18,6 +18,10 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
         NotFound: If the callable raises this exception.
         RetryFailed: If all retry attempts fail.
     """
+    if max_retries <= 0:
+        max_retries = 1
+
+    potential_error = None
     retries = 1
     while retries <= max_retries:
         try:
@@ -26,19 +30,28 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
                 result = await result
             return cast(T, result)
         except NotFound as err:
-            logger.error(f"{err} | {err.details}", exc_info=exc_info)
+            base_message = f"{err} | {err.details}"
+            logger.error(base_message, exc_info=exc_info)
+            potential_error = base_message
             raise
         except Exception as err:
             details = getattr(err, "details", None)
-            warning_mess = f"Attempt {retries} err: {err}" + \
-                (f" | {details}" if details else "")
-            logger.error(f"{warning_mess} | {kwargs}", exc_info=exc_info)
+            base_message = f"{err}" + (f" | {details}" if details else "") + f" | {kwargs}"
+            logger.error(f"Attempt {retries} err: {base_message}", exc_info=exc_info)
+            potential_error = base_message
         retries += 1
         await asyncio.sleep(retries * initial_delay)
+    
+    if inspect.ismethod(callback): 
+        cls_name = callback.__self__.__class__.__name__
+        func_name = callback.__func__.__name__
+        name = f"{cls_name}.{func_name}"
+    else:  
+        name = getattr(callback, "__qualname__", str(callback))
 
-    message = f"{','.join(str(v) for v in kwargs.values())},{callback}"
+    message = f"{potential_error},{name}" 
 
-    with open(f"{out_file}.err", "a") as f:
+    with open(err_file, "a") as f:
         f.write(f'{message}\n')
 
     logger.error(f"Max retries reached for '{message}'.")
