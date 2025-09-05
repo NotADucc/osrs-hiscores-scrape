@@ -168,7 +168,8 @@ class Requests():
         start_rank = await self.get_first_rank(hs_request=GetHighscorePageRequest(page_num=start_page, hs_type=input.filter_entry.hstype, account_type=input.account_type))
         end_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=end_page, hs_type=input.filter_entry.hstype, account_type=input.account_type))
 
-        logger.debug(f"Page range found: {start_page}-{end_page} ({start_rank}-{end_rank})")
+        logger.debug(
+            f"Page range found: {start_page}-{end_page} ({start_rank}-{end_rank})")
         return GetFilteredPageRangeResult(start_page=start_page, start_rank=start_rank, end_page=end_page, end_rank=end_rank)
 
     async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:

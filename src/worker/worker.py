@@ -2,8 +2,8 @@ import asyncio
 from asyncio import CancelledError, Queue
 from typing import Callable
 
-from src.request.common import HSType
-from src.request.dto import GetHighscorePageRequest, GetPlayerRequest, HSFilterEntry
+from src.request.dto import (GetHighscorePageRequest, GetPlayerRequest,
+                             HSFilterEntry)
 from src.request.errors import NotFound, RetryFailed
 from src.request.request import Requests
 from src.request.results import CategoryInfo
