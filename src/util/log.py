@@ -111,8 +111,8 @@ def finished_script(func: T) -> T:
         except KeyboardInterrupt:
             raise
         finally:
-            logger.info("finished script")
             logger.debug(f"log type count: {logger.get_counts()}")
+            logger.info("finished script")
         return result
 
     @functools.wraps(func)
