@@ -69,6 +69,9 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
 
         hs_scrape_joblist = [
             x for x in hs_scrape_joblist if start_job_prio <= x.priority <= end_job_prio]
+
+        logger.debug(
+            f"assumption made based on filter, range {start_job_prio}-{end_job_prio}")
     else:
         hs_scrape_joblist = await get_hs_page_job(req=req,
                                                   start_rank=start_rank,
