@@ -85,7 +85,7 @@ class Requests():
                 r = middle - 1
 
         last_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=res, hs_type=input.hs_type, account_type=input.account_type))
-        logger.info(f"Max page found: {res}")
+        logger.debug(f"Max page found: {res}")
         return GetMaxHighscorePageResult(page_nr=res, rank_nr=last_rank)
 
     async def get_filtered_page_range(self, input: GetFilteredPageRangeRequest) -> GetFilteredPageRangeResult:
@@ -105,7 +105,7 @@ class Requests():
                 records = await retry(
                     self.get_hs_page,
                     hs_request=GetHighscorePageRequest(
-                        page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
+                        page_num=middle, hs_type=input.filter_entry.hstype, account_type=input.account_type)
                 )
                 expected_first_rank = (middle - 1) * HS_PAGE_SIZE + 1
 
@@ -116,7 +116,7 @@ class Requests():
                     continue
 
                 scores = _extract_record_scores(
-                    records=records, hs_type=input.hs_type)
+                    records=records, hs_type=input.filter_entry.hstype)
 
                 if predicate(scores):
                     res = middle
@@ -132,9 +132,9 @@ class Requests():
 
             return res
 
-        sign = get_comparison(input.predicate)
-        predicate: Callable = lambda values: any(
-            input.predicate(v) for v in values)
+        pred = input.filter_entry.predicate
+        sign = get_comparison(pred)
+        predicate: Callable = lambda values: any(pred(v) for v in values)
 
         if sign in ("<", "<="):
             start_page = await binary_search_hs_page(
@@ -144,7 +144,7 @@ class Requests():
             end_page = (await self.get_max_page(
                 input=GetMaxHighscorePageRequest(
                     account_type=input.account_type,
-                    hs_type=input.hs_type
+                    hs_type=input.filter_entry.hstype
                 )
             )).page_nr
         elif sign in ("=="):
@@ -165,11 +165,10 @@ class Requests():
         else:
             raise ValueError(f"Unsupported operator: '{sign}'")
 
-        start_rank = await self.get_first_rank(hs_request=GetHighscorePageRequest(page_num=start_page, hs_type=input.hs_type, account_type=input.account_type))
-        end_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=end_page, hs_type=input.hs_type, account_type=input.account_type))
+        start_rank = await self.get_first_rank(hs_request=GetHighscorePageRequest(page_num=start_page, hs_type=input.filter_entry.hstype, account_type=input.account_type))
+        end_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=end_page, hs_type=input.filter_entry.hstype, account_type=input.account_type))
 
-        logger.info(
-            f"Page range found: {start_page}-{end_page} ({start_rank}-{end_rank})")
+        logger.debug(f"Page range found: {start_page}-{end_page} ({start_rank}-{end_rank})")
         return GetFilteredPageRangeResult(start_page=start_page, start_rank=start_rank, end_page=end_page, end_rank=end_rank)
 
     async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:

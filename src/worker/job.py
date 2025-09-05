@@ -253,7 +253,7 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, inp
                           page_num - 1) * HS_PAGE_SIZE + 1,
                       end_rank=end_rank if page_num == end_page else (
                           page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,
-                      account_type=input.account_type, hs_type=input.hs_type,
+                      account_type=input.account_type, hs_type=input.filter_entry.hstype,
                       start_idx=(
                           start_rank - 1) % HS_PAGE_SIZE if page_num == start_page else 0,
                       end_idx=(end_rank - 1) % HS_PAGE_SIZE +

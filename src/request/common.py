@@ -5,7 +5,6 @@ HS_PAGE_SIZE: int = 25
 MAX_CATEGORY_SIZE: int = 80_000
 DEFAULT_WORKER_SIZE: int = 15
 
-
 class HSAccountTypes(Enum):
     """
     Enum of OSRS hiscore account types, each type maps to the corresponding hiscore endpoint used to retrieve stats.

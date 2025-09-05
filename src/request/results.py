@@ -1,8 +1,9 @@
 from datetime import datetime
 from functools import total_ordering
-from typing import Any, Callable, List
+from typing import Any, List
 
 from src.request.common import HSType
+from src.request.dto import HSFilterEntry
 from src.stats.common import calc_cmb
 from src.util import json_wrapper
 
@@ -76,13 +77,13 @@ class PlayerRecord:
 
         return val
 
-    def lacks_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:
+    def lacks_requirements(self, requirements: list[HSFilterEntry]) -> bool:
         """ Check if the player fails any of the given requirements. """
         return not self.meets_requirements(requirements=requirements)
 
-    def meets_requirements(self, requirements: dict[HSType, Callable[[int | float], bool]]) -> bool:
+    def meets_requirements(self, requirements: list[HSFilterEntry]) -> bool:
         """ Check if the player satisfies all given requirements. """
-        return all(pred(self.get_stat(key)) for key, pred in requirements.items())
+        return all(entry.predicate(self.get_stat(entry.hstype)) for entry in requirements)
 
     def __lt__(self, other) -> bool:
         if self.total_level < other.total_level:

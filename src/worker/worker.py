@@ -3,7 +3,7 @@ from asyncio import CancelledError, Queue
 from typing import Callable
 
 from src.request.common import HSType
-from src.request.dto import GetHighscorePageRequest, GetPlayerRequest
+from src.request.dto import GetHighscorePageRequest, GetPlayerRequest, HSFilterEntry
 from src.request.errors import NotFound, RetryFailed
 from src.request.request import Requests
 from src.request.results import CategoryInfo
@@ -134,7 +134,7 @@ async def enqueue_page_usernames(queue: JobQueue | Queue, job: HSCategoryJob):
         await queue.put(outjob)
 
 
-async def enqueue_user_stats_filter(queue: JobQueue[IJob] | Queue[IJob], job: HSLookupJob, hs_filter: dict[HSType, Callable[[int | float], bool]]):
+async def enqueue_user_stats_filter(queue: JobQueue[IJob] | Queue[IJob], job: HSLookupJob, hs_filter: list[HSFilterEntry]):
     """
     Enqueue a HSLookupJob if its result meets specified filter requirements;
     otherwise enqueue None to indicate the job does not match.

@@ -9,7 +9,7 @@ import aiohttp
 
 from src.request.common import (DEFAULT_WORKER_SIZE, MAX_CATEGORY_SIZE,
                                 HSAccountTypes, HSType)
-from src.request.dto import GetFilteredPageRangeRequest
+from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
 from src.request.request import Requests
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
@@ -30,7 +30,7 @@ N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
 
-async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
+async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
     """ Prepares the scraping job list and export queue based if theres an in-file or not. """
     potential_records = map_category_records_to_lookup_jobs(
         account_type=account_type, input=list(read_hs_records(in_file)))
@@ -45,27 +45,25 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
             await hs_scrape_export_q.put(record)
         return [], len(potential_records), hs_scrape_export_q
 
-    filtered = {k: v for k, v in hs_filter.items() if k == hs_type}
+    filtered_entries = [entry for entry in hs_filter if entry.hstype == hs_type]
 
-    if filtered:
+    if filtered_entries:
         hs_scrape_joblist, start_job_prio, end_job_prio = [], 1, MAX_CATEGORY_SIZE
 
-        for pred in filtered.values():
+        for entry in filtered_entries:
             temp_joblist = await get_hs_filtered_job(req=req,
                                                      start_rank=start_rank,
                                                      end_rank=-1,
                                                      input=GetFilteredPageRangeRequest(
-                                                         predicate=pred,
-                                                         hs_type=hs_type,
+                                                         filter_entry=entry,
                                                          account_type=account_type)
                                                      )
 
             if not hs_scrape_joblist:
                 hs_scrape_joblist = temp_joblist
-            else:
-                start_job_prio = start_job_prio if start_job_prio > temp_joblist[
-                    0].priority else temp_joblist[0].priority
-                end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
+
+            start_job_prio = start_job_prio if start_job_prio > temp_joblist[0].priority else temp_joblist[0].priority
+            end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
 
         hs_scrape_joblist = [
             x for x in hs_scrape_joblist if start_job_prio <= x.priority <= end_job_prio]
@@ -85,7 +83,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
 
 @finished_script
 @benchmark
-async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]], num_workers: int):
+async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry], num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
@@ -157,9 +155,9 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             await asyncio.gather(*T, return_exceptions=True)
 
 if __name__ == '__main__':
-    def parse_key_value_pairs(arg) -> dict[HSType, Callable[[int | float], bool]]:
+    def parse_key_value_pairs(arg) -> list[HSFilterEntry]:
         kv_pairs = arg.split(',')
-        result = {}
+        result = []
 
         for pair in kv_pairs:
             match = re.match(r'\s*(.*?)\s*(<=|>=|=|<|>)\s*(.*?)\s*$', pair)
@@ -189,7 +187,7 @@ if __name__ == '__main__':
             else:
                 raise ValueError(f"Unsupported operator: '{op}'")
 
-            result[key] = func
+            result.append(HSFilterEntry(hstype=key, predicate=func))
 
         return result
 
