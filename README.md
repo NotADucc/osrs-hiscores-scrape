@@ -108,4 +108,4 @@ py .\scripts\max_page.py --account-type hc --hs-type zuk
 
 
 # Logging
-A logger (and progressbar) is used to report progress. A "done" message is logged once processing is complete.
+Several log messages and progressbar is used to report progress.

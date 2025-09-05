@@ -104,14 +104,15 @@ def finished_script(func: T) -> T:
     also displays the count of logs per type.
     """
     async def message_wrapper(*args, **kwargs):
+        logger = get_logger()
         try:
+            logger.info("start script")
             result = await func(*args, **kwargs)
         except KeyboardInterrupt:
             raise
         finally:
-            logger = get_logger()
+            logger.info("finished script")
             logger.debug(f"log type count: {logger.get_counts()}")
-            logger.info("done")
         return result
 
     @functools.wraps(func)
