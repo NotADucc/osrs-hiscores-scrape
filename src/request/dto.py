@@ -10,6 +10,7 @@ class HSFilterEntry:
     hstype: HSType
     predicate: Callable[[int | float], bool]
 
+
 @dataclass
 class GetMaxHighscorePageRequest:
     """ Request object for fetching the maximum hiscore page. """

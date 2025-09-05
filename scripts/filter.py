@@ -3,7 +3,6 @@ import asyncio
 import re
 import sys
 from functools import partial
-from typing import Callable
 
 import aiohttp
 
@@ -45,7 +44,8 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
             await hs_scrape_export_q.put(record)
         return [], len(potential_records), hs_scrape_export_q
 
-    filtered_entries = [entry for entry in hs_filter if entry.hstype == hs_type]
+    filtered_entries = [
+        entry for entry in hs_filter if entry.hstype == hs_type]
 
     if filtered_entries:
         hs_scrape_joblist, start_job_prio, end_job_prio = [], 1, MAX_CATEGORY_SIZE
@@ -62,7 +62,8 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
             if not hs_scrape_joblist:
                 hs_scrape_joblist = temp_joblist
 
-            start_job_prio = start_job_prio if start_job_prio > temp_joblist[0].priority else temp_joblist[0].priority
+            start_job_prio = start_job_prio if start_job_prio > temp_joblist[
+                0].priority else temp_joblist[0].priority
             end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
 
         hs_scrape_joblist = [
