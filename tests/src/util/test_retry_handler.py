@@ -32,7 +32,7 @@ async def test_retry_valid_after_retries():
 
 
 @pytest.mark.asyncio
-async def test_retry_invalid_max_retries_exhausted(tmp_path):
+async def test_retry_invalid_max_retries_exhausted():
     async def always_fail():
         raise Exception("nope")
 
