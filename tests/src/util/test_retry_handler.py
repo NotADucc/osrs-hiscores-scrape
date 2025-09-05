@@ -3,9 +3,8 @@ import tempfile
 import pytest
 
 from src.request.errors import NotFound, RetryFailed
+from src.util.io import ENCODING
 from src.util.retry_handler import retry
-
-ENCODING = "utf-8"
 
 
 @pytest.mark.asyncio

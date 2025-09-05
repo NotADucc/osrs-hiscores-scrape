@@ -7,12 +7,10 @@ import pytest
 from src.request.common import HSAccountTypes, HSType
 from src.request.results import CategoryRecord, PlayerRecord
 from src.util import json_wrapper
-from src.util.io import (build_temp_file, filtered_result_formatter,
+from src.util.io import (ENCODING, build_temp_file, filtered_result_formatter,
                          read_filtered_result, read_hs_records, read_proxies,
                          write_record, write_records)
 from src.worker.job import HSLookupJob
-
-ENCODING = "utf-8"
 
 
 @pytest.mark.asyncio
