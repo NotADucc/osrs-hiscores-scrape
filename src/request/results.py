@@ -4,7 +4,7 @@ from typing import Any, List
 
 from src.request.common import HSType
 from src.request.dto import HSFilterEntry
-from src.stats.common import calc_cmb
+from src.stats.common import calc_combat_level
 from src.util import json_wrapper
 
 
@@ -53,7 +53,7 @@ class PlayerRecord:
                 # self.misc[mapper_val.name] = { 'rank': splitted[0], 'kc': splitted[1] }
                 self.misc[hs_type.name] = splitted[1]
 
-        cmb_level = calc_cmb(
+        cmb_level = calc_combat_level(
             attack=self.skills[HSType.attack.name], 
             defence=self.skills[HSType.defence.name],
             strength=self.skills[HSType.strength.name], 
@@ -62,7 +62,7 @@ class PlayerRecord:
             prayer=self.skills[HSType.prayer.name], 
             magic=self.skills[HSType.magic.name]
         )
-        
+
         self.combat_lvl = cmb_level
 
     def get_stat(self, hs_type: HSType) -> int | float:

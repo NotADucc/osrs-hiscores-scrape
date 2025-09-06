@@ -1,6 +1,6 @@
 
 
-def calc_cmb(attack: int, defence: int, strength: int, hitpoints: int, ranged: int, prayer: int, magic: int) -> float:
+def calc_combat_level(attack: int, defence: int, strength: int, hitpoints: int, ranged: int, prayer: int, magic: int) -> float:
     """ Calculate the combat level based on osrs stats. """
 
     _base = 0.25 * (defence + hitpoints + prayer // 2)
@@ -14,7 +14,7 @@ def calc_cmb(attack: int, defence: int, strength: int, hitpoints: int, ranged: i
     return _base + _max
 
 
-def calc_lvl(experience: int, show_virtual_lvl: bool = True) -> int:
+def calc_skill_level(experience: int, show_virtual_lvl: bool = True) -> int:
     """ Determine the level based on total experience points. """
 
     xp_table = {

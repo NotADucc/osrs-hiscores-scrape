@@ -15,7 +15,7 @@ from src.request.dto import (GetFilteredPageRangeRequest,
 from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
                                 RequestFailed, ServerBusy)
 from src.request.results import CategoryRecord, PlayerRecord
-from src.stats.common import calc_lvl
+from src.stats.common import calc_skill_level
 from src.util.log import get_logger
 from src.util.predicate_utils import get_comparison
 from src.util.retry_handler import retry
@@ -303,7 +303,7 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
 
 def _extract_record_scores(records: list[CategoryRecord], hs_type: HSType) -> list[int]:
     return [
-        calc_lvl(record.score, show_virtual_lvl=False) if hs_type.is_skill(
+        calc_skill_level(record.score, show_virtual_lvl=False) if hs_type.is_skill(
         ) else record.score
         for record in records
     ]
