@@ -14,7 +14,7 @@ from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import (filtered_result_formatter, read_filtered_result,
                          read_hs_records, read_proxies, write_records)
-from src.util.log import log_execution, get_logger
+from src.util.log import get_logger, log_execution
 from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                             JobManager, JobQueue, get_hs_filtered_job,
                             get_hs_page_job)

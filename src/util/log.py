@@ -92,7 +92,8 @@ def setup_custom_logger(formatter: logging.Formatter) -> LoggerWrapper:
 def get_logger() -> LoggerWrapper:
     """ Retrieve the global custom logger instance, creating it if necessary. """
     global logger
-    logger = setup_custom_logger(formatter=CustomFormatter()) if logger is None else logger
+    logger = setup_custom_logger(
+        formatter=CustomFormatter()) if logger is None else logger
     return logger
 
 

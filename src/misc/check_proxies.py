@@ -6,7 +6,7 @@ import aiohttp
 
 from src.deprecated.pool import execute
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.log import log_execution, get_logger
+from src.util.log import get_logger, log_execution
 
 logger = get_logger()
 file_lock = threading.Lock()
