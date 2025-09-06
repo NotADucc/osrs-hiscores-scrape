@@ -1,15 +1,17 @@
 
 
-def calc_cmb(att: int, de: int, st: int, hp: int, ra: int, pr: int, ma: int) -> float:
+def calc_cmb(attack: int, defence: int, strength: int, hitpoints: int, ranged: int, prayer: int, magic: int) -> float:
     """ Calculate the combat level based on osrs stats. """
 
-    base = 0.25 * (de + hp + pr // 2)
-    melee = 0.325 * (att + st)
-    ranged = 0.325 * (ra // 2 + ra)
-    mage = 0.325 * (ma // 2 + ma)
-    mx = melee if melee > ranged else ranged
-    mx = mx if mx > mage else mage
-    return base + mx
+    _base = 0.25 * (defence + hitpoints + prayer // 2)
+    _melee = 0.325 * (attack + strength)
+    _ranged = 0.325 * (ranged // 2 + ranged)
+    _magic = 0.325 * (magic // 2 + magic)
+
+    _max = _melee if _melee > _ranged else _ranged
+    _max = _max if _max > _magic else _magic
+
+    return _base + _max
 
 
 def calc_lvl(experience: int, show_virtual_lvl: bool = True) -> int:

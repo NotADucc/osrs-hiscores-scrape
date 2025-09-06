@@ -53,8 +53,16 @@ class PlayerRecord:
                 # self.misc[mapper_val.name] = { 'rank': splitted[0], 'kc': splitted[1] }
                 self.misc[hs_type.name] = splitted[1]
 
-        cmb_level = calc_cmb(self.skills[HSType.attack.name], self.skills[HSType.defence.name],
-                             self.skills[HSType.strength.name], self.skills[HSType.hitpoints.name], self.skills[HSType.ranged.name], self.skills[HSType.prayer.name], self.skills[HSType.magic.name])
+        cmb_level = calc_cmb(
+            attack=self.skills[HSType.attack.name], 
+            defence=self.skills[HSType.defence.name],
+            strength=self.skills[HSType.strength.name], 
+            hitpoints=self.skills[HSType.hitpoints.name], 
+            ranged=self.skills[HSType.ranged.name], 
+            prayer=self.skills[HSType.prayer.name], 
+            magic=self.skills[HSType.magic.name]
+        )
+        
         self.combat_lvl = cmb_level
 
     def get_stat(self, hs_type: HSType) -> int | float:
