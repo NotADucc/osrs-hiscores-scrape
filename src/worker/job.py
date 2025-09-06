@@ -171,7 +171,8 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
         ValueError: If `start_rank` is less than 1, or if
             `start_rank > end_rank` when `end_rank` > 0.
     """
-    start_page, end_page = extract_page_nr_from_rank(start_rank=start_rank, end_rank=end_rank)
+    start_page, end_page = extract_page_nr_from_rank(
+        start_rank=start_rank, end_rank=end_rank)
 
     res = await req.get_max_page(input=input)
     max_page, max_rank = res.page_nr, res.rank_nr
@@ -213,7 +214,8 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, inp
         ValueError: If `start_rank` is less than 1, or if
             `start_rank > end_rank` when `end_rank` > 0.
     """
-    start_page, end_page = extract_page_nr_from_rank(start_rank=start_rank, end_rank=end_rank)
+    start_page, end_page = extract_page_nr_from_rank(
+        start_rank=start_rank, end_rank=end_rank)
 
     page_range = await req.get_filtered_page_range(input=input)
 
@@ -255,7 +257,7 @@ def extract_page_nr_from_rank(start_rank: int, end_rank: int) -> tuple[int, int]
 
     if end_rank > 0 and start_rank > end_rank:
         raise ValueError("Start rank is greater than end rank")
-    
+
     start_page = (start_rank - 1) // 25 + 1
     end_page = (end_rank - 1) // 25 + 1
 
