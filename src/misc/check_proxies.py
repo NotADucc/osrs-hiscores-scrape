@@ -6,7 +6,7 @@ import aiohttp
 
 from src.deprecated.pool import execute
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.log import finished_script, get_logger
+from src.util.log import log_execution, get_logger
 
 logger = get_logger()
 file_lock = threading.Lock()
@@ -39,7 +39,7 @@ async def process(proxy: str, **kwargs) -> None:
         print(err)
 
 
-@finished_script
+@log_execution
 async def main(proxy_file: str):
     with open(proxy_file, "r") as f:
         proxies = f.read().splitlines()

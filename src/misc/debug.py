@@ -1,12 +1,12 @@
 import sys
 
 from src.request.common import HSType
-from src.util.log import finished_script, get_logger
+from src.util.log import log_execution, get_logger
 
 logger = get_logger()
 
 
-@finished_script
+@log_execution
 def main():
     logger.debug(', '.join(HSType.debug()))
     input()

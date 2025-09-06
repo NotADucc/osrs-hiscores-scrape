@@ -11,13 +11,13 @@ from src.request.request import Requests
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.log import finished_script, get_logger
+from src.util.log import log_execution, get_logger
 from src.util.retry_handler import retry
 
 logger = get_logger()
 
 
-@finished_script
+@log_execution
 @benchmark
 async def main(account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:

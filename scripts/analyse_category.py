@@ -14,7 +14,7 @@ from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import (build_temp_file, read_hs_records, read_proxies,
                          write_record, write_records)
-from src.util.log import finished_script, get_logger
+from src.util.log import log_execution, get_logger
 from src.worker.job import IJob, JobManager, JobQueue, get_hs_page_job
 from src.worker.worker import (create_workers, enqueue_analyse_page_category,
                                request_hs_page)
@@ -22,7 +22,7 @@ from src.worker.worker import (create_workers, enqueue_analyse_page_category,
 logger = get_logger()
 
 
-@finished_script
+@log_execution
 @benchmark
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, num_workers: int):
     category_info = CategoryInfo(

@@ -14,7 +14,7 @@ from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import (filtered_result_formatter, read_filtered_result,
                          read_hs_records, read_proxies, write_records)
-from src.util.log import finished_script, get_logger
+from src.util.log import log_execution, get_logger
 from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                             JobManager, JobQueue, get_hs_filtered_job,
                             get_hs_page_job)
@@ -82,7 +82,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
     return hs_scrape_joblist, hs_scrape_joblist[-1].end_rank - hs_scrape_joblist[0].start_rank + 1, JobQueue(maxsize=N_SCRAPE_SIZE)
 
 
-@finished_script
+@log_execution
 @benchmark
 async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry], num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
