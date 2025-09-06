@@ -54,12 +54,12 @@ class PlayerRecord:
                 self.misc[hs_type.name] = splitted[1]
 
         cmb_level = calc_combat_level(
-            attack=self.skills[HSType.attack.name], 
+            attack=self.skills[HSType.attack.name],
             defence=self.skills[HSType.defence.name],
-            strength=self.skills[HSType.strength.name], 
-            hitpoints=self.skills[HSType.hitpoints.name], 
-            ranged=self.skills[HSType.ranged.name], 
-            prayer=self.skills[HSType.prayer.name], 
+            strength=self.skills[HSType.strength.name],
+            hitpoints=self.skills[HSType.hitpoints.name],
+            ranged=self.skills[HSType.ranged.name],
+            prayer=self.skills[HSType.prayer.name],
             magic=self.skills[HSType.magic.name]
         )
 

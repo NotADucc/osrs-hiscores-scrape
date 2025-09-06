@@ -1,5 +1,6 @@
 
 import math
+
 import pytest
 
 from src.stats.common import calc_combat_level, calc_skill_level
@@ -29,7 +30,7 @@ def test_calc_combat_level(attack: int, defence: int, strength: int, hitpoints: 
         (0, True, 1),
         (0, False, 1),
         (82, True, 1),
-        (83, True, 2), 
+        (83, True, 2),
         (174, True, 3),
 
         (5_000, True, 20),
@@ -41,8 +42,8 @@ def test_calc_combat_level(attack: int, defence: int, strength: int, hitpoints: 
 
         (13_034_430, True, 98),
         (13_034_430, False, 98),
-        (13_034_431, True, 99), 
-        (13_034_431, False, 99), 
+        (13_034_431, True, 99),
+        (13_034_431, False, 99),
 
         (13_034_431, True, 99),
         (14_391_160, True, 100),
@@ -54,4 +55,5 @@ def test_calc_combat_level(attack: int, defence: int, strength: int, hitpoints: 
     ]
 )
 def test_calc_skill_level(experience: int, show_virtual_lvl: bool, res: int):
-    assert calc_skill_level(experience=experience, show_virtual_lvl=show_virtual_lvl) == res
+    assert calc_skill_level(experience=experience,
+                            show_virtual_lvl=show_virtual_lvl) == res
