@@ -1,8 +1,10 @@
 import asyncio
 import logging
+
 import pytest
 
-from src.util.log import CustomFormatter, log_execution, get_logger, setup_custom_logger
+from src.util.log import (CustomFormatter, get_logger, log_execution,
+                          setup_custom_logger)
 
 
 @pytest.fixture
