@@ -115,7 +115,7 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             )
 
             filter_start = hs_scrape_joblist[0].start_rank
-            filter_end = hs_scrape_joblist[0].end_rank
+            filter_end = hs_scrape_joblist[-1].end_rank
         else:
             hs_scrape_workers = []
             filter_start = hs_scrape_export_q.peek().priority
