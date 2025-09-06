@@ -52,8 +52,8 @@ def test_log_execution_sync(caplog):
     assert result == 5
 
     logs = [rec.message for rec in caplog.records]
-    assert "start script" in logs
-    assert "finished script" in logs
+    assert "start: sample_sync" in logs
+    assert "finished: sample_sync" in logs
     assert any("log type count" in msg for msg in logs)
 
 
@@ -70,8 +70,8 @@ async def test_log_execution_async(caplog):
     assert result == 5
 
     logs = [rec.message for rec in caplog.records]
-    assert "start script" in logs
-    assert "finished script" in logs
+    assert "start: sample_async" in logs
+    assert "finished: sample_async" in logs
     assert any("log type count" in msg for msg in logs)
 
 
