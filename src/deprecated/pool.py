@@ -3,6 +3,12 @@ from typing import Any
 
 
 async def execute(process, records, max_workers: int = 10, **kwargs: Any) -> None:
+    """ wrapper to run async tasks """
+    import warnings
+    warnings.warn("pool.execute() is deprecated and scheduled for removal in a future version, use jobs and workers.",
+                    DeprecationWarning,
+                    stacklevel=2)
+
     semaphore = asyncio.Semaphore(max_workers)
 
     async def sem_task(record):
