@@ -1,16 +1,14 @@
 import argparse
 import asyncio
 from dataclasses import dataclass
-import threading
 
 import aiohttp
 
-from src.deprecated.pool import execute
 from src.request.errors import RequestFailed
 from src.request.request import Requests
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import read_proxies, write_records
-from src.util.log import get_logger, log_execution
+from src.util.log import log_execution
 from src.worker.job import IJob, JobManager, JobQueue
 from src.worker.worker import create_workers
 
@@ -20,6 +18,7 @@ class ProxyJob(IJob):
     priority: int
     proxy: str
     result: str = None  # type: ignore
+
 
 async def request_proxy(req: Requests, job: ProxyJob):
     proxy = job.proxy
@@ -37,8 +36,9 @@ async def request_proxy(req: Requests, job: ProxyJob):
         async with session.get("http://httpbin.org/ip", proxy=proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
             if resp.status == 200:
                 job.result = proxy
-            else :
-                raise RequestFailed(f"failed proxy '{proxy}'", details={"code": resp.status, "reason": resp.reason, "url": resp.url})
+            else:
+                raise RequestFailed(f"failed proxy '{proxy}'", details={
+                                    "code": resp.status, "reason": resp.reason, "url": resp.url})
 
 
 async def enqueue_proxy(queue: JobQueue | asyncio.Queue, job: ProxyJob):
@@ -91,7 +91,8 @@ async def main(proxy_file: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--proxy-file', required=True, help="Path to the proxy file")
+    parser.add_argument('--proxy-file', required=True,
+                        help="Path to the proxy file")
     script_running_in_cmd_guard()
 
     args = parser.parse_args()

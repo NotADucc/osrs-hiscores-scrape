@@ -6,8 +6,8 @@ async def execute(process, records, max_workers: int = 10, **kwargs: Any) -> Non
     """ wrapper to run async tasks """
     import warnings
     warnings.warn("pool.execute() is deprecated and scheduled for removal in a future version, use jobs and workers.",
-                    DeprecationWarning,
-                    stacklevel=2)
+                  DeprecationWarning,
+                  stacklevel=2)
 
     semaphore = asyncio.Semaphore(max_workers)
 
