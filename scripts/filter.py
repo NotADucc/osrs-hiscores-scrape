@@ -6,8 +6,7 @@ from functools import partial
 
 import aiohttp
 
-from src.request.common import (MAX_CATEGORY_SIZE,
-                                HSAccountTypes, HSType)
+from src.request.common import MAX_CATEGORY_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
 from src.request.request import Requests
 from src.util.benchmarking import benchmark

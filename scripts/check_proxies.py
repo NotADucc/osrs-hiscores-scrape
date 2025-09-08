@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import aiohttp
 
-from src.request.errors import NotFound, RequestFailed
+from src.request.errors import RequestFailed
 from src.request.request import Requests
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import read_proxies, write_records
@@ -13,6 +13,7 @@ from src.worker.job import IJob, JobManager, JobQueue
 from src.worker.worker import create_workers
 
 N_PROXY_WORKERS = 20
+
 
 @dataclass(order=True)
 class ProxyJob(IJob):
