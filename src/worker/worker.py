@@ -38,7 +38,7 @@ class Worker:
         self.request_fn = request_fn
         self.enqueue_fn = enqueue_fn
 
-    async def run(self, initial_delay: float = 0) -> None:
+    async def run(self, initial_delay: float = 0, max_retries: int = 10) -> None:
         """            
         Continuously process jobs from the input queue:
             1. Optionally wait for an initial delay.
@@ -70,7 +70,7 @@ class Worker:
 
             try:
                 if job.result is None:
-                    await retry(self.request_fn, req=self.req, job=job)
+                    await retry(self.request_fn, req=self.req, job=job, max_retries=max_retries)
 
                 while self.job_manager.value < job.priority:
                     await self.job_manager.await_next()

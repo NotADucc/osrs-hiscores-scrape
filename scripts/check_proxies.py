@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import aiohttp
 
-from src.request.errors import RequestFailed
+from src.request.errors import NotFound, RequestFailed
 from src.request.request import Requests
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import read_proxies, write_records
@@ -37,13 +37,15 @@ async def request_proxy(req: Requests, job: ProxyJob):
         async with session.get("http://httpbin.org/ip", proxy=proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
             if resp.status == 200:
                 job.result = proxy
+            elif resp.status in (402, 403, 404):
+                pass
             else:
                 raise RequestFailed(f"failed proxy '{proxy}'", details={
                                     "code": resp.status, "reason": resp.reason, "url": resp.url})
 
 
 async def enqueue_proxy(queue: JobQueue | asyncio.Queue, job: ProxyJob):
-    await queue.put(job)
+    await queue.put(job if job.result else None)
 
 
 @log_execution
@@ -81,7 +83,7 @@ async def main(proxy_file: str):
 
         for i, w in enumerate(proxy_workers):
             T.append(asyncio.create_task(
-                w.run(initial_delay=i * 0.1)
+                w.run(initial_delay=i * 0.1, max_retries=2)
             ))
         try:
             await asyncio.gather(*T)
