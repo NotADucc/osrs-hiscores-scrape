@@ -41,7 +41,8 @@ async def request_proxy(req: Requests, job: ProxyJob):
             if resp.status == 200:
                 job.result = proxy
             elif resp.status in (402, 403, 404):
-                logger.error(f"{proxy}, code:{resp.status}, reason:{resp.reason}")
+                logger.error(
+                    f"{proxy}, code:{resp.status}, reason:{resp.reason}")
             else:
                 raise RequestFailed(f"failed proxy '{proxy}'", details={
                                     "code": resp.status, "reason": resp.reason, "url": resp.url})
