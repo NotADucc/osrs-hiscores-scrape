@@ -8,9 +8,11 @@ from src.request.errors import RequestFailed
 from src.request.request import Requests
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import read_proxies, write_records
-from src.util.log import log_execution
+from src.util.log import get_logger, log_execution
 from src.worker.job import IJob, JobManager, JobQueue
 from src.worker.worker import create_workers
+
+logger = get_logger()
 
 N_PROXY_WORKERS = 20
 
@@ -39,7 +41,7 @@ async def request_proxy(req: Requests, job: ProxyJob):
             if resp.status == 200:
                 job.result = proxy
             elif resp.status in (402, 403, 404):
-                pass
+                logger.error(f"{proxy}, code:{resp.status}, reason:{resp.reason}")
             else:
                 raise RequestFailed(f"failed proxy '{proxy}'", details={
                                     "code": resp.status, "reason": resp.reason, "url": resp.url})
