@@ -1,0 +1,1 @@
+DEFAULT_WORKER_SIZE: int = 15
