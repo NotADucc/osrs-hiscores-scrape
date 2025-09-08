@@ -12,6 +12,7 @@ from src.util.log import log_execution
 from src.worker.job import IJob, JobManager, JobQueue
 from src.worker.worker import create_workers
 
+N_PROXY_WORKERS = 20
 
 @dataclass(order=True)
 class ProxyJob(IJob):
@@ -68,7 +69,7 @@ async def main(proxy_file: str):
             job_manager=proxy_job_manager,
             request_fn=request_proxy,
             enqueue_fn=enqueue_proxy,
-            num_workers=20
+            num_workers=N_PROXY_WORKERS
         )
 
         T = [asyncio.create_task(
