@@ -8,7 +8,7 @@ def map_player_record_to_lookup_job(priority: int, account_type: HSAccountTypes,
     return HSLookupJob(priority=priority, account_type=account_type, username=input.username)
 
 
-def map_player_records_to_lookup_jobs(account_type: HSAccountTypes, input: list[PlayerRecord]) -> list['HSLookupJob']:
+def map_player_records_to_lookup_jobs(account_type: HSAccountTypes, input: list[PlayerRecord]) -> list[HSLookupJob]:
     """ function that maps a list of `PlayerRecord` to a list of `HSLookupJob` """
     if not input:
         return []
