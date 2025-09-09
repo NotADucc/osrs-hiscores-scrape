@@ -69,7 +69,7 @@ def read_hs_records(file_path: str) -> Iterator[CategoryRecord]:
                 continue
 
 
-def read_filtered_result(file_path: str) -> Iterator[PlayerRecord]:
+def read_hs_lookups(file_path: str) -> Iterator[PlayerRecord]:
     """ Reads a list of filtered records from a file, each line in the file is treated as a separate record. """
     if not file_path or not os.path.isfile(file_path):
         return iter([])
@@ -88,7 +88,7 @@ def read_filtered_result(file_path: str) -> Iterator[PlayerRecord]:
                 continue
 
 
-def filtered_result_formatter(job: HSLookupJob) -> str:
+def hs_lookup_formatter(job: HSLookupJob) -> str:
     """ Function for formatting `HSLookupJob` job result. """
     return json_wrapper.to_json({"rank": job.priority, "record": job.result.to_dict()})
 

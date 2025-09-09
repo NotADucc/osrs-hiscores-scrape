@@ -8,8 +8,8 @@ import pytest
 from src.request.common import HSAccountTypes, HSType
 from src.request.results import CategoryRecord, PlayerRecord
 from src.util import json_wrapper
-from src.util.io import (ENCODING, build_temp_file, filtered_result_formatter,
-                         read_filtered_result, read_hs_records, read_proxies,
+from src.util.io import (ENCODING, build_temp_file, hs_lookup_formatter,
+                         read_hs_lookups, read_hs_records, read_proxies,
                          write_record, write_records)
 from src.worker.job import HSLookupJob
 
@@ -177,65 +177,65 @@ def test_read_hs_records_valid_no_file():
     assert not hs_records
 
 
-def test_read_filtered_result_valid():
+def test_read_hs_lookups_valid():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
                       account_type=HSAccountTypes.regular, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
+        file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.flush()
 
-        player_records = read_filtered_result(file_path=file.name)
+        player_records = read_hs_lookups(file_path=file.name)
         assert next(player_records) == record
 
 
-def test_read_filtered_result_valid_with_false_data():
+def test_read_hs_lookups_valid_with_false_data():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
                       account_type=HSAccountTypes.regular, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
+        file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.flush()
 
-        player_records = read_filtered_result(file_path=file.name)
+        player_records = read_hs_lookups(file_path=file.name)
         assert next(player_records) == record
         assert next(player_records, None) == None
 
 
-def test_read_filtered_result_valid_with_false_data_inline():
+def test_read_hs_lookups_valid_with_false_data_inline():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
                       account_type=HSAccountTypes.regular, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        file.write(filtered_result_formatter(job).encode(encoding=ENCODING))
+        file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.write(b'false data')
         file.flush()
 
-        player_records = read_filtered_result(file_path=file.name)
+        player_records = read_hs_lookups(file_path=file.name)
         assert next(player_records, None) == None
 
 
-def test_read_filtered_result_valid_empty():
+def test_read_hs_lookups_valid_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        hs_records = list(read_filtered_result(file_path=file.name))
+        hs_records = list(read_hs_lookups(file_path=file.name))
         assert not hs_records
 
 
-def test_read_filtered_result_valid_no_file():
-    hs_records = list(read_filtered_result(file_path=None))  # type: ignore
+def test_read_hs_lookups_valid_no_file():
+    hs_records = list(read_hs_lookups(file_path=None))  # type: ignore
     assert not hs_records
 
 
-def test_filtered_result_formatter_valid():
+def test_hs_lookup_formatter_valid():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
                       account_type=HSAccountTypes.regular, result=record)
 
-    json = filtered_result_formatter(job)
+    json = hs_lookup_formatter(job)
     assert json == json_wrapper.to_json(
         {"rank": job.priority, "record": job.result.to_dict()})
 

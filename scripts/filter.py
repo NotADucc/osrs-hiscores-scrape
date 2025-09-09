@@ -11,7 +11,7 @@ from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
 from src.request.request import Requests
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.io import (filtered_result_formatter, read_filtered_result,
+from src.util.io import (hs_lookup_formatter, read_hs_lookups,
                          read_hs_records, read_proxies, write_records)
 from src.util.log import get_logger, log_execution
 from src.worker.common import DEFAULT_WORKER_SIZE
@@ -36,7 +36,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
 
     if not potential_records:
         potential_records = map_player_records_to_lookup_jobs(
-            account_type=account_type, input=list(read_filtered_result(in_file)))
+            account_type=account_type, input=list(read_hs_lookups(in_file)))
 
     if potential_records:
         hs_scrape_export_q = JobQueue[IJob]()
@@ -137,7 +137,7 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             write_records(in_queue=filter_q,
                           out_file=out_file,
                           total=record_count,
-                          format=filtered_result_formatter
+                          format=hs_lookup_formatter
                           )
         )]
         for w in hs_scrape_workers:
