@@ -182,30 +182,123 @@ class CategoryInfo:
     def __init__(self, name: str, ts: datetime):
         self.name = name
         self.ts = ts
-        self.count = 0
-        self.total_score = 0
-        self.max = None
-        self.min = None
+        self._total_score = 0
+        self._max = None
+        self._min = None
+        self._records: list[CategoryRecord] = []
+        self._is_sorted = True
+
+    @property
+    def max(self):
+        return self._max
+
+    @property
+    def min(self):
+        return self._min
 
     def add(self, record: CategoryRecord) -> None:
-        """ Add a CategoryRecord to the aggregation and update statistics. """
-        self.count += 1
-        self.total_score += record.score
-        # the > and < should technically be reversed since smaller rank is greater than larger rank
-        if not self.max or self.max.is_worse_rank_than(record):
-            self.max = record
+        """ Add a CategoryRecord to the aggregation """
+        self._is_sorted = False
+        self._total_score += record.score
+        self._records.append(record)
 
-        if not self.min or self.min.is_better_rank_than(record):
-            self.min = record
+        if not self._max or self._max.is_worse_rank_than(record):
+            self._max = record
+
+        if not self._min or self._min.is_better_rank_than(record):
+            self._min = record
+
+    def is_empty(self) -> bool:
+        return len(self._records) == 0
+
+    def _sort(self):
+        if not self._is_sorted:
+            self._records.sort()
+            self._is_sorted = True
 
     def to_dict(self) -> dict[str, Any]:
+        def percentile(percent: int) -> float:
+            records = self._records
+            
+            # have to reverse this since data goes from large to small
+            percent = 100 - percent
+
+            k = (len(records) - 1) * (percent / 100)
+            f = int(k)
+            c = min(f + 1, len(records) - 1)
+            return records[f].score + (records[c].score - records[f].score) * (k - f)
+
+        def sum_records(mean: float, power: int) -> float:
+            return sum((record.score - mean) ** power for record in self._records)
+
+        self._sort()
+
+        n = len(self._records)
+        mean = median = None
+        var_population = var_sample = None
+        std_population = std_sample = None
+        q1 = q2 = q3 = iqr = None
+        skewness_population = skewness_sample = None
+        kurtosis_population = kurtosis_sample = None
+
+        if n:
+            mean = self._total_score / n
+            mid = n >> 1
+            median = self._records[mid].score if (n & 1) == 0 \
+                else (self._records[mid-1].score + self._records[mid].score) / 2
+
+            sum_squared_diff = sum_records(mean=mean, power=2)
+
+            var_population = sum_squared_diff / n
+            var_sample = sum_squared_diff / (n - 1) if n > 1 else 0
+            
+            std_population = var_population ** 0.5
+            std_sample = var_sample ** 0.5
+
+            # quantiles
+            q1 = percentile(25)
+            q2 = percentile(50)
+            q3 = percentile(75)
+            iqr = q3 - q1
+
+            # skewness
+            sum_cubed_diff = sum_records(mean=mean, power=3)
+            skewness_population = (sum_cubed_diff / n) / (std_population ** 3)
+            skewness_sample = (sum_cubed_diff / n) / (std_sample ** 3)
+
+            # kurtosis
+            sum_quartic_diff = sum_records(mean=mean, power=4)
+            kurtosis_population = (sum_quartic_diff / n) / (std_population ** 4) - 3
+            kurtosis_sample = (sum_quartic_diff / n) / (std_sample ** 4) - 3
+
+
         return {
             "name": self.name,
             "timestamp": self.ts.isoformat(),
-            "count": self.count,
-            "total_score": self.total_score,
-            "max": self.max.to_dict() if self.max else None,
-            "min": self.min.to_dict() if self.min else None,
+            "count": n,
+            "total_score": self._total_score,
+            "mean": mean,
+            "median": median,
+            "population": {
+                "deviation": std_population,
+                "variance": var_population,
+                "skewness": skewness_population,
+                "kurtosis": kurtosis_population,
+            },
+            "sample": {
+                "deviation": std_sample,
+                "variance": var_sample,
+                "skewness": skewness_sample,
+                "kurtosis": kurtosis_sample,
+            },
+            "quartiles": {
+                "q1": q1, 
+                "q2": q2, 
+                "q3": q3, 
+                "iqr": iqr
+            },
+            "max": self._max.to_dict() if self._max else None,
+            "min": self._min.to_dict() if self._min else None,
         }
 
     def __str__(self) -> str:

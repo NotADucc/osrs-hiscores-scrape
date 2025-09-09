@@ -87,7 +87,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 
         try:
             await asyncio.gather(*T)
-            write_record(out_file=out_file, data=f'{category_info}')
+            write_record(out_file=out_file, data=str(category_info))
         finally:
             for task in T:
                 task.cancel()
