@@ -12,28 +12,29 @@ python -m pip install -r requirements.txt -e .
 ```
 
 # Main Features
-- Filter usernames based on skills/bossing achievements and save that resultset on a file.
-- Analyse a highscore category (Count, total-, max- and min scores)
-- Pull a hiscore category and save the player names on a file.
+- Filter usernames based on skills/bossing achievements and save that resultset to a file.
+- Analyse a highscore category (Count, total-, max-, min scores, etc.)
+- Pull a hiscore category and save the player names to a file.
 
 # Misc Features
-- Pull an individual's stats from OSRS hiscores.
-- Get maximum page of a hiscore category
+- Fetch an individual's stats from OSRS hiscores.
+- Fetch maximum page of a hiscore category.
+- Check if proxies are valid.
 
 > [!Note]
 > Use apostrophes/quotes when you have an argument value that contains a space.
-> Look at [Filter Codeblock](#filterpy) for an example.
+> Look at [Filter Codeblock](#filter_hspy) for an example.
 
 # Usage
 
-## filter.py
+## filter_hs.py
 
 Scrape hiscores while filtering accounts based on category information (combat, skill levels, boss kc, etc.), filtered data gets saved to an output file.
 
 ```console
-py .\scripts\filter.py --out-file output.txt --filter 'ranged=50,attack<50'
-py .\scripts\filter.py --out-file output.txt --filter 'ranged>50 , attack>=50'
-py .\scripts\filter.py --out-file output.txt --filter 'ranged<=50, attack=50' 
+py .\scripts\filter_hs.py --out-file output.txt --filter 'ranged=50,attack<50'
+py .\scripts\filter_hs.py --out-file output.txt --filter 'ranged>50 , attack>=50'
+py .\scripts\filter_hs.py --out-file output.txt --filter 'ranged<=50, attack=50' 
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -80,12 +81,12 @@ py .\scripts\scrape_hs.py --out-file output.txt --account-type pure --hs-type zu
 | `--num-workers`  | No      | Number of concurrent scraping threads (default: 15) |
 
 
-## lookup.py
+## fetch_user.py
 
 Account hiscore lookup script, result gets printed on console.
 
 ```console
-py .\scripts\lookup.py --name Cow1337Killer
+py .\scripts\fetch_user.py --name Cow1337Killer
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -94,17 +95,29 @@ py .\scripts\lookup.py --name Cow1337Killer
 | `--hs-type`  | No      | Filter on specific hiscore category  |
 
 
-## max_page.py
+## fetch_max_page.py
 
 Find the max page and rank of a category, result gets printed on console.
 
 ```console
-py .\scripts\max_page.py --account-type hc --hs-type zuk
+py .\scripts\fetch_max_page.py --account-type hc --hs-type zuk
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
 | `--account-type`  | Yes      | Account type it should scout   |
 | `--hs-type`  | Yes      | Highscore Category it should scout  |
+
+
+## check_proxies.py
+
+Proxy checker script, valid ones are written away and formatted as 'http://user:password@ip:port'.
+
+```console
+py .\scripts\check_proxies.py --proxy-file proxy_file.txt
+```
+| Argument      | Required | Description                                |
+| ------------- | -------- | ------------------------------------------ |
+| `--proxy-file`  | Yes      | Path to the proxy file   |
 
 
 # Logging
