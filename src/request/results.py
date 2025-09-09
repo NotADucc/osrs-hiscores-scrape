@@ -182,11 +182,14 @@ class CategoryInfo:
     def __init__(self, name: str, ts: datetime):
         self.name = name
         self.ts = ts
-        self._total_score = 0
         self._max = None
         self._min = None
         self._records: list[CategoryRecord] = []
         self._is_sorted = True
+        self._total_score = 0
+        self._cached_sum_squared_delta = 0
+        self._cached_sum_cubed_delta = 0
+        self._cached_sum_quartic_delta = 0
 
     @property
     def max(self):
@@ -215,63 +218,56 @@ class CategoryInfo:
         if not self._is_sorted:
             self._records.sort()
             self._is_sorted = True
+            mean = self._total_score / len(self._records)
+            for record in self._records:
+                self._cached_sum_squared_delta += (record.score - mean) ** 2
+                self._cached_sum_cubed_delta   += (record.score - mean) ** 3
+                self._cached_sum_quartic_delta += (record.score - mean) ** 4
 
     def to_dict(self) -> dict[str, Any]:
-        def percentile(percent: int) -> float:
-            records = self._records
+        def percentile(percent: int) -> float | None:
+            if (self.is_empty()) :
+                return None
 
+            records = self._records
             # have to reverse this since data goes from large to small
             percent = 100 - percent
 
-            k = (len(records) - 1) * (percent / 100)
+            k = (n - 1) * (percent / 100)
             f = int(k)
-            c = min(f + 1, len(records) - 1)
+            c = min(f + 1, n - 1)
             return records[f].score + (records[c].score - records[f].score) * (k - f)
 
-        def sum_records(mean: float, power: int) -> float:
-            return sum((record.score - mean) ** power for record in self._records)
+        def calc_univariate_analysis(sample: bool) -> tuple[float | None, float | None, float | None, float | None] :
+            """ calculates variance, standard deviation, skewness and kurtosis and returns them in that order """
+            n = len(self._records)
+            n = n if not sample else n - 1
+
+            if n <= 0:
+                return (None, None, None, None)
+            
+            var = self._cached_sum_squared_delta / n
+            std = var ** 0.5
+            skew = (self._cached_sum_cubed_delta / n) / (std ** 3)
+            kurt = (self._cached_sum_quartic_delta / n) / (std ** 4) - 3
+
+            return (var, std, skew, kurt)
 
         self._sort()
 
+        # can most likely simplify this entire thing by just using pandas or numpy
         n = len(self._records)
         mean = median = None
-        var_population = var_sample = None
-        std_population = std_sample = None
-        q1 = q2 = q3 = iqr = None
-        skewness_population = skewness_sample = None
-        kurtosis_population = kurtosis_sample = None
+        q1, q2, q3 = percentile(25), percentile(50), percentile(75)
+        var_population, std_population, skewness_population, kurtosis_population = calc_univariate_analysis(sample=False)
+        var_sample, std_sample, skewness_sample, kurtosis_sample = calc_univariate_analysis(sample=True)
 
         if n:
             mean = self._total_score / n
             mid = n >> 1
             median = self._records[mid].score if (n & 1) == 0 \
-                else (self._records[mid-1].score + self._records[mid].score) / 2
-
-            sum_squared_diff = sum_records(mean=mean, power=2)
-
-            var_population = sum_squared_diff / n
-            var_sample = sum_squared_diff / (n - 1) if n > 1 else 0
-
-            std_population = var_population ** 0.5
-            std_sample = var_sample ** 0.5
-
-            # quantiles
-            q1 = percentile(25)
-            q2 = percentile(50)
-            q3 = percentile(75)
-            iqr = q3 - q1
-
-            # skewness
-            sum_cubed_diff = sum_records(mean=mean, power=3)
-            skewness_population = (sum_cubed_diff / n) / (std_population ** 3)
-            skewness_sample = (sum_cubed_diff / n) / (std_sample ** 3)
-
-            # kurtosis
-            sum_quartic_diff = sum_records(mean=mean, power=4)
-            kurtosis_population = (sum_quartic_diff / n) / \
-                (std_population ** 4) - 3
-            kurtosis_sample = (sum_quartic_diff / n) / (std_sample ** 4) - 3
-
+                else (self._records[mid-1].score + self._records[mid].score) / 2        
+        
         return {
             "name": self.name,
             "timestamp": self.ts.isoformat(),
@@ -280,14 +276,14 @@ class CategoryInfo:
             "mean": mean,
             "median": median,
             "population": {
-                "deviation": std_population,
                 "variance": var_population,
+                "standard_deviation": std_population,
                 "skewness": skewness_population,
                 "kurtosis": kurtosis_population,
             },
             "sample": {
-                "deviation": std_sample,
                 "variance": var_sample,
+                "standard_deviation": std_sample,
                 "skewness": skewness_sample,
                 "kurtosis": kurtosis_sample,
             },
@@ -295,7 +291,7 @@ class CategoryInfo:
                 "q1": q1,
                 "q2": q2,
                 "q3": q3,
-                "iqr": iqr
+                "iqr": q3 - q1 if q1 and q3 else None
             },
             "max": self._max.to_dict() if self._max else None,
             "min": self._min.to_dict() if self._min else None,
