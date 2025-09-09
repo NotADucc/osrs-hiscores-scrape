@@ -191,7 +191,7 @@ class CategoryInfo:
         """ Add a CategoryRecord to the aggregation and update statistics. """
         self.count += 1
         self.total_score += record.score
-        # the > and < should technically be reversed since smaller rank is greate rthan larger rank
+        # the > and < should technically be reversed since smaller rank is greater than larger rank
         if not self.max or self.max.is_worse_rank_than(record):
             self.max = record
 
