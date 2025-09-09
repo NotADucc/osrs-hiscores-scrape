@@ -219,7 +219,7 @@ class CategoryInfo:
     def to_dict(self) -> dict[str, Any]:
         def percentile(percent: int) -> float:
             records = self._records
-            
+
             # have to reverse this since data goes from large to small
             percent = 100 - percent
 
@@ -251,7 +251,7 @@ class CategoryInfo:
 
             var_population = sum_squared_diff / n
             var_sample = sum_squared_diff / (n - 1) if n > 1 else 0
-            
+
             std_population = var_population ** 0.5
             std_sample = var_sample ** 0.5
 
@@ -268,9 +268,9 @@ class CategoryInfo:
 
             # kurtosis
             sum_quartic_diff = sum_records(mean=mean, power=4)
-            kurtosis_population = (sum_quartic_diff / n) / (std_population ** 4) - 3
+            kurtosis_population = (sum_quartic_diff / n) / \
+                (std_population ** 4) - 3
             kurtosis_sample = (sum_quartic_diff / n) / (std_sample ** 4) - 3
-
 
         return {
             "name": self.name,
@@ -292,9 +292,9 @@ class CategoryInfo:
                 "kurtosis": kurtosis_sample,
             },
             "quartiles": {
-                "q1": q1, 
-                "q2": q2, 
-                "q3": q3, 
+                "q1": q1,
+                "q2": q2,
+                "q3": q3,
                 "iqr": iqr
             },
             "max": self._max.to_dict() if self._max else None,
