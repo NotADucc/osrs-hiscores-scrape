@@ -24,26 +24,26 @@ class InValidWrapper:
         self.random_name = pred
 
 
-def test_get_comparison_valid_simple():
+def test_get_comparison_simple():
     for sign, predicate in PREDICATES.items():
         res = get_comparison(predicate)
         assert res == sign
 
 
-def test_get_comparison_valid_wrapped_class():
+def test_get_comparison_wrapped_class():
     for sign, predicate in PREDICATES.items():
         res = get_comparison(ValidWrapper(pred=predicate).pred)
         assert res == sign
 
 
-def test_get_comparison_valid_wrapped_function():
+def test_get_comparison_wrapped_function():
     for sign, predicate in PREDICATES.items():
         def pred(values): return any(predicate(v) for v in values)
         res = get_comparison(pred)
         assert res == sign
 
 
-def test_get_comparison_valid_wrapped_class_and_function():
+def test_get_comparison_wrapped_class_and_function():
     for sign, predicate in PREDICATES.items():
         wrapper = ValidWrapper(pred=predicate)
 
@@ -60,7 +60,7 @@ def test_get_comparison_valid_wrapped_class_and_function():
         assert res == sign
 
 
-def test_get_comparison_invalid_wrapped_class_and_function():
+def test_get_comparison_wrapped_class_and_function_unknown_name():
     for _, predicate in PREDICATES.items():
         wrapper = InValidWrapper(pred=predicate)
         def pred(values): return any(wrapper.random_name(v) for v in values)

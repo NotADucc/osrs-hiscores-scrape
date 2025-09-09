@@ -8,7 +8,7 @@ from src.util.retry_handler import retry
 
 
 @pytest.mark.asyncio
-async def test_retry_valid():
+async def test_retry():
     async def ok():
         return "done"
 
@@ -17,7 +17,7 @@ async def test_retry_valid():
 
 
 @pytest.mark.asyncio
-async def test_retry_valid_after_retries():
+async def test_retry_after_retries():
     calls = {"count": 0}
 
     async def sometimes_ok():
@@ -32,7 +32,7 @@ async def test_retry_valid_after_retries():
 
 
 @pytest.mark.asyncio
-async def test_retry_invalid_max_retries_exhausted():
+async def test_retry_max_retries_exhausted():
     async def always_fail():
         raise Exception("nope")
 
@@ -44,7 +44,7 @@ async def test_retry_invalid_max_retries_exhausted():
 
 
 @pytest.mark.asyncio
-async def test_retry_invalid_notfound():
+async def test_retry_notfound():
     async def notfound():
         raise NotFound("missing", details="something")
 

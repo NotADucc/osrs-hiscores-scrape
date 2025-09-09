@@ -5,14 +5,14 @@ import pytest
 from src.util.json_wrapper import from_json, to_json
 
 
-def test_to_json_valid_basic_types():
+def test_to_json_basic_types():
     assert to_json(123) == "123"
     assert to_json("hello") == '"hello"'
     assert to_json(True) == "true"
     assert to_json(None) == "null"
 
 
-def test_from_json_valid_basic_types():
+def test_from_json_basic_types():
     assert from_json("123") == 123
     assert from_json('"hello"') == "hello"
     assert from_json("true") is True
@@ -46,6 +46,6 @@ def test_from_json_with_kwargs():
     assert result == {"A": 1, "B": 2}
 
 
-def test_invalid_json_raises():
+def test_json_raises():
     with pytest.raises(json.JSONDecodeError):
         from_json("{bad json}")

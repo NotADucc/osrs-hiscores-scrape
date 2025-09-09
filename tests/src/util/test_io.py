@@ -19,7 +19,7 @@ def test_exits_if_stdin_not_tty(monkeypatch):
     monkeypatch.setattr(sys, "argv", ["test_io.py"])
 
 @pytest.mark.asyncio
-async def test_write_records_valid():
+async def test_write_records():
     data = ["data", None, "data"]
 
     fake_q = asyncio.Queue()
@@ -42,7 +42,7 @@ async def test_write_records_valid():
 
 
 @pytest.mark.asyncio
-async def test_write_records_valid_multiple_writes():
+async def test_write_records_multiple_writes():
     data = ["data", None, "data"]
     double_data = [*data, *data]
 
@@ -72,7 +72,7 @@ async def test_write_records_valid_multiple_writes():
                     encoding=ENCODING).strip() == line
 
 
-def test_write_record_valid():
+def test_write_record():
     data = "data"
 
     with tempfile.NamedTemporaryFile(delete=False) as out_file:
@@ -85,7 +85,7 @@ def test_write_record_valid():
         assert read_in.decode(encoding=ENCODING).strip() == data
 
 
-def test_write_record_valid_multiple_writes():
+def test_write_record_multiple_writes():
     data = "data"
 
     with tempfile.NamedTemporaryFile(delete=False) as out_file:
@@ -104,7 +104,7 @@ def test_write_record_valid_multiple_writes():
         assert next(read_in_lines).decode(encoding=ENCODING).strip() == data
 
 
-def test_read_proxies_valid():
+def test_read_proxies():
     proxies = ["proxy1", "proxy2"]
     with tempfile.NamedTemporaryFile(delete=False) as proxy_file:
         proxy_file.write(
@@ -116,23 +116,23 @@ def test_read_proxies_valid():
             assert proxies[idx] == proxy
 
 
-def test_read_proxies_valid_empty():
+def test_read_proxies_empty():
     with tempfile.NamedTemporaryFile(delete=False) as proxy_file:
         proxy_files = read_proxies(proxy_file=proxy_file.name)
         assert not proxy_files
 
 
-def test_read_proxies_valid_no_file():
+def test_read_proxies_no_file():
     proxy_files = read_proxies(proxy_file=None)
     assert not proxy_files
 
 
-def test_read_proxies_valid_false_file():
+def test_read_proxies_false_file():
     proxy_files = read_proxies(proxy_file="false_file")
     assert not proxy_files
 
 
-def test_read_hs_records_valid():
+def test_read_hs_records():
     data = CategoryRecord(rank=-1, score=-1, username="test")
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(str(data).encode(encoding=ENCODING))
@@ -142,7 +142,7 @@ def test_read_hs_records_valid():
         assert next(hs_records) == data
 
 
-def test_read_hs_records_valid_with_false_data():
+def test_read_hs_records_with_false_data():
     data = CategoryRecord(rank=-1, score=-1, username="test")
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(str(data).encode(encoding=ENCODING))
@@ -155,7 +155,7 @@ def test_read_hs_records_valid_with_false_data():
         assert next(hs_records, None) == None
 
 
-def test_read_hs_records_valid_with_false_data_inline():
+def test_read_hs_records_with_false_data_inline():
     data = CategoryRecord(rank=-1, score=-1, username="test")
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(str(data).encode(encoding=ENCODING))
@@ -166,18 +166,18 @@ def test_read_hs_records_valid_with_false_data_inline():
         assert next(hs_records, None) == None
 
 
-def test_read_hs_records_valid_empty():
+def test_read_hs_records_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
         hs_records = list(read_hs_records(file_path=file.name))
         assert not hs_records
 
 
-def test_read_hs_records_valid_no_file():
+def test_read_hs_records_no_file():
     hs_records = list(read_hs_records(file_path=None))  # type: ignore
     assert not hs_records
 
 
-def test_read_hs_lookups_valid():
+def test_read_hs_lookups():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
@@ -190,7 +190,7 @@ def test_read_hs_lookups_valid():
         assert next(player_records) == record
 
 
-def test_read_hs_lookups_valid_with_false_data():
+def test_read_hs_lookups_with_false_data():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
@@ -204,7 +204,7 @@ def test_read_hs_lookups_valid_with_false_data():
         assert next(player_records, None) == None
 
 
-def test_read_hs_lookups_valid_with_false_data_inline():
+def test_read_hs_lookups_with_false_data_inline():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
@@ -218,18 +218,18 @@ def test_read_hs_lookups_valid_with_false_data_inline():
         assert next(player_records, None) == None
 
 
-def test_read_hs_lookups_valid_empty():
+def test_read_hs_lookups_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
         hs_records = list(read_hs_lookups(file_path=file.name))
         assert not hs_records
 
 
-def test_read_hs_lookups_valid_no_file():
+def test_read_hs_lookups_no_file():
     hs_records = list(read_hs_lookups(file_path=None))  # type: ignore
     assert not hs_records
 
 
-def test_hs_lookup_formatter_valid():
+def test_hs_lookup_formatter():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
@@ -240,7 +240,7 @@ def test_hs_lookup_formatter_valid():
         {"rank": job.priority, "record": job.result.to_dict()})
 
 
-def test_build_temp_file_valid():
+def test_build_temp_file():
     file_name = "test.txt"
     account_type = HSAccountTypes.regular
     hs_type = HSType.sol
