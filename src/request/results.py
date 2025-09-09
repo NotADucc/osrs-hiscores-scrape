@@ -221,12 +221,12 @@ class CategoryInfo:
             mean = self._total_score / len(self._records)
             for record in self._records:
                 self._cached_sum_squared_delta += (record.score - mean) ** 2
-                self._cached_sum_cubed_delta   += (record.score - mean) ** 3
+                self._cached_sum_cubed_delta += (record.score - mean) ** 3
                 self._cached_sum_quartic_delta += (record.score - mean) ** 4
 
     def to_dict(self) -> dict[str, Any]:
         def percentile(percent: int) -> float | None:
-            if (self.is_empty()) :
+            if (self.is_empty()):
                 return None
 
             records = self._records
@@ -238,14 +238,14 @@ class CategoryInfo:
             c = min(f + 1, n - 1)
             return records[f].score + (records[c].score - records[f].score) * (k - f)
 
-        def calc_univariate_analysis(sample: bool) -> tuple[float | None, float | None, float | None, float | None] :
+        def calc_univariate_analysis(sample: bool) -> tuple[float | None, float | None, float | None, float | None]:
             """ calculates variance, standard deviation, skewness and kurtosis and returns them in that order """
             n = len(self._records)
             n = n if not sample else n - 1
 
             if n <= 0:
                 return (None, None, None, None)
-            
+
             var = self._cached_sum_squared_delta / n
             std = var ** 0.5
             skew = (self._cached_sum_cubed_delta / n) / (std ** 3)
@@ -259,15 +259,17 @@ class CategoryInfo:
         n = len(self._records)
         mean = median = None
         q1, q2, q3 = percentile(25), percentile(50), percentile(75)
-        var_population, std_population, skewness_population, kurtosis_population = calc_univariate_analysis(sample=False)
-        var_sample, std_sample, skewness_sample, kurtosis_sample = calc_univariate_analysis(sample=True)
+        var_population, std_population, skewness_population, kurtosis_population \
+            = calc_univariate_analysis(sample=False)
+        var_sample, std_sample, skewness_sample, kurtosis_sample \
+            = calc_univariate_analysis(sample=True)
 
         if n:
             mean = self._total_score / n
             mid = n >> 1
             median = self._records[mid].score if (n & 1) == 0 \
-                else (self._records[mid-1].score + self._records[mid].score) / 2        
-        
+                else (self._records[mid-1].score + self._records[mid].score) / 2
+
         return {
             "name": self.name,
             "timestamp": self.ts.isoformat(),
