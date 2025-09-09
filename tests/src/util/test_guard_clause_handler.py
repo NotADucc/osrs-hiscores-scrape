@@ -1,8 +1,9 @@
 import builtins
 import sys
-import pytest
-import psutil
 import types
+
+import psutil
+import pytest
 
 from src.util.guard_clause_handler import script_running_in_cmd_guard
 
@@ -77,32 +78,32 @@ def test_exits_if_parent_is_file_manager(file_manager, monkeypatch, mock_process
 @pytest.mark.parametrize(
     "terminal",
     [
-        "alacritty", 
-        "bash", 
-        "bash.exe", 
-        "cmd.exe", 
-        "conhost.exe", 
-        "dash", 
-        "fish", 
-        "gnome-terminal", 
-        "Hyper", 
-        "iTerm2", 
-        "kitty", 
-        "konsole", 
-        "lxterminal", 
-        "mate-terminal", 
-        "powershell.exe", 
-        "pwsh.exe", 
-        "rxvt", 
-        "screen", 
-        "sh", 
-        "Terminal", 
-        "terminator", 
-        "tilix", 
-        "tmux", 
-        "Warp", 
-        "wt.exe", 
-        "xterm", 
+        "alacritty",
+        "bash",
+        "bash.exe",
+        "cmd.exe",
+        "conhost.exe",
+        "dash",
+        "fish",
+        "gnome-terminal",
+        "Hyper",
+        "iTerm2",
+        "kitty",
+        "konsole",
+        "lxterminal",
+        "mate-terminal",
+        "powershell.exe",
+        "pwsh.exe",
+        "rxvt",
+        "screen",
+        "sh",
+        "Terminal",
+        "terminator",
+        "tilix",
+        "tmux",
+        "Warp",
+        "wt.exe",
+        "xterm",
         "zsh"
     ]
 )

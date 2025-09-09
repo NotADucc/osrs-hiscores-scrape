@@ -11,8 +11,8 @@ from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
 from src.request.request import Requests
 from src.util.benchmarking import benchmark
 from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.io import (hs_lookup_formatter, read_hs_lookups,
-                         read_hs_records, read_proxies, write_records)
+from src.util.io import (hs_lookup_formatter, read_hs_lookups, read_hs_records,
+                         read_proxies, write_records)
 from src.util.log import get_logger, log_execution
 from src.worker.common import DEFAULT_WORKER_SIZE
 from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,

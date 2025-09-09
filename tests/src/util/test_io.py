@@ -18,6 +18,7 @@ from src.worker.job import HSLookupJob
 def test_exits_if_stdin_not_tty(monkeypatch):
     monkeypatch.setattr(sys, "argv", ["test_io.py"])
 
+
 @pytest.mark.asyncio
 async def test_write_records():
     data = ["data", None, "data"]
