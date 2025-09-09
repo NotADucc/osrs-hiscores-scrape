@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import sys
 import tempfile
 
 import pytest
@@ -12,6 +13,10 @@ from src.util.io import (ENCODING, build_temp_file, filtered_result_formatter,
                          write_record, write_records)
 from src.worker.job import HSLookupJob
 
+
+@pytest.fixture(autouse=True)
+def test_exits_if_stdin_not_tty(monkeypatch):
+    monkeypatch.setattr(sys, "argv", ["test_io.py"])
 
 @pytest.mark.asyncio
 async def test_write_records_valid():
@@ -242,4 +247,4 @@ def test_build_temp_file_valid():
 
     temp_file = build_temp_file(
         file_path=file_name, account_type=account_type, hs_type=hs_type)
-    assert temp_file == "test.regular.sol.temp"
+    assert temp_file == "test.regular.sol.test_io.temp"

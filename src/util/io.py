@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 from typing import Callable, Iterator
 
 from tqdm import tqdm
@@ -94,11 +95,14 @@ def filtered_result_formatter(job: HSLookupJob) -> str:
 
 def build_temp_file(file_path: str, account_type: HSAccountTypes, hs_type: HSType) -> str:
     """
-    Constructs a temporary file name based on the original file and account/type identifiers.
+    Constructs a temporary file name based on the original file, account/type identifiers and script it's currently running.
 
-    The temporary file name is created by combining the base name of `out_file` (without
-    extension) with the string representations of `account_type`, `hs_type`, and the suffix
+    The temporary file name is created by combining the base name of `file_path` (without
+    extension) with the string representations of `account_type`, `hs_type`, current running script, and the suffix
     "temp", separated by periods.
     """
-    base, _ = os.path.splitext(file_path)
-    return ".".join([base, str(account_type), str(hs_type), "temp"])
+    script_name = os.path.basename(sys.argv[0])
+    base_script_name, _ = os.path.splitext(script_name)
+
+    base_file_path, _ = os.path.splitext(file_path)
+    return ".".join([base_file_path, str(account_type), str(hs_type), base_script_name, "temp"])
