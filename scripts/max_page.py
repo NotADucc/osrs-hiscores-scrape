@@ -22,12 +22,14 @@ logger = get_logger()
 async def main(account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
+
+        timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
         max_page_res = await retry(req.get_max_page, input=GetMaxHighscorePageRequest(account_type=account_type, hs_type=hs_type))
 
         convert = {
             "max_page": max_page_res.page_nr,
             "max_rank": max_page_res.rank_nr,
-            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "timestamp": timestamp,
         }
         json_output = json_wrapper.to_json(convert, indent=1)
 
