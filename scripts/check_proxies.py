@@ -6,7 +6,7 @@ import aiohttp
 
 from src.request.errors import RequestFailed
 from src.request.request import Requests
-from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.script_utils import script_running_in_cmd_guard
 from src.util.io import read_proxies, write_records
 from src.util.log import get_logger, log_execution
 from src.worker.job import IJob, JobManager, JobQueue

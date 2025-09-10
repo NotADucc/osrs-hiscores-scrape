@@ -1,4 +1,3 @@
-import argparse
 from enum import Enum
 
 HS_PAGE_SIZE: int = 25
@@ -45,7 +44,7 @@ class HSAccountTypes(Enum):
             return HSAccountTypes[s]
         except KeyError:
             valid_values = ', '.join(HSAccountTypes.__members__.keys())
-            raise argparse.ArgumentTypeError(valid_values)
+            raise KeyError(f'value given: {s}, valid values [{valid_values}]')
 
 
 class HSValue():
@@ -237,4 +236,4 @@ class HSType(Enum):
             return HSType[s]
         except KeyError:
             valid_values = ', '.join(HSType.__members__.keys())
-            raise argparse.ArgumentTypeError(valid_values)
+            raise KeyError(f'value given: {s}, valid values [{valid_values}]')

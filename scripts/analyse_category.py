@@ -11,7 +11,7 @@ from src.request.dto import GetMaxHighscorePageRequest
 from src.request.request import Requests
 from src.request.results import CategoryInfo
 from src.util.benchmarking import benchmark
-from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.util.io import (build_temp_file, read_hs_records, read_proxies,
                          write_record, write_records)
 from src.util.log import get_logger, log_execution
@@ -100,9 +100,9 @@ if __name__ == '__main__':
                         help="Path to the output file")
     parser.add_argument('--proxy-file', help="Path to the proxy file")
     parser.add_argument('--account-type', required=True,
-                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should pull from")
+                        type=argparse_wrapper(HSAccountTypes.from_string), choices=list(HSAccountTypes), help="Account type it should pull from")
     parser.add_argument('--hs-type', required=True,
-                        type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
+                        type=argparse_wrapper(HSType.from_string), choices=list(HSType), help="Hiscore category it should pull from")
     parser.add_argument('--num-workers', default=DEFAULT_WORKER_SIZE, type=int,
                         help="Number of concurrent scraping threads")
 

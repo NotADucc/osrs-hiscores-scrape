@@ -5,7 +5,7 @@ import types
 import psutil
 import pytest
 
-from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.script_utils import script_running_in_cmd_guard
 
 
 @pytest.fixture(autouse=True)

@@ -10,7 +10,7 @@ from src.request.dto import GetMaxHighscorePageRequest
 from src.request.request import Requests
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
-from src.util.guard_clause_handler import script_running_in_cmd_guard
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.util.log import get_logger, log_execution
 from src.util.retry_handler import retry
 
@@ -39,8 +39,9 @@ async def main(account_type: HSAccountTypes, hs_type: HSType):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--account-type', required=True,
-                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should scout")
-    parser.add_argument('--hs-type', type=HSType.from_string, required=True,
+                        type=argparse_wrapper(HSAccountTypes.from_string), 
+                        choices=list(HSAccountTypes), help="Account type it should scout")
+    parser.add_argument('--hs-type', type=argparse_wrapper(HSType.from_string), required=True,
                         choices=list(HSType), help="Highscore Category it should scout")
 
     script_running_in_cmd_guard()
