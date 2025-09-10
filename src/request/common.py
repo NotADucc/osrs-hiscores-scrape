@@ -60,18 +60,18 @@ class HSIncrementer():
     """ Internal incrementer to help with 'HSType'. """
 
     def __init__(self):
-        self.arr = [0] * 3
+        self._arr = [0] * 3
 
     def skill_increment(self) -> HSValue:
-        cat_val, csv_val = self.arr[0], self.arr[2]
-        self.arr[0] += 1
-        self.arr[2] += 1
+        cat_val, csv_val = self._arr[0], self._arr[2]
+        self._arr[0] += 1
+        self._arr[2] += 1
         return HSValue(category=0, category_value=cat_val, csv_value=csv_val)
 
     def misc_increment(self) -> HSValue:
-        cat_val, csv_val = self.arr[1], self.arr[2]
-        self.arr[1] += 1
-        self.arr[2] += 1
+        cat_val, csv_val = self._arr[1], self._arr[2]
+        self._arr[1] += 1
+        self._arr[2] += 1
         return HSValue(category=1, category_value=cat_val, csv_value=csv_val)
 
 
