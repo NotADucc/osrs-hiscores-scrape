@@ -10,10 +10,10 @@ from src.request.common import MAX_CATEGORY_SIZE, HSAccountTypes, HSType
 from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
 from src.request.request import Requests
 from src.util.benchmarking import benchmark
-from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.util.io import (hs_lookup_formatter, read_hs_lookups, read_hs_records,
                          read_proxies, write_records)
 from src.util.log import get_logger, log_execution
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.worker.common import DEFAULT_WORKER_SIZE
 from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                             JobManager, JobQueue, get_hs_filtered_job,
@@ -201,10 +201,10 @@ if __name__ == '__main__':
     parser.add_argument('--rank-start', default=1, type=int,
                         help="Rank number that it should start filtering at (default: 1)")
     parser.add_argument('--account-type', default='regular',
-                        type=argparse_wrapper(HSAccountTypes.from_string), 
+                        type=argparse_wrapper(HSAccountTypes.from_string),
                         choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
-                        type=argparse_wrapper(HSType.from_string), 
+                        type=argparse_wrapper(HSType.from_string),
                         choices=list(HSType), help="Hiscore category it should pull from")
     parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
                         help="Custom filter on what the accounts should have")

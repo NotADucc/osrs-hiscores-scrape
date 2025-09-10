@@ -11,10 +11,10 @@ from src.request.dto import GetMaxHighscorePageRequest
 from src.request.request import Requests
 from src.request.results import CategoryInfo
 from src.util.benchmarking import benchmark
-from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.util.io import (build_temp_file, read_hs_records, read_proxies,
                          write_record, write_records)
 from src.util.log import get_logger, log_execution
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.worker.common import DEFAULT_WORKER_SIZE
 from src.worker.job import IJob, JobManager, JobQueue, get_hs_page_job
 from src.worker.worker import (create_workers, enqueue_analyse_page_category,

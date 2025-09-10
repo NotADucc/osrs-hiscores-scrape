@@ -10,9 +10,9 @@ from src.request.errors import NotFound
 from src.request.request import Requests
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
-from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.util.log import get_logger, log_execution
 from src.util.retry_handler import retry
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 
 logger = get_logger()
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--name', required=True,
                         help="Name that you want info about.")
     parser.add_argument('--account-type', default='regular',
-                        type=argparse_wrapper(HSAccountTypes.from_string), 
+                        type=argparse_wrapper(HSAccountTypes.from_string),
                         choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
     parser.add_argument('--hs-type', type=argparse_wrapper(HSType.from_string),
                         choices=list(HSType), help="Filter on specific hiscore category")

@@ -8,9 +8,9 @@ from src.request.common import HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest
 from src.request.request import Requests
 from src.util.benchmarking import benchmark
-from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.util.io import read_proxies, write_records
 from src.util.log import get_logger, log_execution
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 from src.worker.common import DEFAULT_WORKER_SIZE
 from src.worker.job import IJob, JobManager, JobQueue, get_hs_page_job
 from src.worker.worker import create_workers, enqueue_hs_page, request_hs_page
@@ -73,10 +73,10 @@ if __name__ == '__main__':
                         help="Path to the output file")
     parser.add_argument('--proxy-file', help="Path to the proxy file")
     parser.add_argument('--account-type', default='regular',
-                        type=argparse_wrapper(HSAccountTypes.from_string), 
+                        type=argparse_wrapper(HSAccountTypes.from_string),
                         choices=list(HSAccountTypes), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
-                        type=argparse_wrapper(HSType.from_string), 
+                        type=argparse_wrapper(HSType.from_string),
                         choices=list(HSType), help="Hiscore category it should pull from (default: 'overall')")
     parser.add_argument('--rank-start', default=1, type=int,
                         help="Hiscore rank number it should start at (default: 1)")

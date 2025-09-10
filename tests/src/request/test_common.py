@@ -1,10 +1,12 @@
 import pytest
+
 from src.request.common import HSAccountTypes, HSIncrementer, HSType, HSValue
 
 
 def tests_hs_account_types_are_unique():
     names = [e.name for e in HSAccountTypes]
     assert len(names) == len(set(names))
+
 
 @pytest.mark.parametrize(
     "account_type, expected_value",
@@ -112,6 +114,7 @@ def test_hs_account_types_from_string_keyerror(account_type: str):
     with pytest.raises(KeyError):
         HSAccountTypes.from_string(account_type)
 
+
 @pytest.mark.parametrize(
     "category, category_value, csv_value",
     [
@@ -122,7 +125,8 @@ def test_hs_account_types_from_string_keyerror(account_type: str):
     ],
 )
 def test_hs_value(category: int, category_value: int, csv_value: int):
-    hs_value = HSValue(category=category, category_value=category_value, csv_value=csv_value)
+    hs_value = HSValue(category=category,
+                       category_value=category_value, csv_value=csv_value)
 
     assert hs_value.category == category
     assert hs_value.category_value == category_value
@@ -144,6 +148,7 @@ def test_hs_incrementer_skills():
     assert val.category_value == 1
     assert val.csv_value == 1
 
+
 def test_hs_incrementer_misc():
     incr = HSIncrementer()
 
@@ -158,6 +163,7 @@ def test_hs_incrementer_misc():
     assert val.category == 1
     assert val.category_value == 1
     assert val.csv_value == 1
+
 
 def test_hs_incrementer_mix():
     incr = HSIncrementer()
@@ -174,9 +180,11 @@ def test_hs_incrementer_mix():
     assert val.category_value == 0
     assert val.csv_value == 1
 
+
 def test_hs_type_are_unique():
     names = [e.name for e in HSType]
     assert len(names) == len(set(names))
+
 
 def test_hs_type_getters_return_expected_types():
     for hs in list(HSType):
@@ -184,8 +192,9 @@ def test_hs_type_getters_return_expected_types():
         assert isinstance(hs.get_category_value(), int)
         assert isinstance(hs.get_csv_value(), int)
 
+
 @pytest.mark.parametrize(
-    "hs_type", 
+    "hs_type",
     [
         HSType.attack, HSType.defence, HSType.strength,
         HSType.hitpoints, HSType.ranged, HSType.prayer,
@@ -195,8 +204,9 @@ def test_hs_type_getters_return_expected_types():
 def test_hs_type_is_combat_true(hs_type: HSType):
     assert hs_type.is_combat()
 
+
 @pytest.mark.parametrize(
-    "hs_type", 
+    "hs_type",
     [
         HSType.overall, HSType.cooking, HSType.woodcutting, HSType.hydra
     ]
