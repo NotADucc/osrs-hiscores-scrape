@@ -1,3 +1,4 @@
+import argparse
 import builtins
 import sys
 import types
@@ -5,7 +6,40 @@ import types
 import psutil
 import pytest
 
-from src.util.script_utils import script_running_in_cmd_guard
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
+
+
+def test_argparse_wrapper():
+    def sample(x: str):
+        return x
+
+    VAL = "test"
+
+    wrapped = argparse_wrapper(sample)
+    value = wrapped(VAL)
+    assert value == VAL
+
+
+def test_argparse_wrapper_key_error(caplog):
+    def sample(x: str):
+        raise KeyError("key does not match")
+
+    VAL = "test"
+
+    wrapped = argparse_wrapper(sample)
+    with pytest.raises(argparse.ArgumentTypeError, match="key does not match"):
+        _ = wrapped(VAL)
+
+
+def test_argparse_wrapper_error(caplog):
+    def sample(x: str):
+        raise Exception("random error")
+
+    VAL = "test"
+
+    wrapped = argparse_wrapper(sample)
+    with pytest.raises(Exception, match="random error"):
+        _ = wrapped(VAL)
 
 
 @pytest.fixture(autouse=True)
