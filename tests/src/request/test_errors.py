@@ -1,10 +1,11 @@
 import pytest
 
-from src.request.errors import IsRateLimited, NotFound, ParsingFailed, RequestFailed, RetryFailed, ServerBusy
+from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
+                                RequestFailed, RetryFailed, ServerBusy)
 
 
 @pytest.mark.parametrize(
-    "exc_class", 
+    "exc_class",
     [
         (RequestFailed),
         (IsRateLimited),
@@ -22,8 +23,9 @@ def test_error_without_details(exc_class):
     assert str(err) == message
     assert err.details is None
 
+
 @pytest.mark.parametrize(
-    "exc_class", 
+    "exc_class",
     [
         (RequestFailed),
         (IsRateLimited),
@@ -44,7 +46,7 @@ def test_error_with_details(exc_class):
 
 
 @pytest.mark.parametrize(
-    "exc_class", 
+    "exc_class",
     [
         (RequestFailed),
         (IsRateLimited),
