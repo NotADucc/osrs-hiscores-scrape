@@ -208,3 +208,41 @@ async def test_get_hs_ranks_empty(sample_fake_client_session):
     mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
 
     assert result == []
+
+
+@pytest.mark.asyncio
+async def test_get_first_rank(sample_fake_client_session, sample_category_records: list[CategoryRecord]):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = 1
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
+        result = await req.get_first_rank(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    expected = [record.rank for record in sample_category_records]
+
+    assert result == expected[0]
+
+
+@pytest.mark.asyncio
+async def test_get_first_rank_empty(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = -1
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
+        result = await req.get_first_rank(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    assert result == -1
