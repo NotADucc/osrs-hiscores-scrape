@@ -1,0 +1,124 @@
+import pytest
+from datetime import datetime
+
+from src.request.results import CategoryInfo, CategoryRecord
+
+
+
+@pytest.fixture
+def ts():
+    return datetime(2023, 1, 1)
+
+
+@pytest.fixture
+def sample_records():
+    return [
+        CategoryRecord(rank=1, score=400, username="test1"),
+        CategoryRecord(rank=2, score=300, username="test2"),
+        CategoryRecord(rank=3, score=200, username="test3"),
+        CategoryRecord(rank=4, score=100, username="test4"),
+        CategoryRecord(rank=5, score=10,  username="test5"),
+    ]
+
+
+def test_initialization(ts: datetime):
+    category_info = CategoryInfo("category", ts)
+
+    assert category_info.name == "category"
+    assert category_info.ts == ts
+    assert category_info.is_empty() is True
+    assert category_info.max is None
+    assert category_info.min is None
+    assert category_info._total_score == 0
+
+
+def test_add_updates_min_max_total(ts: datetime, sample_records: list[CategoryRecord]):
+    category_info = CategoryInfo("category", ts)
+
+    for rec in sample_records:
+        category_info.add(rec)
+
+    assert category_info.is_empty() is False
+    assert category_info._total_score == sum(r.score for r in sample_records)
+    assert category_info.max.username == "test1"    # type: ignore
+    assert category_info.min.username == "test5"    # type: ignore
+    assert len(category_info._records) == 5
+
+
+def test_sort_caches_deltas(ts: datetime, sample_records: list[CategoryRecord]):
+    category_info = CategoryInfo("category", ts)
+
+    for rec in sample_records:
+        category_info.add(rec)
+
+    category_info._sort()
+    assert category_info._is_sorted is True
+
+    mean = sum(record.score for record in sample_records) / len(sample_records)
+
+    assert category_info._cached_sum_squared_delta == sum((record.score - mean) ** 2 for record in sample_records)
+    assert category_info._cached_sum_cubed_delta   == sum((record.score - mean) ** 3 for record in sample_records)
+    assert category_info._cached_sum_quartic_delta == sum((record.score - mean) ** 4 for record in sample_records)
+
+
+def test_to_dict_basic_stats(ts: datetime, sample_records: list[CategoryRecord]):
+    category_info = CategoryInfo("category", ts)
+
+    for rec in sample_records:
+        category_info.add(rec)
+
+    dct = category_info.to_dict()
+
+    assert dct["name"] == "category"
+    assert dct["timestamp"] == ts.isoformat()
+    assert dct["count"] == 5
+    assert dct["total_score"] == 1010
+    assert pytest.approx(dct["mean"]) == 202
+    assert dct["median"] is not None
+    assert "population" in dct
+    assert "sample" in dct
+    assert "quartiles" in dct
+    assert dct["max"]["username"] == "test1"
+    assert dct["min"]["username"] == "test5"
+
+
+def test_to_dict_quartiles_and_iqr(ts: datetime, sample_records: list[CategoryRecord]):
+    category_info = CategoryInfo("category", ts)
+
+    for rec in sample_records:
+        category_info.add(rec)
+
+    dct = category_info.to_dict()
+    q1, q2, q3 = dct["quartiles"]["q1"], dct["quartiles"]["q2"], dct["quartiles"]["q3"]
+
+    assert q1 is not None
+    assert q2 is not None
+    assert q3 is not None
+    assert dct["quartiles"]["iqr"] == pytest.approx(q3 - q1)
+
+
+def test_to_dict_empty(ts: datetime):
+    category_info = CategoryInfo("category", ts)
+
+    dct = category_info.to_dict()
+
+    assert dct["count"] == 0
+    assert dct["mean"] is None
+    assert dct["median"] is None
+    assert dct["max"] is None
+    assert dct["min"] is None
+    assert dct["quartiles"]["q1"] is None
+    assert dct["population"]["variance"] is None
+    assert dct["sample"]["variance"] is None
+
+
+def test_str_returns_json(ts: datetime, sample_records: list[CategoryRecord]):
+    category_info = CategoryInfo("category", ts)
+
+    for rec in sample_records:
+        category_info.add(rec)
+
+    s = str(category_info)
+    assert s.startswith("{")
+    assert '"name":"category"' in s
+    assert '"count":5' in s

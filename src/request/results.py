@@ -192,11 +192,11 @@ class CategoryInfo:
         self._cached_sum_quartic_delta = 0
 
     @property
-    def max(self):
+    def max(self) -> CategoryRecord | None:
         return self._max
 
     @property
-    def min(self):
+    def min(self) -> CategoryRecord | None:
         return self._min
 
     def add(self, record: CategoryRecord) -> None:
