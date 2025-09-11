@@ -1,6 +1,7 @@
 import pytest
 
-from src.request.common import HSAccountTypes, HSIncrementer, HSType, HSValue
+from src.request.common import HSIncrementer, HSType, HSValue
+
 
 @pytest.mark.parametrize(
     "category, category_value, csv_value",

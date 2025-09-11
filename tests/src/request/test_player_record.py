@@ -1,39 +1,43 @@
 import math
-import pytest
 from datetime import datetime
+
+import pytest
 
 from src.request.common import HSType
 from src.request.dto import HSFilterEntry
-from src.request.results import CategoryRecord, PlayerRecord
-
+from src.request.results import PlayerRecord
 
 
 @pytest.fixture
 def sample_csv() -> list[str]:
     return ["1,50,101333" if hs_type else "1,50" for hs_type in list(HSType)[:-1]]
 
+
 @pytest.fixture
 def sample_csv_incomplete() -> list[str]:
     return ["-1,1,-1" if hs_type else "-1,1" for hs_type in list(HSType)[:-1]]
+
 
 @pytest.fixture
 def player(sample_csv: list[str]) -> PlayerRecord:
     return PlayerRecord("TestUser", sample_csv, datetime(2023, 1, 1))
 
+
 @pytest.fixture
 def player_incomplete(sample_csv_incomplete: list[str]) -> PlayerRecord:
     return PlayerRecord("TestUser", sample_csv_incomplete, datetime(2023, 1, 1))
+
 
 def test_initialization(player: PlayerRecord):
     assert player.username == "TestUser"
     assert player.rank == 1
     assert player.total_level == 50
     assert player.total_xp == 101333
-    
+
     for hs_type in list(HSType)[1:-1]:
         if hs_type.is_skill():
             assert hs_type.name in player.skills
-        else :
+        else:
             assert hs_type.name in player.misc
 
     assert math.isclose(player.combat_lvl, 63.75)
@@ -56,7 +60,8 @@ def test_get_stat_skill(player: PlayerRecord):
 
 def test_get_stat_misc_returns_default(player_incomplete: PlayerRecord):
     some_misc = next(h for h in HSType if h.is_misc())
-    assert player_incomplete.get_stat(some_misc) in (0, player_incomplete.misc.get(some_misc.name, 0))
+    assert player_incomplete.get_stat(some_misc) in (
+        0, player_incomplete.misc.get(some_misc.name, 0))
 
 
 def test_meets_and_lacks_requirements(player: PlayerRecord):
@@ -70,7 +75,8 @@ def test_meets_and_lacks_requirements(player: PlayerRecord):
 
 
 def test_ordering(player: PlayerRecord, sample_csv):
-    better_total = PlayerRecord("BetterTotal", sample_csv, datetime(2023, 1, 1))
+    better_total = PlayerRecord(
+        "BetterTotal", sample_csv, datetime(2023, 1, 1))
     better_total.total_level = player.total_level + 1
 
     assert player < better_total

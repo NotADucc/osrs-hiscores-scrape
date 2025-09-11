@@ -1,10 +1,6 @@
-import math
 import pytest
-from datetime import datetime
 
-from src.request.common import HSType
-from src.request.dto import HSFilterEntry
-from src.request.results import CategoryRecord, PlayerRecord
+from src.request.results import CategoryRecord
 
 
 @pytest.fixture
@@ -26,13 +22,13 @@ def test_initialization(record: CategoryRecord):
 def test_is_better_rank_than(record: CategoryRecord, worse_record: CategoryRecord):
     assert record.is_better_rank_than(worse_record) is True
     assert worse_record.is_better_rank_than(record) is False
-    assert record.is_better_rank_than(None) is False # type: ignore
+    assert record.is_better_rank_than(None) is False  # type: ignore
 
 
 def test_is_worse_rank_than(record: CategoryRecord, worse_record: CategoryRecord):
     assert worse_record.is_worse_rank_than(record) is True
     assert record.is_worse_rank_than(worse_record) is False
-    assert record.is_worse_rank_than(None) is False # type: ignore
+    assert record.is_worse_rank_than(None) is False  # type: ignore
 
 
 def test_to_dict(record: CategoryRecord):
@@ -52,8 +48,8 @@ def test_equality(record: CategoryRecord):
 
     assert record == same_rank_diff_user
     assert record != diff_rank
-    assert not record == None  
-    assert record != None  
+    assert not record == None
+    assert record != None
 
 
 def test_str_returns_json(record: CategoryRecord):

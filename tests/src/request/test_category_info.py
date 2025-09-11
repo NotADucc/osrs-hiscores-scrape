@@ -1,8 +1,8 @@
-import pytest
 from datetime import datetime
 
-from src.request.results import CategoryInfo, CategoryRecord
+import pytest
 
+from src.request.results import CategoryInfo, CategoryRecord
 
 
 @pytest.fixture
@@ -56,9 +56,12 @@ def test_sort_caches_deltas(ts: datetime, sample_records: list[CategoryRecord]):
 
     mean = sum(record.score for record in sample_records) / len(sample_records)
 
-    assert category_info._cached_sum_squared_delta == sum((record.score - mean) ** 2 for record in sample_records)
-    assert category_info._cached_sum_cubed_delta   == sum((record.score - mean) ** 3 for record in sample_records)
-    assert category_info._cached_sum_quartic_delta == sum((record.score - mean) ** 4 for record in sample_records)
+    assert category_info._cached_sum_squared_delta == sum(
+        (record.score - mean) ** 2 for record in sample_records)
+    assert category_info._cached_sum_cubed_delta == sum(
+        (record.score - mean) ** 3 for record in sample_records)
+    assert category_info._cached_sum_quartic_delta == sum(
+        (record.score - mean) ** 4 for record in sample_records)
 
 
 def test_to_dict_basic_stats(ts: datetime, sample_records: list[CategoryRecord]):
