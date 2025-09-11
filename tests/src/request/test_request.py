@@ -5,6 +5,7 @@ import pytest
 from aiohttp import ClientConnectionError
 from yarl import URL
 
+from src.request import request
 from src.request.common import HSAccountTypes, HSType
 from src.request.errors import (IsRateLimited, NotFound, RequestFailed,
                                 ServerBusy)
@@ -280,6 +281,116 @@ async def test_get_last_rank_empty(sample_fake_client_session):
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
         result = await req.get_last_rank(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    assert result == -1
+
+
+@pytest.mark.asyncio
+async def test_get_hs_scores(sample_fake_client_session, sample_category_records: list[CategoryRecord]):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = 1
+    mock_page_req.hs_type = HSType.overall
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
+        result = await req.get_hs_scores(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    expected = request._extract_record_scores(records=sample_category_records, hs_type=mock_page_req.hs_type)
+
+    assert result == expected
+
+@pytest.mark.asyncio
+async def test_get_hs_scores_empty(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = -1
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 1
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
+        result = await req.get_hs_ranks(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    assert result == []
+
+
+@pytest.mark.asyncio
+async def test_get_first_score(sample_fake_client_session, sample_category_records: list[CategoryRecord]):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = 1
+    mock_page_req.hs_type = HSType.overall
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
+        result = await req.get_first_score(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    expected = request._extract_record_scores(records=sample_category_records, hs_type=mock_page_req.hs_type)
+
+    assert result == expected[0]
+
+
+@pytest.mark.asyncio
+async def test_get_first_score_empty(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = -1
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
+        result = await req.get_first_score(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    assert result == -1
+
+
+@pytest.mark.asyncio
+async def test_get_last_score(sample_fake_client_session, sample_category_records: list[CategoryRecord]):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = 1
+    mock_page_req.hs_type = HSType.overall
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
+        result = await req.get_last_score(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    expected = request._extract_record_scores(records=sample_category_records, hs_type=mock_page_req.hs_type)
+
+    assert result == expected[-1]
+
+
+@pytest.mark.asyncio
+async def test_get_last_score_empty(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = -1
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
+        result = await req.get_last_score(mock_page_req)
 
     mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
 
