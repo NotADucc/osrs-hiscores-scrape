@@ -8,15 +8,21 @@ def test_initialization(sample_category_record: CategoryRecord):
 
 
 def test_is_better_rank_than(sample_category_record: CategoryRecord, sample_category_record_worse_rank: CategoryRecord):
-    assert sample_category_record.is_better_rank_than(sample_category_record_worse_rank) is True
-    assert sample_category_record_worse_rank.is_better_rank_than(sample_category_record) is False
-    assert sample_category_record.is_better_rank_than(None) is False  # type: ignore
+    assert sample_category_record.is_better_rank_than(
+        sample_category_record_worse_rank) is True
+    assert sample_category_record_worse_rank.is_better_rank_than(
+        sample_category_record) is False
+    assert sample_category_record.is_better_rank_than(
+        None) is False  # type: ignore
 
 
 def test_is_worse_rank_than(sample_category_record: CategoryRecord, sample_category_record_worse_rank: CategoryRecord):
-    assert sample_category_record_worse_rank.is_worse_rank_than(sample_category_record) is True
-    assert sample_category_record.is_worse_rank_than(sample_category_record_worse_rank) is False
-    assert sample_category_record.is_worse_rank_than(None) is False  # type: ignore
+    assert sample_category_record_worse_rank.is_worse_rank_than(
+        sample_category_record) is True
+    assert sample_category_record.is_worse_rank_than(
+        sample_category_record_worse_rank) is False
+    assert sample_category_record.is_worse_rank_than(
+        None) is False  # type: ignore
 
 
 def test_to_dict(sample_category_record: CategoryRecord):

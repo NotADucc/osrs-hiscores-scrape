@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pytest
 
-
 from src.request.results import CategoryInfo, CategoryRecord
+
 
 def test_initialization(sample_ts: datetime):
     category_info = CategoryInfo("category", sample_ts)
@@ -23,7 +23,8 @@ def test_add_updates_min_max_total(sample_ts: datetime, sample_category_records:
         category_info.add(rec)
 
     assert category_info.is_empty() is False
-    assert category_info._total_score == sum(r.score for r in sample_category_records)
+    assert category_info._total_score == sum(
+        r.score for r in sample_category_records)
     assert category_info.max.username == "test1"    # type: ignore
     assert category_info.min.username == "test5"    # type: ignore
     assert len(category_info._records) == 5
@@ -38,7 +39,8 @@ def test_sort_caches_deltas(sample_ts: datetime, sample_category_records: list[C
     category_info._sort()
     assert category_info._is_sorted is True
 
-    mean = sum(record.score for record in sample_category_records) / len(sample_category_records)
+    mean = sum(record.score for record in sample_category_records) / \
+        len(sample_category_records)
 
     assert category_info._cached_sum_squared_delta == sum(
         (record.score - mean) ** 2 for record in sample_category_records)

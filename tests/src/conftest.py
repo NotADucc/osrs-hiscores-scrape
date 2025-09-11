@@ -1,18 +1,21 @@
 import builtins
 import sys
 import types
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
-from aiohttp import ClientSession
+
 import psutil
 import pytest
-from datetime import datetime, timezone
+from aiohttp import ClientSession
 
 from src.request.common import HSType
 from src.request.results import CategoryRecord, PlayerRecord
 
+
 @pytest.fixture
 def sample_ts():
     return datetime(2023, 1, 1, tzinfo=timezone.utc)
+
 
 @pytest.fixture
 def sample_category_record():
@@ -22,6 +25,7 @@ def sample_category_record():
 @pytest.fixture
 def sample_category_record_worse_rank():
     return CategoryRecord(rank=10, score=3000, username="PlayerTwo")
+
 
 @pytest.fixture
 def sample_category_records() -> list[CategoryRecord]:
@@ -33,6 +37,7 @@ def sample_category_records() -> list[CategoryRecord]:
         CategoryRecord(rank=5, score=10,  username="test5"),
     ]
 
+
 @pytest.fixture
 def sample_player_record_csv_list() -> list[str]:
     return ["1,50,101333" if hs_type.is_skill() else "1,50" for hs_type in list(HSType)[:-1]]
@@ -42,9 +47,11 @@ def sample_player_record_csv_list() -> list[str]:
 def sample_player_record_csv_list_incomplete() -> list[str]:
     return ["-1,1,-1" if hs_type.is_skill() else "-1,1" for hs_type in list(HSType)[:-1]]
 
+
 @pytest.fixture
 def sample_csv(sample_player_record_csv_list) -> str:
     return "\n".join(sample_player_record_csv_list)
+
 
 @pytest.fixture
 def sample_player_record(sample_player_record_csv_list: list[str]) -> PlayerRecord:
@@ -55,9 +62,11 @@ def sample_player_record(sample_player_record_csv_list: list[str]) -> PlayerReco
 def sample_player_record_incomplete(sample_player_record_csv_list_incomplete: list[str], sample_ts: datetime) -> PlayerRecord:
     return PlayerRecord("TestUser", sample_player_record_csv_list_incomplete, sample_ts)
 
+
 @pytest.fixture
 def sample_fake_client_session():
     return MagicMock(spec=ClientSession)
+
 
 @pytest.fixture(autouse=True)
 def patch_exit(monkeypatch):

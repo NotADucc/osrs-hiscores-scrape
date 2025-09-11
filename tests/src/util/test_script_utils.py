@@ -1,9 +1,6 @@
 import argparse
-import builtins
 import sys
-import types
 
-import psutil
 import pytest
 
 from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard

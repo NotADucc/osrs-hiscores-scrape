@@ -2,9 +2,8 @@ from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from aiohttp import ClientConnectionError, ClientSession
+from aiohttp import ClientConnectionError
 from yarl import URL
-
 
 from src.request.errors import (IsRateLimited, NotFound, RequestFailed,
                                 ServerBusy)
@@ -116,7 +115,8 @@ async def test_https_request_timeout(sample_fake_client_session):
 @pytest.mark.asyncio
 async def test_https_request_client_connection_error(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
-    sample_fake_client_session.get.side_effect = ClientConnectionError("conn failed")
+    sample_fake_client_session.get.side_effect = ClientConnectionError(
+        "conn failed")
 
     with patch("fake_useragent.UserAgent") as mock_ua:
         mock_ua.return_value.random = TEST_USER_AGENT
@@ -135,16 +135,16 @@ async def test_get_hs_page(sample_fake_client_session):
     mock_hs_request.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "https_request", new=AsyncMock(return_value="<html>mock page</html>")) as mock_https, \
-         patch("src.request.request._extract_hs_page_records", return_value=["rec1", "rec2"]) as mock_extract:
+            patch("src.request.request._extract_hs_page_records", return_value=["rec1", "rec2"]) as mock_extract:
 
         result = await req.get_hs_page(mock_hs_request)
 
-    mock_https.assert_awaited_once_with(TEST_URL, {"category_type": "overall", "table": "attack", "page": 3})
+    mock_https.assert_awaited_once_with(
+        TEST_URL, {"category_type": "overall", "table": "attack", "page": 3})
 
     mock_extract.assert_called_once_with("<html>mock page</html>")
 
     assert result == ["rec1", "rec2"]
-
 
 
 @pytest.mark.asyncio
@@ -156,11 +156,10 @@ async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sampl
     mock_hs_request.account_type.api_csv.return_value = TEST_URL
 
     with patch.object(req, "https_request", new=AsyncMock(return_value=sample_csv)) as mock_https, \
-        patch("datetime.datetime") as mock_datetime:
+            patch("datetime.datetime") as mock_datetime:
 
         mock_datetime.datetime.now.return_value = sample_ts
         mock_datetime.timezone.utc = timezone.utc
-
 
         result = await req.get_user_stats(mock_hs_request)
 

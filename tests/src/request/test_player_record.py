@@ -1,11 +1,10 @@
 import math
 from datetime import datetime
 
-import pytest
-
 from src.request.common import HSType
 from src.request.dto import HSFilterEntry
 from src.request.results import PlayerRecord
+
 
 def test_initialization(sample_player_record: PlayerRecord):
     assert sample_player_record.username == "TestUser"
@@ -23,11 +22,13 @@ def test_initialization(sample_player_record: PlayerRecord):
 
 
 def tes_get_stat_overall(sample_player_record: PlayerRecord):
-    assert sample_player_record.get_stat(HSType.overall) == sample_player_record.total_level
+    assert sample_player_record.get_stat(
+        HSType.overall) == sample_player_record.total_level
 
 
 def test_get_stat_combat(sample_player_record: PlayerRecord):
-    assert sample_player_record.get_stat(HSType.combat) == sample_player_record.combat_lvl
+    assert sample_player_record.get_stat(
+        HSType.combat) == sample_player_record.combat_lvl
 
 
 def test_get_stat_skill(sample_player_record: PlayerRecord):
@@ -63,7 +64,7 @@ def test_ordering(sample_player_record: PlayerRecord, sample_player_record_csv_l
     assert not (sample_player_record == better_total)
 
 
-def test_eq_same_values(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts:datetime):
+def test_eq_same_values(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts: datetime):
     copy = PlayerRecord("TestUser", sample_player_record_csv_list, sample_ts)
     copy.total_level = sample_player_record.total_level
     copy.total_xp = sample_player_record.total_xp
