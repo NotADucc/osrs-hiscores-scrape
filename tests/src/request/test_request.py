@@ -132,8 +132,7 @@ async def test_get_hs_page(sample_fake_client_session):
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = 3
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "https_request", new=AsyncMock(return_value="<html>mock page</html>")) as mock_https, \
@@ -142,7 +141,7 @@ async def test_get_hs_page(sample_fake_client_session):
         result = await req.get_hs_page(mock_page_req)
 
     mock_https.assert_awaited_once_with(
-        TEST_URL, {"category_type": "overall", "table": 0, "page": 3})
+        TEST_URL, {"category_type": mock_page_req.hs_type.get_category_value(), "table": mock_page_req.hs_type.get_category(), "page": mock_page_req.page_num})
 
     mock_extract.assert_called_once_with("<html>mock page</html>")
 
@@ -165,7 +164,7 @@ async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sampl
 
         result = await req.get_user_stats(mock_player_req)
 
-    mock_https.assert_awaited_once_with(TEST_URL, {"player": "test"})
+    mock_https.assert_awaited_once_with(TEST_URL, {"player": mock_player_req.username})
 
     csv = [line for line in sample_csv.split('\n') if line]
 
@@ -180,8 +179,7 @@ async def test_get_hs_ranks(sample_fake_client_session, sample_category_records:
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = 1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
@@ -199,8 +197,7 @@ async def test_get_hs_ranks_empty(sample_fake_client_session):
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = -1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 1
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
@@ -217,8 +214,7 @@ async def test_get_first_rank(sample_fake_client_session, sample_category_record
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = 1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
@@ -237,8 +233,7 @@ async def test_get_first_rank_empty(sample_fake_client_session):
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = -1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
@@ -255,8 +250,7 @@ async def test_get_last_rank(sample_fake_client_session, sample_category_records
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = 1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
@@ -275,8 +269,7 @@ async def test_get_last_rank_empty(sample_fake_client_session):
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = -1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
@@ -311,8 +304,7 @@ async def test_get_hs_scores_empty(sample_fake_client_session):
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = -1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 1
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
@@ -348,8 +340,7 @@ async def test_get_first_score_empty(sample_fake_client_session):
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = -1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
@@ -385,8 +376,7 @@ async def test_get_last_score_empty(sample_fake_client_session):
 
     mock_page_req = MagicMock()
     mock_page_req.page_num = -1
-    mock_page_req.hs_type.get_category.return_value = "overall"
-    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
