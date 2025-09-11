@@ -5,10 +5,11 @@ import pytest
 from aiohttp import ClientConnectionError
 from yarl import URL
 
+from src.request.common import HSAccountTypes, HSType
 from src.request.errors import (IsRateLimited, NotFound, RequestFailed,
                                 ServerBusy)
 from src.request.request import Requests
-from src.request.results import PlayerRecord
+from src.request.results import CategoryRecord, PlayerRecord
 
 TEST_URL = "http://test"
 TEST_USER_AGENT = "test-agent"
@@ -128,19 +129,19 @@ async def test_https_request_client_connection_error(sample_fake_client_session)
 async def test_get_hs_page(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
-    mock_hs_request = MagicMock()
-    mock_hs_request.page_num = 3
-    mock_hs_request.hs_type.get_category.return_value = "overall"
-    mock_hs_request.hs_type.get_category_value.return_value = "attack"
-    mock_hs_request.account_type.lookup_overall.return_value = TEST_URL
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = 3
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
     with patch.object(req, "https_request", new=AsyncMock(return_value="<html>mock page</html>")) as mock_https, \
             patch("src.request.request._extract_hs_page_records", return_value=["rec1", "rec2"]) as mock_extract:
 
-        result = await req.get_hs_page(mock_hs_request)
+        result = await req.get_hs_page(mock_page_req)
 
     mock_https.assert_awaited_once_with(
-        TEST_URL, {"category_type": "overall", "table": "attack", "page": 3})
+        TEST_URL, {"category_type": "overall", "table": 0, "page": 3})
 
     mock_extract.assert_called_once_with("<html>mock page</html>")
 
@@ -151,9 +152,9 @@ async def test_get_hs_page(sample_fake_client_session):
 async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sample_ts: datetime):
     req = Requests(sample_fake_client_session)
 
-    mock_hs_request = MagicMock()
-    mock_hs_request.username = "test"
-    mock_hs_request.account_type.api_csv.return_value = TEST_URL
+    mock_player_req = MagicMock()
+    mock_player_req.username = "test"
+    mock_player_req.account_type.api_csv.return_value = TEST_URL
 
     with patch.object(req, "https_request", new=AsyncMock(return_value=sample_csv)) as mock_https, \
             patch("datetime.datetime") as mock_datetime:
@@ -161,7 +162,7 @@ async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sampl
         mock_datetime.datetime.now.return_value = sample_ts
         mock_datetime.timezone.utc = timezone.utc
 
-        result = await req.get_user_stats(mock_hs_request)
+        result = await req.get_user_stats(mock_player_req)
 
     mock_https.assert_awaited_once_with(TEST_URL, {"player": "test"})
 
@@ -170,3 +171,40 @@ async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sampl
     expected = PlayerRecord(username="test", csv=csv, ts=sample_ts)
 
     assert result == expected
+
+
+@pytest.mark.asyncio
+async def test_get_hs_ranks(sample_fake_client_session, sample_category_records: list[CategoryRecord]):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = 1
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 0
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page:
+        result = await req.get_hs_ranks(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    expected = [record.rank for record in sample_category_records]
+
+    assert result == expected
+
+@pytest.mark.asyncio
+async def test_get_hs_ranks_empty(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_page_req = MagicMock()
+    mock_page_req.page_num = -1
+    mock_page_req.hs_type.get_category.return_value = "overall"
+    mock_page_req.hs_type.get_category_value.return_value = 1
+    mock_page_req.account_type.lookup_overall.return_value = TEST_URL
+
+    with patch.object(req, "get_hs_page", new=AsyncMock(return_value=[])) as mock_hs_page:
+        result = await req.get_hs_ranks(mock_page_req)
+
+    mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
+
+    assert result == []
