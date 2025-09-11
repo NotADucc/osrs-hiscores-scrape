@@ -22,7 +22,7 @@ logger = get_logger()
 async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
-        player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
+        player_record = await retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=account_type))
 
         convert = player_record.to_dict() if not hs_type else \
             {

@@ -160,7 +160,7 @@ class JobQueue(Generic[JQ]):
         return self._q._queue[-1]  # type: ignore
 
 
-async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
+async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, max_page_req: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
     """
     Generate jobs for fetching OSRS hiscore pages within a rank range.
 
@@ -174,7 +174,7 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
     start_page, end_page = extract_page_nr_from_rank(
         start_rank=start_rank, end_rank=end_rank)
 
-    res = await req.get_max_page(input=input)
+    res = await req.get_max_page(max_page_req=max_page_req)
     max_page, max_rank = res.page_nr, res.rank_nr
 
     if end_rank <= 0 or end_rank >= max_rank:
@@ -193,7 +193,7 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
                           page_num - 1) * HS_PAGE_SIZE + 1,
                       end_rank=end_rank if page_num == end_page else (
                           page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,
-                      account_type=input.account_type, hs_type=input.hs_type,
+                      account_type=max_page_req.account_type, hs_type=max_page_req.hs_type,
                       start_idx=(
                           start_rank - 1) % HS_PAGE_SIZE if page_num == start_page else 0,
                       end_idx=(end_rank - 1) % HS_PAGE_SIZE +
@@ -203,7 +203,7 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
     ]
 
 
-async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, input: GetFilteredPageRangeRequest) -> List[HSCategoryJob]:
+async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, page_range_req: GetFilteredPageRangeRequest) -> List[HSCategoryJob]:
     """
     Generate jobs for fetching OSRS hiscore pages within a rank range.
 
@@ -217,7 +217,7 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, inp
     start_page, end_page = extract_page_nr_from_rank(
         start_rank=start_rank, end_rank=end_rank)
 
-    page_range = await req.get_filtered_page_range(input=input)
+    page_range = await req.get_filtered_page_range(page_range_req=page_range_req)
 
     if start_page < page_range.start_page:
         start_page = page_range.start_page
@@ -241,7 +241,7 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, inp
                           page_num - 1) * HS_PAGE_SIZE + 1,
                       end_rank=end_rank if page_num == end_page else (
                           page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,
-                      account_type=input.account_type, hs_type=input.filter_entry.hstype,
+                      account_type=page_range_req.account_type, hs_type=page_range_req.filter_entry.hstype,
                       start_idx=(
                           start_rank - 1) % HS_PAGE_SIZE if page_num == start_page else 0,
                       end_idx=(end_rank - 1) % HS_PAGE_SIZE +

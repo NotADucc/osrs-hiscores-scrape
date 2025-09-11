@@ -42,7 +42,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
         hs_scrape_joblist = await get_hs_page_job(req=req,
                                                   start_rank=start_rank,
                                                   end_rank=-1,
-                                                  input=GetMaxHighscorePageRequest(
+                                                  max_page_req=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
 

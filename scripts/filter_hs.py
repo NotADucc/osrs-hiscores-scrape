@@ -54,7 +54,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
             temp_joblist = await get_hs_filtered_job(req=req,
                                                      start_rank=start_rank,
                                                      end_rank=-1,
-                                                     input=GetFilteredPageRangeRequest(
+                                                     page_range_req=GetFilteredPageRangeRequest(
                                                          filter_entry=entry,
                                                          account_type=account_type)
                                                      )
@@ -75,7 +75,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
         hs_scrape_joblist = await get_hs_page_job(req=req,
                                                   start_rank=start_rank,
                                                   end_rank=-1,
-                                                  input=GetMaxHighscorePageRequest(
+                                                  max_page_req=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
 
