@@ -6,7 +6,7 @@ from aiohttp import ClientConnectionError
 from yarl import URL
 
 from src.request import request
-from src.request.common import HSAccountTypes, HSType
+from src.request.common import HSType
 from src.request.errors import (IsRateLimited, NotFound, RequestFailed,
                                 ServerBusy)
 from src.request.request import Requests
@@ -164,7 +164,8 @@ async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sampl
 
         result = await req.get_user_stats(mock_player_req)
 
-    mock_https.assert_awaited_once_with(TEST_URL, {"player": mock_player_req.username})
+    mock_https.assert_awaited_once_with(
+        TEST_URL, {"player": mock_player_req.username})
 
     csv = [line for line in sample_csv.split('\n') if line]
 
@@ -190,6 +191,7 @@ async def test_get_hs_ranks(sample_fake_client_session, sample_category_records:
     expected = [record.rank for record in sample_category_records]
 
     assert result == expected
+
 
 @pytest.mark.asyncio
 async def test_get_hs_ranks_empty(sample_fake_client_session):
@@ -294,9 +296,11 @@ async def test_get_hs_scores(sample_fake_client_session, sample_category_records
 
     mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
 
-    expected = request._extract_record_scores(records=sample_category_records, hs_type=mock_page_req.hs_type)
+    expected = request._extract_record_scores(
+        records=sample_category_records, hs_type=mock_page_req.hs_type)
 
     assert result == expected
+
 
 @pytest.mark.asyncio
 async def test_get_hs_scores_empty(sample_fake_client_session):
@@ -329,7 +333,8 @@ async def test_get_first_score(sample_fake_client_session, sample_category_recor
 
     mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
 
-    expected = request._extract_record_scores(records=sample_category_records, hs_type=mock_page_req.hs_type)
+    expected = request._extract_record_scores(
+        records=sample_category_records, hs_type=mock_page_req.hs_type)
 
     assert result == expected[0]
 
@@ -365,7 +370,8 @@ async def test_get_last_score(sample_fake_client_session, sample_category_record
 
     mock_hs_page.assert_awaited_once_with(page_req=mock_page_req)
 
-    expected = request._extract_record_scores(records=sample_category_records, hs_type=mock_page_req.hs_type)
+    expected = request._extract_record_scores(
+        records=sample_category_records, hs_type=mock_page_req.hs_type)
 
     assert result == expected[-1]
 
