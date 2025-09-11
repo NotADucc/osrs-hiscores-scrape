@@ -13,17 +13,17 @@ from src.request.results import CategoryRecord, PlayerRecord
 
 
 @pytest.fixture
-def sample_ts():
+def sample_ts() -> datetime:
     return datetime(2023, 1, 1, tzinfo=timezone.utc)
 
 
 @pytest.fixture
-def sample_category_record():
+def sample_category_record() -> CategoryRecord:
     return CategoryRecord(rank=1, score=5000, username="PlayerOne")
 
 
 @pytest.fixture
-def sample_category_record_worse_rank():
+def sample_category_record_worse_rank() -> CategoryRecord:
     return CategoryRecord(rank=10, score=3000, username="PlayerTwo")
 
 
