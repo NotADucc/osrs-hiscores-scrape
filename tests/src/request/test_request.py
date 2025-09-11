@@ -7,13 +7,14 @@ from yarl import URL
 
 from src.request import request
 from src.request.common import HSType
-from src.request.errors import (IsRateLimited, NotFound, ParsingFailed, RequestFailed,
-                                ServerBusy)
+from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
+                                RequestFailed, ServerBusy)
 from src.request.request import Requests
 from src.request.results import CategoryRecord, PlayerRecord
 
 TEST_URL = "http://test"
 TEST_USER_AGENT = "test-agent"
+
 
 @pytest.mark.asyncio
 async def test_get_proxy(sample_fake_client_session):
@@ -377,6 +378,8 @@ async def test_get_last_score(sample_fake_client_session, sample_category_record
 # ------------------
 # None class methods
 # ------------------
+
+
 def test__is_rate_limited_true():
     page = "your IP has been temporarily blocked"
     assert request._is_rate_limited(page)
@@ -473,14 +476,16 @@ async def test_get_last_score_empty(sample_fake_client_session):
 
 def test__extract_record_scores_misc(monkeypatch, sample_category_records: list[CategoryRecord]):
     called = {}
-    
+
     def fake_calc_skill_level(score, show_virtual_lvl):
         called[score] = show_virtual_lvl
         return score
 
-    monkeypatch.setattr("src.request.request.calc_skill_level", fake_calc_skill_level)
+    monkeypatch.setattr(
+        "src.request.request.calc_skill_level", fake_calc_skill_level)
 
-    res = request._extract_record_scores(records=sample_category_records, hs_type=HSType.combat)
+    res = request._extract_record_scores(
+        records=sample_category_records, hs_type=HSType.combat)
 
     assert res == [400, 300, 200, 100, 10]
     assert called == {}
