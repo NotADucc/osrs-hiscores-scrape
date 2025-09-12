@@ -1,6 +1,7 @@
 name: run py jobs
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - '**.py'
