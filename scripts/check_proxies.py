@@ -1,7 +1,7 @@
 import argparse
 import asyncio
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 
 import aiohttp
 
