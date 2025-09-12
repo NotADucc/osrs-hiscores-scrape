@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from more_itertools import side_effect
 import pytest
 from aiohttp import ClientConnectionError
 from yarl import URL
 
 from src.request import request
-from src.request.common import HSType
+from src.request.common import HSAccountTypes, HSType
+from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
 from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
                                 RequestFailed, ServerBusy)
 from src.request.request import Requests
@@ -135,8 +137,10 @@ async def test_get_hs_page(sample_fake_client_session):
     mock_page_req.hs_type = HSType.overall
     mock_page_req.account_type.lookup_overall.return_value = TEST_URL
 
-    with patch.object(req, "https_request", new=AsyncMock(return_value="<html>mock page</html>")) as mock_https, \
-            patch("src.request.request._extract_hs_page_records", return_value=["rec1", "rec2"]) as mock_extract:
+    with (
+        patch.object(req, "https_request", new=AsyncMock(return_value="<html>mock page</html>")) as mock_https,
+        patch("src.request.request._extract_hs_page_records", return_value=["rec1", "rec2"]) as mock_extract
+    ):
 
         result = await req.get_hs_page(mock_page_req)
 
@@ -156,8 +160,10 @@ async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sampl
     mock_player_req.username = "test"
     mock_player_req.account_type.api_csv.return_value = TEST_URL
 
-    with patch.object(req, "https_request", new=AsyncMock(return_value=sample_csv)) as mock_https, \
-            patch("datetime.datetime") as mock_datetime:
+    with (
+        patch.object(req, "https_request", new=AsyncMock(return_value=sample_csv)) as mock_https, 
+        patch("datetime.datetime") as mock_datetime
+    ):
 
         mock_datetime.datetime.now.return_value = sample_ts
         mock_datetime.timezone.utc = timezone.utc
@@ -374,6 +380,169 @@ async def test_get_last_score(sample_fake_client_session, sample_category_record
         records=sample_category_records, hs_type=mock_page_req.hs_type)
 
     assert result == expected[-1]
+
+@pytest.mark.asyncio
+async def test_get_max_page(sample_fake_client_session, sample_category_records):
+    req = Requests(sample_fake_client_session)
+
+    max_page_range_req = MagicMock()
+    max_page_range_req.hs_type = HSType.overall
+    max_page_range_req.account_type = HSAccountTypes.regular
+
+    with (
+        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
+        patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
+    ):
+        result = await req.get_max_page(max_page_range_req)
+
+    mock_hs_page.assert_awaited()
+    mock_last_rank.assert_awaited_once()
+
+    assert result.page_nr == 1
+    assert result.rank_nr == 25
+
+@pytest.mark.asyncio
+async def test_get_filtered_page_range_less_than(sample_fake_client_session, sample_category_records):
+    req = Requests(sample_fake_client_session)
+
+    page_range_req = MagicMock()
+    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v < 50)
+    page_range_req.account_type = HSAccountTypes.regular
+
+    with (
+        patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
+        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
+        patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
+        patch.object(req, "get_last_rank", new=AsyncMock(return_value=250)) as mock_last_rank,
+        patch.object(req, "get_max_page", new=AsyncMock(return_value=MagicMock(page_nr=5))) as mock_max_page,
+    ):
+        result = await req.get_filtered_page_range(page_range_req)
+
+    mock_hs_page.assert_awaited()
+    mock_extract.assert_called()
+
+    mock_first_rank.assert_awaited_once()
+    mock_last_rank.assert_awaited_once()
+    mock_max_page.assert_awaited_once()
+
+    assert result.start_page == 1
+    assert result.start_rank == 1
+    assert result.end_page == 5
+    assert result.end_rank == 250
+
+
+@pytest.mark.asyncio
+async def test_get_filtered_page_range_less_than_or_equal(sample_fake_client_session, sample_category_records):
+    req = Requests(sample_fake_client_session)
+
+    page_range_req = MagicMock()
+    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v <= 50)
+    page_range_req.account_type = HSAccountTypes.regular
+
+    with (
+        patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
+        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
+        patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
+        patch.object(req, "get_last_rank", new=AsyncMock(return_value=250)) as mock_last_rank,
+        patch.object(req, "get_max_page", new=AsyncMock(return_value=MagicMock(page_nr=5))) as mock_max_page,
+    ):
+        result = await req.get_filtered_page_range(page_range_req)
+
+    mock_hs_page.assert_awaited()
+    mock_extract.assert_called()
+
+    mock_first_rank.assert_awaited_once()
+    mock_last_rank.assert_awaited_once()
+    mock_max_page.assert_awaited_once()
+
+    assert result.start_page == 1
+    assert result.start_rank == 1
+    assert result.end_page == 5
+    assert result.end_rank == 250
+
+@pytest.mark.asyncio
+async def test_get_filtered_page_range_equal(sample_fake_client_session, sample_category_records):
+    req = Requests(sample_fake_client_session)
+
+    page_range_req = MagicMock()
+    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v == 50)
+    page_range_req.account_type = HSAccountTypes.regular
+
+    with (
+        patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
+        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
+        patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
+        patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
+    ):
+        result = await req.get_filtered_page_range(page_range_req)
+
+    mock_hs_page.assert_awaited()
+    mock_extract.assert_called()
+
+    mock_first_rank.assert_awaited_once()
+    mock_last_rank.assert_awaited_once()
+
+    assert result.start_page == 1
+    assert result.start_rank == 1
+    assert result.end_page == 1
+    assert result.end_rank == 25
+
+
+@pytest.mark.asyncio
+async def test_get_filtered_page_range_greater_than(sample_fake_client_session, sample_category_records):
+    req = Requests(sample_fake_client_session)
+
+    page_range_req = MagicMock()
+    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v > 50)
+    page_range_req.account_type = HSAccountTypes.regular
+
+    with (
+        patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
+        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
+        patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
+        patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
+    ):
+        result = await req.get_filtered_page_range(page_range_req)
+
+    mock_hs_page.assert_awaited()
+    mock_extract.assert_called()
+
+    mock_first_rank.assert_awaited_once()
+    mock_last_rank.assert_awaited_once()
+
+    assert result.start_page == 1
+    assert result.start_rank == 1
+    assert result.end_page == 1
+    assert result.end_rank == 25
+
+
+@pytest.mark.asyncio
+async def test_get_filtered_page_range_greater_than_or_equal(sample_fake_client_session, sample_category_records):
+    req = Requests(sample_fake_client_session)
+
+    page_range_req = MagicMock()
+    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v >= 50)
+    page_range_req.account_type = HSAccountTypes.regular
+
+    with (
+        patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
+        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
+        patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
+        patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
+    ):
+        result = await req.get_filtered_page_range(page_range_req)
+
+    mock_hs_page.assert_awaited()
+    mock_extract.assert_called()
+
+    mock_first_rank.assert_awaited_once()
+    mock_last_rank.assert_awaited_once()
+
+    assert result.start_page == 1
+    assert result.start_rank == 1
+    assert result.end_page == 1
+    assert result.end_rank == 25
+
 
 # ------------------
 # None class methods

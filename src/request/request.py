@@ -104,7 +104,7 @@ class Requests():
 
                 records = await retry(
                     self.get_hs_page,
-                    page_request=GetHighscorePageRequest(
+                    page_req=GetHighscorePageRequest(
                         page_num=middle, hs_type=page_range_req.filter_entry.hstype, account_type=page_range_req.account_type)
                 )
                 expected_first_rank = (middle - 1) * HS_PAGE_SIZE + 1
