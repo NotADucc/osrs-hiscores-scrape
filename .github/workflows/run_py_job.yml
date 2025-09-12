@@ -1,0 +1,78 @@
+name: run py jobs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '**.py'
+  pull_request:
+    paths:
+      - '**.py'
+    branches: [ "main" ]
+
+permissions:
+  contents: write 
+
+jobs:
+  format-job:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install formatters
+        run: |
+          pip install isort autopep8 autoflake
+
+      - name: Remove unused imports
+        run: autoflake --in-place --recursive --remove-all-unused-imports .
+
+      - name: Run isort
+        run: isort .
+
+      - name: Run autopep8
+        run: autopep8 --in-place --recursive .
+
+      - name: Check for modified files
+        id: git-check
+        run: echo modified=$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi) >> $GITHUB_OUTPUT
+
+      - name: Push
+        if: steps.git-check.outputs.modified == 'true'
+        run: |
+            git config --global user.email "robertohelper@outlook.com"
+            git config --global user.name "Gwilom-Bot"
+            git add .
+            git commit -am "refactor: ran autopep, isort and autoflake" || true
+            git push || git pull --rebase && git push
+
+
+  run-tests-job:
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - format-job
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt -e .
+
+      - name: run tests
+        run: pytest
