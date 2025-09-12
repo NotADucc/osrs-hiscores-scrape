@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from src.request.common import HSAccountTypes, HSType
 from src.request.results import CategoryRecord, PlayerRecord
-from src.worker.job import HSCategoryJob, HSLookupJob, JobManager
+from src.worker.job import HSCategoryJob, HSLookupJob, JobManager, JobQueue
 
 
 def test_hslookupjob_initialization_defaults():
@@ -133,6 +133,7 @@ async def test_jobmanager_set_and_next_triggers_events():
     assert jm.is_finished() is True
     await jm.await_until_finished() 
 
+
 @pytest.mark.asyncio
 async def test_jobmanager_finished_immediately():
     jm = JobManager(start=5, end=3)
@@ -140,3 +141,61 @@ async def test_jobmanager_finished_immediately():
 
     await jm.await_next()
     await jm.await_until_finished()
+
+
+@pytest.mark.asyncio
+async def test_jobqueue_put_and_get_basic():
+    q = JobQueue()
+
+    await q.put((1, "a"))
+    await q.put((0, "b"))
+
+    assert len(q) == 2
+
+    first = await q.get()
+    second = await q.get()
+
+    assert first[1] == "b" 
+    assert second[1] == "a"
+
+
+@pytest.mark.asyncio
+async def test_jobqueue_peek_and_last():
+    q = JobQueue()
+
+    await q.put((2, "x"))
+    await q.put((1, "y"))
+
+    assert q.peek()[1] == "y"  
+    assert q.last()[1] == "x"   
+
+
+@pytest.mark.asyncio
+async def test_jobqueue_peek_and_last_empty():
+    q = JobQueue()
+
+    with pytest.raises(asyncio.QueueEmpty):
+        q.peek()
+
+    with pytest.raises(asyncio.QueueEmpty):
+        q.last()
+
+
+@pytest.mark.asyncio
+async def test_jobqueue_maxsize_blocks_until_get():
+    q = JobQueue(maxsize=1)
+
+    await q.put((1, "only"))
+
+    async def try_put():
+        await q.put((0, "second"))
+
+    task = asyncio.create_task(try_put())
+
+    await asyncio.sleep(0.1)
+    assert not task.done()
+
+    await q.get()
+    await asyncio.wait_for(task, timeout=1)
+
+    assert len(q) == 1
