@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 from dataclasses import dataclass
+import os
 
 import aiohttp
 
@@ -36,7 +37,7 @@ async def request_proxy(req: Requests, job: ProxyJob):
             if len(splitted) > 2 \
             else f"http://{splitted[0]}:{splitted[1]}"
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         async with session.get("http://httpbin.org/ip", proxy=proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
             if resp.status == 200:
                 job.result = proxy
@@ -55,8 +56,11 @@ async def enqueue_proxy(queue: JobQueue | asyncio.Queue, job: ProxyJob):
 @log_execution
 async def main(proxy_file: str):
     potential_proxies = read_proxies(proxy_file=proxy_file)
-    splitted = proxy_file.split('.')
-    out_file = splitted[0] + "_valid." + splitted[1]
+
+    file_name = os.path.basename(proxy_file)
+    base_proxy_file, ext = os.path.splitext(file_name)
+
+    out_file = base_proxy_file + "_valid" + ext
 
     async with aiohttp.ClientSession() as session:
         req = Requests(session=session)
