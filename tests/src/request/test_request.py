@@ -1,14 +1,13 @@
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from more_itertools import side_effect
 import pytest
 from aiohttp import ClientConnectionError
 from yarl import URL
 
 from src.request import request
 from src.request.common import HSAccountTypes, HSType
-from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
+from src.request.dto import HSFilterEntry
 from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
                                 RequestFailed, ServerBusy)
 from src.request.request import Requests
@@ -161,7 +160,7 @@ async def test_get_user_stats(sample_fake_client_session, sample_csv: str, sampl
     mock_player_req.account_type.api_csv.return_value = TEST_URL
 
     with (
-        patch.object(req, "https_request", new=AsyncMock(return_value=sample_csv)) as mock_https, 
+        patch.object(req, "https_request", new=AsyncMock(return_value=sample_csv)) as mock_https,
         patch("datetime.datetime") as mock_datetime
     ):
 
@@ -381,6 +380,7 @@ async def test_get_last_score(sample_fake_client_session, sample_category_record
 
     assert result == expected[-1]
 
+
 @pytest.mark.asyncio
 async def test_get_max_page(sample_fake_client_session, sample_category_records):
     req = Requests(sample_fake_client_session)
@@ -401,12 +401,14 @@ async def test_get_max_page(sample_fake_client_session, sample_category_records)
     assert result.page_nr == 1
     assert result.rank_nr == 25
 
+
 @pytest.mark.asyncio
 async def test_get_filtered_page_range_less_than(sample_fake_client_session, sample_category_records):
     req = Requests(sample_fake_client_session)
 
     page_range_req = MagicMock()
-    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v < 50)
+    page_range_req.filter_entry = HSFilterEntry(
+        hstype=HSType.overall, predicate=lambda v: v < 50)
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
@@ -436,7 +438,8 @@ async def test_get_filtered_page_range_less_than_or_equal(sample_fake_client_ses
     req = Requests(sample_fake_client_session)
 
     page_range_req = MagicMock()
-    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v <= 50)
+    page_range_req.filter_entry = HSFilterEntry(
+        hstype=HSType.overall, predicate=lambda v: v <= 50)
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
@@ -460,12 +463,14 @@ async def test_get_filtered_page_range_less_than_or_equal(sample_fake_client_ses
     assert result.end_page == 5
     assert result.end_rank == 250
 
+
 @pytest.mark.asyncio
 async def test_get_filtered_page_range_equal(sample_fake_client_session, sample_category_records):
     req = Requests(sample_fake_client_session)
 
     page_range_req = MagicMock()
-    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v == 50)
+    page_range_req.filter_entry = HSFilterEntry(
+        hstype=HSType.overall, predicate=lambda v: v == 50)
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
@@ -493,7 +498,8 @@ async def test_get_filtered_page_range_greater_than(sample_fake_client_session, 
     req = Requests(sample_fake_client_session)
 
     page_range_req = MagicMock()
-    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v > 50)
+    page_range_req.filter_entry = HSFilterEntry(
+        hstype=HSType.overall, predicate=lambda v: v > 50)
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
@@ -521,7 +527,8 @@ async def test_get_filtered_page_range_greater_than_or_equal(sample_fake_client_
     req = Requests(sample_fake_client_session)
 
     page_range_req = MagicMock()
-    page_range_req.filter_entry = HSFilterEntry(hstype=HSType.overall, predicate=lambda v: v >= 50)
+    page_range_req.filter_entry = HSFilterEntry(
+        hstype=HSType.overall, predicate=lambda v: v >= 50)
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
