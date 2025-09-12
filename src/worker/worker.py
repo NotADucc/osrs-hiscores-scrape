@@ -38,7 +38,7 @@ class Worker:
         self.request_fn = request_fn
         self.enqueue_fn = enqueue_fn
 
-    async def run(self, initial_delay: float = 0, max_retries: int = 10) -> None:
+    async def run(self, initial_delay: float = 0, max_retries: int = 10, skip_failed: bool = False) -> None:
         """            
         Continuously process jobs from the input queue:
             1. Optionally wait for an initial delay.
@@ -81,8 +81,11 @@ class Worker:
             except NotFound:
                 self.job_manager.next()
             except (CancelledError, RetryFailed):
-                await self.in_q.put(job, force=True)
-                raise
+                if skip_failed:
+                    self.job_manager.next()
+                else:
+                    await self.in_q.put(job, force=True)
+                    raise
 
 
 def create_workers(

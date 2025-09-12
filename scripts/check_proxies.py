@@ -91,7 +91,7 @@ async def main(proxy_file: str):
 
         for i, w in enumerate(proxy_workers):
             T.append(asyncio.create_task(
-                w.run(initial_delay=i * 0.1, max_retries=2)
+                w.run(initial_delay=i * 0.1, max_retries=2, skip_failed=True)
             ))
         try:
             await asyncio.gather(*T)
