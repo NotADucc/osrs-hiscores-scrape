@@ -218,35 +218,35 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, pag
         start_rank=start_rank, end_rank=end_rank)
 
     page_range = await req.get_filtered_page_range(page_range_req=page_range_req)
+    filter_start_page, filter_start_rank = page_range.start_page, page_range.start_rank
+    filter_end_page, filter_end_rank = page_range.end_page, page_range.end_rank
 
-    if start_page < page_range.start_page:
-        start_page = page_range.start_page
-        start_rank = page_range.start_rank
+    if filter_start_rank > start_rank:
+        start_page = filter_start_page
+        start_rank = filter_start_rank
 
-    max_page, max_rank = page_range.end_page, page_range.end_rank
-
-    if end_rank <= 0 or end_rank >= max_rank:
-        end_page = max_page
-        end_rank = max_rank
-    else:
-        end_page = end_page
-        end_rank = end_rank
+    if end_rank <= 0 or filter_end_rank < end_rank:
+        end_page = filter_end_page
+        end_rank = filter_end_rank
 
     if start_rank > end_rank:
         return []
 
     return [
-        HSCategoryJob(priority=page_num, page_num=page_num,
-                      start_rank=start_rank if page_num == start_page else (
-                          page_num - 1) * HS_PAGE_SIZE + 1,
-                      end_rank=end_rank if page_num == end_page else (
-                          page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,
-                      account_type=page_range_req.account_type, hs_type=page_range_req.filter_entry.hstype,
-                      start_idx=(
-                          start_rank - 1) % HS_PAGE_SIZE if page_num == start_page else 0,
-                      end_idx=(end_rank - 1) % HS_PAGE_SIZE +
-                      1 if page_num == end_rank else HS_PAGE_SIZE,
-                      )
+        HSCategoryJob(
+            priority=page_num,
+            page_num=page_num,
+            start_rank=start_rank if page_num == start_page
+                else (page_num - 1) * HS_PAGE_SIZE + 1,  # nopep8
+            end_rank=end_rank if page_num == end_page
+                else (page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,  # nopep8
+            account_type=page_range_req.account_type,
+            hs_type=page_range_req.filter_entry.hstype,
+            start_idx=(start_rank - 1) % HS_PAGE_SIZE if page_num == start_page
+                else 0,  # nopep8
+            end_idx=(end_rank - 1) % HS_PAGE_SIZE + 1 if page_num == end_page
+                else HS_PAGE_SIZE,  # nopep8
+        )
         for page_num in range(start_page, end_page + 1)
     ]
 

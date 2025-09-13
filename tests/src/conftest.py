@@ -57,9 +57,11 @@ def sample_csv(sample_player_record_csv_list) -> str:
 def sample_player_record(sample_player_record_csv_list: list[str]) -> PlayerRecord:
     return PlayerRecord("TestUser", sample_player_record_csv_list, datetime(2023, 1, 1))
 
+
 @pytest.fixture
 def sample_player_records(sample_player_record_csv_list: list[str]) -> list[PlayerRecord]:
     return [PlayerRecord("TestUser1", sample_player_record_csv_list, datetime(2023, 1, 1)), PlayerRecord("TestUser2", sample_player_record_csv_list, datetime(2023, 1, 1))]
+
 
 @pytest.fixture
 def sample_player_record_incomplete(sample_player_record_csv_list_incomplete: list[str], sample_ts: datetime) -> PlayerRecord:
