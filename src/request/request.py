@@ -110,6 +110,7 @@ class Requests():
                 expected_first_rank = (middle - 1) * HS_PAGE_SIZE + 1
 
                 logger.debug(f'current range: ({l}-{r}) middle: {middle}')
+                logger.debug(f'{records[0].rank}')
 
                 if not records or records[0].rank != expected_first_rank:
                     r = middle - 1

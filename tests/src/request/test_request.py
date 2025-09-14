@@ -382,7 +382,7 @@ async def test_get_last_score(sample_fake_client_session, sample_category_record
 
 
 @pytest.mark.asyncio
-async def test_get_max_page(sample_fake_client_session, sample_category_records):
+async def test_get_max_page(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
     max_page_range_req = MagicMock()
@@ -390,12 +390,12 @@ async def test_get_max_page(sample_fake_client_session, sample_category_records)
     max_page_range_req.account_type = HSAccountTypes.regular
 
     with (
-        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
+        patch("src.request.request.retry", new=AsyncMock(return_val=1)) as retry_mock,
         patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
     ):
         result = await req.get_max_page(max_page_range_req)
 
-    mock_hs_page.assert_awaited()
+    retry_mock.assert_awaited()
     mock_last_rank.assert_awaited_once()
 
     assert result.page_nr == 1
@@ -403,7 +403,7 @@ async def test_get_max_page(sample_fake_client_session, sample_category_records)
 
 
 @pytest.mark.asyncio
-async def test_get_filtered_page_range_less_than(sample_fake_client_session, sample_category_records):
+async def test_get_filtered_page_range_less_than(sample_fake_client_session, sample_category_records: list[CategoryRecord]):
     req = Requests(sample_fake_client_session)
 
     page_range_req = MagicMock()
@@ -412,15 +412,15 @@ async def test_get_filtered_page_range_less_than(sample_fake_client_session, sam
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
+        patch("src.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
         patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
-        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
         patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
         patch.object(req, "get_last_rank", new=AsyncMock(return_value=250)) as mock_last_rank,
         patch.object(req, "get_max_page", new=AsyncMock(return_value=MagicMock(page_nr=5))) as mock_max_page,
     ):
         result = await req.get_filtered_page_range(page_range_req)
 
-    mock_hs_page.assert_awaited()
+    retry_mock.assert_awaited()
     mock_extract.assert_called()
 
     mock_first_rank.assert_awaited_once()
@@ -443,15 +443,15 @@ async def test_get_filtered_page_range_less_than_or_equal(sample_fake_client_ses
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
+        patch("src.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
         patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
-        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
         patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
         patch.object(req, "get_last_rank", new=AsyncMock(return_value=250)) as mock_last_rank,
         patch.object(req, "get_max_page", new=AsyncMock(return_value=MagicMock(page_nr=5))) as mock_max_page,
     ):
         result = await req.get_filtered_page_range(page_range_req)
 
-    mock_hs_page.assert_awaited()
+    retry_mock.assert_awaited()
     mock_extract.assert_called()
 
     mock_first_rank.assert_awaited_once()
@@ -474,14 +474,14 @@ async def test_get_filtered_page_range_equal(sample_fake_client_session, sample_
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
+        patch("src.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
         patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
-        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
         patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
         patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
     ):
         result = await req.get_filtered_page_range(page_range_req)
 
-    mock_hs_page.assert_awaited()
+    retry_mock.assert_awaited()
     mock_extract.assert_called()
 
     mock_first_rank.assert_awaited_once()
@@ -503,14 +503,14 @@ async def test_get_filtered_page_range_greater_than(sample_fake_client_session, 
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
+        patch("src.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
         patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
-        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
         patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
         patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
     ):
         result = await req.get_filtered_page_range(page_range_req)
 
-    mock_hs_page.assert_awaited()
+    retry_mock.assert_awaited()
     mock_extract.assert_called()
 
     mock_first_rank.assert_awaited_once()
@@ -532,14 +532,14 @@ async def test_get_filtered_page_range_greater_than_or_equal(sample_fake_client_
     page_range_req.account_type = HSAccountTypes.regular
 
     with (
+        patch("src.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
         patch("src.request.request._extract_record_scores", return_value=[score.score for score in sample_category_records]) as mock_extract,
-        patch.object(req, "get_hs_page", new=AsyncMock(return_value=sample_category_records)) as mock_hs_page,
         patch.object(req, "get_first_rank", new=AsyncMock(return_value=1)) as mock_first_rank,
         patch.object(req, "get_last_rank", new=AsyncMock(return_value=25)) as mock_last_rank,
     ):
         result = await req.get_filtered_page_range(page_range_req)
 
-    mock_hs_page.assert_awaited()
+    retry_mock.assert_awaited()
     mock_extract.assert_called()
 
     mock_first_rank.assert_awaited_once()
