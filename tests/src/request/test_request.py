@@ -663,5 +663,5 @@ def test__extract_record_scores_misc(monkeypatch, sample_category_records: list[
     res = request._extract_record_scores(
         records=sample_category_records, hs_type=HSType.combat)
 
-    assert res == [400, 300, 200, 100, 10]
+    assert res == [record.score for record in sample_category_records]
     assert called == {}
