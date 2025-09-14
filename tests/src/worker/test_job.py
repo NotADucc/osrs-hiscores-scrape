@@ -4,10 +4,10 @@ import pytest
 from dataclasses import fields
 
 from src.request.common import HSAccountTypes, HSType
-from src.request.dto import GetFilteredPageRangeResult
+from src.request.dto import GetFilteredPageRangeResult, GetMaxHighscorePageRequest, GetMaxHighscorePageResult
 from src.request.request import Requests
 from src.request.results import CategoryRecord, PlayerRecord
-from src.worker.job import HSCategoryJob, HSLookupJob, JobManager, JobQueue, extract_page_nr_from_rank, get_hs_filtered_job
+from src.worker.job import HSCategoryJob, HSLookupJob, JobManager, JobQueue, extract_page_nr_from_rank, get_hs_filtered_job, get_hs_page_job
 
 
 def test_hslookupjob_initialization_defaults():
@@ -203,6 +203,152 @@ async def test_jobqueue_maxsize_blocks_until_get():
 
 
 @pytest.mark.asyncio
+async def test_get_hs_page_job(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_max_page_req = MagicMock()
+    mock_max_page_req.account_type = HSAccountTypes.regular
+    res = GetMaxHighscorePageResult(page_nr=2, rank_nr=50)
+
+    with (
+        patch.object(req, "get_max_page", new=AsyncMock(return_value=res)) as mock_filter,
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, -1)) as mock_extract
+    ):
+
+        result = await get_hs_page_job(req, start_rank=1, end_rank=-1, max_page_req=mock_max_page_req)
+
+    mock_filter.assert_awaited_once_with(max_page_req=mock_max_page_req)
+    mock_extract.assert_called_once_with(start_rank=1, end_rank=-1)
+
+    assert len(result) == 2
+    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].priority == 1
+    assert result[0].page_num == 1
+    assert result[0].start_rank == 1
+    assert result[0].end_rank == 25
+    assert result[0].start_idx == 0
+    assert result[0].end_idx == 25
+
+    assert result[1].account_type == HSAccountTypes.regular
+    assert result[1].priority == 2
+    assert result[1].page_num == 2
+    assert result[1].start_rank == 26
+    assert result[1].end_rank == 50
+    assert result[1].start_idx == 0
+    assert result[1].end_idx == 25
+
+
+@pytest.mark.asyncio
+async def test_get_hs_page_job_end_rank_given(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_max_page_req = MagicMock()
+    mock_max_page_req.account_type = HSAccountTypes.regular
+    res = GetMaxHighscorePageResult(page_nr=2, rank_nr=50)
+
+    with (
+        patch.object(req, "get_max_page", new=AsyncMock(return_value=res)) as mock_filter,
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, 1)) as mock_extract
+    ):
+
+        result = await get_hs_page_job(req, start_rank=1, end_rank=25, max_page_req=mock_max_page_req)
+
+    mock_filter.assert_awaited_once_with(max_page_req=mock_max_page_req)
+    mock_extract.assert_called_once_with(start_rank=1, end_rank=25)
+
+    assert len(result) == 1
+    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].priority == 1
+    assert result[0].page_num == 1
+    assert result[0].start_rank == 1
+    assert result[0].end_rank == 25
+    assert result[0].start_idx == 0
+    assert result[0].end_idx == 25
+
+
+@pytest.mark.asyncio
+async def test_get_hs_page_job_end_rank_adjusted(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_max_page_req = MagicMock()
+    mock_max_page_req.account_type = HSAccountTypes.regular
+    res = GetMaxHighscorePageResult(page_nr=2, rank_nr=40)
+
+    with (
+        patch.object(req, "get_max_page", new=AsyncMock(return_value=res)) as mock_filter,
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, -1)) as mock_extract
+    ):
+
+        result = await get_hs_page_job(req, start_rank=1, end_rank=50, max_page_req=mock_max_page_req)
+
+    mock_filter.assert_awaited_once_with(max_page_req=mock_max_page_req)
+    mock_extract.assert_called_once_with(start_rank=1, end_rank=50)
+
+    assert len(result) == 2
+    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].priority == 1
+    assert result[0].page_num == 1
+    assert result[0].start_rank == 1
+    assert result[0].end_rank == 25
+    assert result[0].start_idx == 0
+    assert result[0].end_idx == 25
+
+    assert result[1].account_type == HSAccountTypes.regular
+    assert result[1].priority == 2
+    assert result[1].page_num == 2
+    assert result[1].start_rank == 26
+    assert result[1].end_rank == 40
+    assert result[1].start_idx == 0
+    assert result[1].end_idx == 15
+
+@pytest.mark.asyncio
+async def test_get_hs_page_job_start_rank_equals_end_rank(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_max_page_req = MagicMock()
+    mock_max_page_req.account_type = HSAccountTypes.regular
+    res = GetMaxHighscorePageResult(page_nr=1, rank_nr=25)
+
+    with (
+        patch.object(req, "get_max_page", new=AsyncMock(return_value=res)) as mock_filter,
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, -1)) as mock_extract
+    ):
+
+        result = await get_hs_page_job(req, start_rank=25, end_rank=-1, max_page_req=mock_max_page_req)
+
+    mock_filter.assert_awaited_once_with(max_page_req=mock_max_page_req)
+    mock_extract.assert_called_once_with(start_rank=25, end_rank=-1)
+
+    assert len(result) == 1
+    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].priority == 1
+    assert result[0].page_num == 1
+    assert result[0].start_rank == 25
+    assert result[0].end_rank == 25
+    assert result[0].start_idx == 24
+    assert result[0].end_idx == 25
+
+@pytest.mark.asyncio
+async def test_get_hs_page_job_start_rank_greater_than_end_rank_returns_empty(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_max_page_req = MagicMock()
+    mock_max_page_req.account_type = HSAccountTypes.regular
+    res = GetMaxHighscorePageResult(page_nr=2, rank_nr=50)
+
+    with (
+        patch.object(req, "get_max_page", new=AsyncMock(return_value=res)) as mock_filter,
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(3, -1)) as mock_extract
+    ):
+
+        result = await get_hs_page_job(req, start_rank=51, end_rank=-1, max_page_req=mock_max_page_req)
+
+    mock_filter.assert_awaited_once_with(max_page_req=mock_max_page_req)
+    mock_extract.assert_called_once_with(start_rank=51, end_rank=-1)
+
+    assert result == []
+
+@pytest.mark.asyncio
 async def test_get_hs_filtered_job(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
@@ -213,7 +359,7 @@ async def test_get_hs_filtered_job(sample_fake_client_session):
 
     with (
         patch.object(req, "get_filtered_page_range", new=AsyncMock(return_value=res)) as mock_filter,
-        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, 2)) as mock_extract
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, -1)) as mock_extract
     ):
 
         result = await get_hs_filtered_job(req, start_rank=1, end_rank=-1, page_range_req=mock_page_req)
@@ -279,7 +425,7 @@ async def test_get_hs_filtered_job_start_rank_adjusted(sample_fake_client_sessio
 
     with (
         patch.object(req, "get_filtered_page_range", new=AsyncMock(return_value=res)) as mock_filter,
-        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, 2)) as mock_extract
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, -1)) as mock_extract
     ):
 
         result = await get_hs_filtered_job(req, start_rank=1, end_rank=-1, page_range_req=mock_page_req)
@@ -353,7 +499,7 @@ async def test_get_hs_filtered_job_start_rank_greater_than_end_rank_returns_empt
 
     with (
         patch.object(req, "get_filtered_page_range", new=AsyncMock(return_value=res)) as mock_filter,
-        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, 1)) as mock_extract
+        patch("src.worker.job.extract_page_nr_from_rank", return_value=(1, -1)) as mock_extract
     ):
 
         result = await get_hs_filtered_job(req, start_rank=3, end_rank=-1, page_range_req=mock_page_req)
