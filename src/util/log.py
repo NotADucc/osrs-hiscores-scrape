@@ -21,14 +21,14 @@ class CustomFormatter(logging.Formatter):
         CRITICAL: Bold Red
 
     Format:
-        %(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)
+        %(asctime)s - %(levelname)-8s - %(message)s (%(filename)s:%(lineno)d)
     """
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    message_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+    message_format = "%(asctime)s - %(levelname)-8s - %(message)s (%(filename)s:%(lineno)d)"
 
     FORMATS = {
         logging.DEBUG: grey + message_format + reset,
@@ -46,9 +46,9 @@ class CustomFormatter(logging.Formatter):
 
 
 class LoggerWrapper:
-    def __init__(self):
+    def __init__(self, formatter: logging.Formatter):
         handler = logging.StreamHandler()
-        handler.setFormatter(CustomFormatter())
+        handler.setFormatter(formatter)
 
         logger = logging.getLogger('logger')
         logger.setLevel(LOGGER_LEVEL)
@@ -84,35 +84,39 @@ class LoggerWrapper:
             return dict(self._counts)
 
 
-def setup_custom_logger() -> LoggerWrapper:
+def setup_custom_logger(formatter: logging.Formatter) -> LoggerWrapper:
     """ Set up a custom logger with a colorized stream handler. """
-    return LoggerWrapper()
+    return LoggerWrapper(formatter=formatter)
 
 
 def get_logger() -> LoggerWrapper:
     """ Retrieve the global custom logger instance, creating it if necessary. """
     global logger
-    logger = setup_custom_logger() if logger is None else logger
+    logger = setup_custom_logger(
+        formatter=CustomFormatter()) if logger is None else logger
     return logger
 
 
 T = TypeVar("T", bound=Callable[..., Any])
 
 
-def finished_script(func: T) -> T:
+def log_execution(func: T) -> T:
     """Decorator that logs when a (async) or (sync) method has finished,
     also displays the count of logs per type.
     """
     async def message_wrapper(*args, **kwargs):
+        logger = get_logger()
         try:
-            result = await func(*args, **kwargs)
+            logger.info(f"start: {func.__name__}")
+            result = func(*args, **kwargs)
+            if inspect.isawaitable(result):
+                result = await result
+            return cast(T, result)
         except KeyboardInterrupt:
             raise
         finally:
-            logger = get_logger()
             logger.debug(f"log type count: {logger.get_counts()}")
-            logger.info("done")
-        return result
+            logger.info(f"finished: {func.__name__}")
 
     @functools.wraps(func)
     async def async_wrapper(*args, **kwargs):

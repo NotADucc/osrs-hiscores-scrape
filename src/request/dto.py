@@ -5,6 +5,13 @@ from src.request.common import HSAccountTypes, HSType
 
 
 @dataclass
+class HSFilterEntry:
+    """ Wrapper object to handle filter requests """
+    hstype: HSType
+    predicate: Callable[[int | float], bool]
+
+
+@dataclass
 class GetMaxHighscorePageRequest:
     """ Request object for fetching the maximum hiscore page. """
     hs_type: HSType
@@ -21,8 +28,7 @@ class GetMaxHighscorePageResult:
 @dataclass
 class GetFilteredPageRangeRequest:
     """ Request object for fetching the filtered page range. """
-    hs_type: HSType
-    predicate: Callable[[int], bool]
+    filter_entry: HSFilterEntry
     account_type: HSAccountTypes
 
 

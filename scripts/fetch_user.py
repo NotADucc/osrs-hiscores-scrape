@@ -10,19 +10,19 @@ from src.request.errors import NotFound
 from src.request.request import Requests
 from src.util import json_wrapper
 from src.util.benchmarking import benchmark
-from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.log import finished_script, get_logger
+from src.util.log import get_logger, log_execution
 from src.util.retry_handler import retry
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 
 logger = get_logger()
 
 
-@finished_script
+@log_execution
 @benchmark
 async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
-        player_record = await retry(req.get_user_stats, input=GetPlayerRequest(username=name, account_type=account_type))
+        player_record = await retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=account_type))
 
         convert = player_record.to_dict() if not hs_type else \
             {
@@ -41,8 +41,9 @@ if __name__ == '__main__':
     parser.add_argument('--name', required=True,
                         help="Name that you want info about.")
     parser.add_argument('--account-type', default='regular',
-                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
-    parser.add_argument('--hs-type', type=HSType.from_string,
+                        type=argparse_wrapper(HSAccountTypes.from_string),
+                        choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
+    parser.add_argument('--hs-type', type=argparse_wrapper(HSType.from_string),
                         choices=list(HSType), help="Filter on specific hiscore category")
 
     script_running_in_cmd_guard()

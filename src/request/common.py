@@ -1,9 +1,8 @@
-import argparse
+from dataclasses import dataclass
 from enum import Enum
 
 HS_PAGE_SIZE: int = 25
 MAX_CATEGORY_SIZE: int = 80_000
-DEFAULT_WORKER_SIZE: int = 15
 
 
 class HSAccountTypes(Enum):
@@ -46,35 +45,34 @@ class HSAccountTypes(Enum):
             return HSAccountTypes[s]
         except KeyError:
             valid_values = ', '.join(HSAccountTypes.__members__.keys())
-            raise argparse.ArgumentTypeError(valid_values)
+            raise KeyError(f'value given: {s}, valid values [{valid_values}]')
 
 
+@dataclass
 class HSValue():
     """ Internal value type to help with 'HSType'. """
-
-    def __init__(self, category: int, category_value: int, csv_value: int):
-        self.category = category
-        self.category_value = category_value
-        self.csv_value = csv_value
+    category: int
+    category_value: int
+    csv_value: int
 
 
 class HSIncrementer():
     """ Internal incrementer to help with 'HSType'. """
 
     def __init__(self):
-        self.arr = [0] * 3
+        self._arr = [0] * 3
 
     def skill_increment(self) -> HSValue:
-        cat_val, csv_val = self.arr[0], self.arr[2]
-        self.arr[0] += 1
-        self.arr[2] += 1
-        return HSValue(0, cat_val, csv_val)
+        cat_val, csv_val = self._arr[0], self._arr[2]
+        self._arr[0] += 1
+        self._arr[2] += 1
+        return HSValue(category=0, category_value=cat_val, csv_value=csv_val)
 
     def misc_increment(self) -> HSValue:
-        cat_val, csv_val = self.arr[1], self.arr[2]
-        self.arr[1] += 1
-        self.arr[2] += 1
-        return HSValue(1, cat_val, csv_val)
+        cat_val, csv_val = self._arr[1], self._arr[2]
+        self._arr[1] += 1
+        self._arr[2] += 1
+        return HSValue(category=1, category_value=cat_val, csv_value=csv_val)
 
 
 HSCategoryMapperIncrementer = HSIncrementer()
@@ -238,4 +236,4 @@ class HSType(Enum):
             return HSType[s]
         except KeyError:
             valid_values = ', '.join(HSType.__members__.keys())
-            raise argparse.ArgumentTypeError(valid_values)
+            raise KeyError(f'value given: {s}, valid values [{valid_values}]')

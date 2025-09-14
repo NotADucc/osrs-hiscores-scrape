@@ -4,20 +4,21 @@ import sys
 
 import aiohttp
 
-from src.request.common import DEFAULT_WORKER_SIZE, HSAccountTypes, HSType
+from src.request.common import HSAccountTypes, HSType
 from src.request.dto import GetMaxHighscorePageRequest
 from src.request.request import Requests
 from src.util.benchmarking import benchmark
-from src.util.guard_clause_handler import script_running_in_cmd_guard
 from src.util.io import read_proxies, write_records
-from src.util.log import finished_script, get_logger
+from src.util.log import get_logger, log_execution
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
+from src.worker.common import DEFAULT_WORKER_SIZE
 from src.worker.job import IJob, JobManager, JobQueue, get_hs_page_job
 from src.worker.worker import create_workers, enqueue_hs_page, request_hs_page
 
 logger = get_logger()
 
 
-@finished_script
+@log_execution
 @benchmark
 async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTypes, hs_type: HSType, start_rank: int, end_rank: int, num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
@@ -26,7 +27,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
         hs_scrape_joblist = await get_hs_page_job(req=req,
                                                   start_rank=start_rank,
                                                   end_rank=end_rank,
-                                                  input=GetMaxHighscorePageRequest(
+                                                  max_page_req=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
         hs_scrape_job_q = JobQueue[IJob]()
@@ -72,9 +73,11 @@ if __name__ == '__main__':
                         help="Path to the output file")
     parser.add_argument('--proxy-file', help="Path to the proxy file")
     parser.add_argument('--account-type', default='regular',
-                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should pull from (default: 'regular')")
+                        type=argparse_wrapper(HSAccountTypes.from_string),
+                        choices=list(HSAccountTypes), help="Account type it should pull from (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
-                        type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from (default: 'overall')")
+                        type=argparse_wrapper(HSType.from_string),
+                        choices=list(HSType), help="Hiscore category it should pull from (default: 'overall')")
     parser.add_argument('--rank-start', default=1, type=int,
                         help="Hiscore rank number it should start at (default: 1)")
     parser.add_argument('--rank-end', default=-1, type=int,

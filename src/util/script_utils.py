@@ -1,7 +1,18 @@
+import argparse
 import os
 import sys
 
 import psutil
+
+
+def argparse_wrapper(func):
+    """Wrap a converter function to turn KeyError into ArgumentTypeError."""
+    def wrapped(s: str):
+        try:
+            return func(s)
+        except KeyError as e:
+            raise argparse.ArgumentTypeError(str(e))
+    return wrapped
 
 
 def script_running_in_cmd_guard():

@@ -15,7 +15,7 @@ from src.request.dto import (GetFilteredPageRangeRequest,
 from src.request.errors import (IsRateLimited, NotFound, ParsingFailed,
                                 RequestFailed, ServerBusy)
 from src.request.results import CategoryRecord, PlayerRecord
-from src.stats.common import calc_lvl
+from src.stats.common import calc_skill_level
 from src.util.log import get_logger
 from src.util.predicate_utils import get_comparison
 from src.util.retry_handler import retry
@@ -56,7 +56,7 @@ class Requests():
 
         return proxy
 
-    async def get_max_page(self, input: GetMaxHighscorePageRequest) -> GetMaxHighscorePageResult:
+    async def get_max_page(self, max_page_req: GetMaxHighscorePageRequest) -> GetMaxHighscorePageResult:
         """
         Determine the maximum available highscore page and its last rank.
 
@@ -73,8 +73,8 @@ class Requests():
 
             first_rank = await retry(
                 self.get_first_rank,
-                hs_request=GetHighscorePageRequest(
-                    page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
+                page_req=GetHighscorePageRequest(
+                    page_num=middle, hs_type=max_page_req.hs_type, account_type=max_page_req.account_type)
             )
             expected_first_rank = (middle - 1) * HS_PAGE_SIZE + 1
 
@@ -84,11 +84,11 @@ class Requests():
             else:
                 r = middle - 1
 
-        last_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=res, hs_type=input.hs_type, account_type=input.account_type))
-        logger.info(f"Max page found: {res}")
+        last_rank = await self.get_last_rank(page_req=GetHighscorePageRequest(page_num=res, hs_type=max_page_req.hs_type, account_type=max_page_req.account_type))
+        logger.debug(f"Max page found: {res}")
         return GetMaxHighscorePageResult(page_nr=res, rank_nr=last_rank)
 
-    async def get_filtered_page_range(self, input: GetFilteredPageRangeRequest) -> GetFilteredPageRangeResult:
+    async def get_filtered_page_range(self, page_range_req: GetFilteredPageRangeRequest) -> GetFilteredPageRangeResult:
         """
         Determine the highscore ranges on a given predicate.
 
@@ -104,19 +104,20 @@ class Requests():
 
                 records = await retry(
                     self.get_hs_page,
-                    hs_request=GetHighscorePageRequest(
-                        page_num=middle, hs_type=input.hs_type, account_type=input.account_type)
+                    page_req=GetHighscorePageRequest(
+                        page_num=middle, hs_type=page_range_req.filter_entry.hstype, account_type=page_range_req.account_type)
                 )
                 expected_first_rank = (middle - 1) * HS_PAGE_SIZE + 1
 
                 logger.debug(f'current range: ({l}-{r}) middle: {middle}')
+                logger.debug(f'{records[0].rank}')
 
                 if not records or records[0].rank != expected_first_rank:
                     r = middle - 1
                     continue
 
                 scores = _extract_record_scores(
-                    records=records, hs_type=input.hs_type)
+                    records=records, hs_type=page_range_req.filter_entry.hstype)
 
                 if predicate(scores):
                     res = middle
@@ -132,9 +133,9 @@ class Requests():
 
             return res
 
-        sign = get_comparison(input.predicate)
-        predicate: Callable = lambda values: any(
-            input.predicate(v) for v in values)
+        pred = page_range_req.filter_entry.predicate
+        sign = get_comparison(pred)
+        predicate: Callable = lambda values: any(pred(v) for v in values)
 
         if sign in ("<", "<="):
             start_page = await binary_search_hs_page(
@@ -142,9 +143,9 @@ class Requests():
                 left_bias=True
             )
             end_page = (await self.get_max_page(
-                input=GetMaxHighscorePageRequest(
-                    account_type=input.account_type,
-                    hs_type=input.hs_type
+                max_page_req=GetMaxHighscorePageRequest(
+                    account_type=page_range_req.account_type,
+                    hs_type=page_range_req.filter_entry.hstype
                 )
             )).page_nr
         elif sign in ("=="):
@@ -165,24 +166,24 @@ class Requests():
         else:
             raise ValueError(f"Unsupported operator: '{sign}'")
 
-        start_rank = await self.get_first_rank(hs_request=GetHighscorePageRequest(page_num=start_page, hs_type=input.hs_type, account_type=input.account_type))
-        end_rank = await self.get_last_rank(hs_request=GetHighscorePageRequest(page_num=end_page, hs_type=input.hs_type, account_type=input.account_type))
+        start_rank = await self.get_first_rank(page_req=GetHighscorePageRequest(page_num=start_page, hs_type=page_range_req.filter_entry.hstype, account_type=page_range_req.account_type))
+        end_rank = await self.get_last_rank(page_req=GetHighscorePageRequest(page_num=end_page, hs_type=page_range_req.filter_entry.hstype, account_type=page_range_req.account_type))
 
-        logger.info(
+        logger.debug(
             f"Page range found: {start_page}-{end_page} ({start_rank}-{end_rank})")
         return GetFilteredPageRangeResult(start_page=start_page, start_rank=start_rank, end_page=end_page, end_rank=end_rank)
 
-    async def get_user_stats(self, input: GetPlayerRequest) -> PlayerRecord:
+    async def get_user_stats(self, player_req: GetPlayerRequest) -> PlayerRecord:
         """ Fetch and parse a player's stats from OSRS hiscores. """
-        csv = await self.https_request(input.account_type.api_csv(), {'player': input.username})
+        csv = await self.https_request(player_req.account_type.api_csv(), {'player': player_req.username})
         csv = [line for line in csv.split('\n') if line]
-        return PlayerRecord(username=input.username, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
+        return PlayerRecord(username=player_req.username, csv=csv, ts=datetime.datetime.now(datetime.timezone.utc))
 
-    async def get_hs_page(self, hs_request: GetHighscorePageRequest) -> list[CategoryRecord]:
+    async def get_hs_page(self, page_req: GetHighscorePageRequest) -> list[CategoryRecord]:
         """ Fetch and parse a page of highscores for a specific category and account type. """
-        params = {'category_type': hs_request.hs_type.get_category(),
-                  'table': hs_request.hs_type.get_category_value(), 'page': hs_request.page_num, }
-        page = await self.https_request(hs_request.account_type.lookup_overall(), params)
+        params = {'category_type': page_req.hs_type.get_category(),
+                  'table': page_req.hs_type.get_category_value(), 'page': page_req.page_num, }
+        page = await self.https_request(page_req.account_type.lookup_overall(), params)
         return _extract_hs_page_records(page)
 
     async def https_request(self, url: str, params: Dict[str, Any]) -> str:
@@ -226,42 +227,42 @@ class Requests():
         except ClientConnectionError as e:
             raise RequestFailed(f"client connection error: {e}")
 
-    async def get_hs_ranks(self, hs_request: GetHighscorePageRequest) -> list[int]:
+    async def get_hs_ranks(self, page_req: GetHighscorePageRequest) -> list[int]:
         """ Gets the ranks of a hs page, empty list if page doesnt exist """
-        extracted_records = await self.get_hs_page(hs_request=hs_request)
+        extracted_records = await self.get_hs_page(page_req=page_req)
 
         if not extracted_records:
             return []
 
         return [record.rank for record in extracted_records]
 
-    async def get_first_rank(self, hs_request: GetHighscorePageRequest) -> int:
+    async def get_first_rank(self, page_req: GetHighscorePageRequest) -> int:
         """ Gets the first rank of a hs page, -1 if page doesnt exist """
-        extracted_ranks = await self.get_hs_ranks(hs_request=hs_request)
+        extracted_ranks = await self.get_hs_ranks(page_req=page_req)
         return extracted_ranks[0] if extracted_ranks else -1
 
-    async def get_last_rank(self, hs_request: GetHighscorePageRequest) -> int:
+    async def get_last_rank(self, page_req: GetHighscorePageRequest) -> int:
         """ Gets the last rank of a hs page, -1 if page doesnt exist """
-        extracted_ranks = await self.get_hs_ranks(hs_request=hs_request)
+        extracted_ranks = await self.get_hs_ranks(page_req=page_req)
         return extracted_ranks[-1] if extracted_ranks else -1
 
-    async def get_hs_scores(self, hs_request: GetHighscorePageRequest) -> list[int]:
+    async def get_hs_scores(self, page_req: GetHighscorePageRequest) -> list[int]:
         """ Gets the scores of a hs page, empty list if page doesnt exist """
-        extracted_records = await self.get_hs_page(hs_request=hs_request)
+        extracted_records = await self.get_hs_page(page_req=page_req)
 
         if not extracted_records:
             return []
 
-        return _extract_record_scores(records=extracted_records, hs_type=hs_request.hs_type)
+        return _extract_record_scores(records=extracted_records, hs_type=page_req.hs_type)
 
-    async def get_first_score(self, hs_request: GetHighscorePageRequest) -> int:
+    async def get_first_score(self, page_req: GetHighscorePageRequest) -> int:
         """ Gets the first score of a hs page, -1 if page doesnt exist """
-        extracted_scores = await self.get_hs_scores(hs_request=hs_request)
+        extracted_scores = await self.get_hs_scores(page_req=page_req)
         return extracted_scores[0] if extracted_scores else -1
 
-    async def get_last_score(self, hs_request: GetHighscorePageRequest) -> int:
+    async def get_last_score(self, page_req: GetHighscorePageRequest) -> int:
         """ Gets the last score of a hs page, -1 if page doesnt exist """
-        extracted_scores = await self.get_hs_scores(hs_request=hs_request)
+        extracted_scores = await self.get_hs_scores(page_req=page_req)
         return extracted_scores[-1] if extracted_scores else -1
 
 
@@ -303,7 +304,7 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
 
 def _extract_record_scores(records: list[CategoryRecord], hs_type: HSType) -> list[int]:
     return [
-        calc_lvl(record.score, show_virtual_lvl=False) if hs_type.is_skill(
+        calc_skill_level(record.score, show_virtual_lvl=False) if hs_type.is_skill(
         ) else record.score
         for record in records
     ]

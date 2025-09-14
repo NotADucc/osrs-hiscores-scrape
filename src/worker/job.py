@@ -32,7 +32,7 @@ class HSCategoryJob(IJob):
     hs_type: HSType
     account_type: HSAccountTypes
     start_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
-    end_idx: int  # internal bookkeeping cuz i cbf working with slices and ranks
+    end_idx: int  # exclusive end index
     result: List[CategoryRecord] = None  # type: ignore
 
 
@@ -160,7 +160,7 @@ class JobQueue(Generic[JQ]):
         return self._q._queue[-1]  # type: ignore
 
 
-async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
+async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, max_page_req: GetMaxHighscorePageRequest) -> List[HSCategoryJob]:
     """
     Generate jobs for fetching OSRS hiscore pages within a rank range.
 
@@ -171,45 +171,39 @@ async def get_hs_page_job(req: Requests, start_rank: int, end_rank: int, input: 
         ValueError: If `start_rank` is less than 1, or if
             `start_rank > end_rank` when `end_rank` > 0.
     """
-    start_page = (start_rank - 1) // 25 + 1
-    end_page = (end_rank - 1) // 25 + 1
+    start_page, end_page = extract_page_nr_from_rank(
+        start_rank=start_rank, end_rank=end_rank)
 
-    if start_rank < 1:
-        raise ValueError("Start page is smaller than 1")
+    res = await req.get_max_page(max_page_req=max_page_req)
+    max_page_page, max_page_rank = res.page_nr, res.rank_nr
 
-    if end_rank > 0 and start_rank > end_rank:
-        raise ValueError("Start rank is greater than end rank")
-
-    res = await req.get_max_page(input=input)
-    max_page, max_rank = res.page_nr, res.rank_nr
-
-    if end_rank <= 0 or end_rank >= max_rank:
-        end_page = max_page
-        end_rank = max_rank
-    else:
-        end_page = end_page
-        end_rank = end_rank
+    if end_rank <= 0 or max_page_rank < end_rank:
+        end_page = max_page_page
+        end_rank = max_page_rank
 
     if start_rank > end_rank:
         return []
 
     return [
-        HSCategoryJob(priority=page_num, page_num=page_num,
-                      start_rank=start_rank if page_num == start_page else (
-                          page_num - 1) * HS_PAGE_SIZE + 1,
-                      end_rank=end_rank if page_num == end_page else (
-                          page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,
-                      account_type=input.account_type, hs_type=input.hs_type,
-                      start_idx=(
-                          start_rank - 1) % HS_PAGE_SIZE if page_num == start_page else 0,
-                      end_idx=(end_rank - 1) % HS_PAGE_SIZE +
-                      1 if page_num == end_rank else HS_PAGE_SIZE,
-                      )
+        HSCategoryJob(
+            priority=page_num,
+            page_num=page_num,
+            start_rank=start_rank if page_num == start_page
+                else (page_num - 1) * HS_PAGE_SIZE + 1,  # nopep8
+            end_rank=end_rank if page_num == end_page
+                else (page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,  # nopep8
+            account_type=max_page_req.account_type,
+            hs_type=max_page_req.hs_type,
+            start_idx=(start_rank - 1) % HS_PAGE_SIZE if page_num == start_page
+                else 0,  # nopep8
+            end_idx=(end_rank - 1) % HS_PAGE_SIZE + 1 if page_num == end_page
+                else HS_PAGE_SIZE,  # nopep8
+        )
         for page_num in range(start_page, end_page + 1)
     ]
 
 
-async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, input: GetFilteredPageRangeRequest) -> List[HSCategoryJob]:
+async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, page_range_req: GetFilteredPageRangeRequest) -> List[HSCategoryJob]:
     """
     Generate jobs for fetching OSRS hiscore pages within a rank range.
 
@@ -220,44 +214,51 @@ async def get_hs_filtered_job(req: Requests, start_rank: int, end_rank: int, inp
         ValueError: If `start_rank` is less than 1, or if
             `start_rank > end_rank` when `end_rank` > 0.
     """
-    start_page = (start_rank - 1) // 25 + 1
-    end_page = (end_rank - 1) // 25 + 1
+    start_page, end_page = extract_page_nr_from_rank(
+        start_rank=start_rank, end_rank=end_rank)
 
-    if start_rank < 1:
-        raise ValueError("Start page is smaller than 1")
+    page_range = await req.get_filtered_page_range(page_range_req=page_range_req)
+    filter_start_page, filter_start_rank = page_range.start_page, page_range.start_rank
+    filter_end_page, filter_end_rank = page_range.end_page, page_range.end_rank
 
-    if end_rank > 0 and start_rank > end_rank:
-        raise ValueError("Start rank is greater than end rank")
+    if filter_start_rank > start_rank:
+        start_page = filter_start_page
+        start_rank = filter_start_rank
 
-    page_range = await req.get_filtered_page_range(input=input)
-
-    if start_page < page_range.start_page:
-        start_page = page_range.start_page
-        start_rank = page_range.start_rank
-
-    max_page, max_rank = page_range.end_page, page_range.end_rank
-
-    if end_rank <= 0 or end_rank >= max_rank:
-        end_page = max_page
-        end_rank = max_rank
-    else:
-        end_page = end_page
-        end_rank = end_rank
+    if end_rank <= 0 or filter_end_rank < end_rank:
+        end_page = filter_end_page
+        end_rank = filter_end_rank
 
     if start_rank > end_rank:
         return []
 
     return [
-        HSCategoryJob(priority=page_num, page_num=page_num,
-                      start_rank=start_rank if page_num == start_page else (
-                          page_num - 1) * HS_PAGE_SIZE + 1,
-                      end_rank=end_rank if page_num == end_page else (
-                          page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,
-                      account_type=input.account_type, hs_type=input.hs_type,
-                      start_idx=(
-                          start_rank - 1) % HS_PAGE_SIZE if page_num == start_page else 0,
-                      end_idx=(end_rank - 1) % HS_PAGE_SIZE +
-                      1 if page_num == end_rank else HS_PAGE_SIZE,
-                      )
+        HSCategoryJob(
+            priority=page_num,
+            page_num=page_num,
+            start_rank=start_rank if page_num == start_page
+                else (page_num - 1) * HS_PAGE_SIZE + 1,  # nopep8
+            end_rank=end_rank if page_num == end_page
+                else (page_num - 1) * HS_PAGE_SIZE + HS_PAGE_SIZE,  # nopep8
+            account_type=page_range_req.account_type,
+            hs_type=page_range_req.filter_entry.hstype,
+            start_idx=(start_rank - 1) % HS_PAGE_SIZE if page_num == start_page
+                else 0,  # nopep8
+            end_idx=(end_rank - 1) % HS_PAGE_SIZE + 1 if page_num == end_page
+                else HS_PAGE_SIZE,  # nopep8
+        )
         for page_num in range(start_page, end_page + 1)
     ]
+
+
+def extract_page_nr_from_rank(start_rank: int, end_rank: int) -> tuple[int, int]:
+    if start_rank < 1:
+        raise ValueError("Start rank is smaller than 1")
+
+    if end_rank > 0 and start_rank > end_rank:
+        raise ValueError("Start rank is greater than end rank")
+
+    start_page = (start_rank - 1) // 25 + 1
+    end_page = (end_rank - 1) // 25 + 1
+
+    return (start_page, end_page)

@@ -2,8 +2,8 @@ import asyncio
 from asyncio import CancelledError, Queue
 from typing import Callable
 
-from src.request.common import HSType
-from src.request.dto import GetHighscorePageRequest, GetPlayerRequest
+from src.request.dto import (GetHighscorePageRequest, GetPlayerRequest,
+                             HSFilterEntry)
 from src.request.errors import NotFound, RetryFailed
 from src.request.request import Requests
 from src.request.results import CategoryInfo
@@ -38,7 +38,7 @@ class Worker:
         self.request_fn = request_fn
         self.enqueue_fn = enqueue_fn
 
-    async def run(self, initial_delay: float = 0) -> None:
+    async def run(self, initial_delay: float = 0, max_retries: int = 10, skip_failed: bool = False) -> None:
         """            
         Continuously process jobs from the input queue:
             1. Optionally wait for an initial delay.
@@ -70,7 +70,7 @@ class Worker:
 
             try:
                 if job.result is None:
-                    await retry(self.request_fn, req=self.req, job=job)
+                    await retry(self.request_fn, req=self.req, job=job, max_retries=max_retries)
 
                 while self.job_manager.value < job.priority:
                     await self.job_manager.await_next()
@@ -81,8 +81,11 @@ class Worker:
             except NotFound:
                 self.job_manager.next()
             except (CancelledError, RetryFailed):
-                await self.in_q.put(job, force=True)
-                raise
+                if skip_failed:
+                    self.job_manager.next()
+                else:
+                    await self.in_q.put(job, force=True)
+                    raise
 
 
 def create_workers(
@@ -134,7 +137,7 @@ async def enqueue_page_usernames(queue: JobQueue | Queue, job: HSCategoryJob):
         await queue.put(outjob)
 
 
-async def enqueue_user_stats_filter(queue: JobQueue[IJob] | Queue[IJob], job: HSLookupJob, hs_filter: dict[HSType, Callable[[int | float], bool]]):
+async def enqueue_user_stats_filter(queue: JobQueue[IJob] | Queue[IJob], job: HSLookupJob, hs_filter: list[HSFilterEntry]):
     """
     Enqueue a HSLookupJob if its result meets specified filter requirements;
     otherwise enqueue None to indicate the job does not match.

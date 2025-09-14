@@ -3,19 +3,18 @@ import asyncio
 import re
 import sys
 from functools import partial
-from typing import Callable
 
 import aiohttp
 
-from src.request.common import (DEFAULT_WORKER_SIZE, MAX_CATEGORY_SIZE,
-                                HSAccountTypes, HSType)
-from src.request.dto import GetFilteredPageRangeRequest
+from src.request.common import MAX_CATEGORY_SIZE, HSAccountTypes, HSType
+from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
 from src.request.request import Requests
 from src.util.benchmarking import benchmark
-from src.util.guard_clause_handler import script_running_in_cmd_guard
-from src.util.io import (filtered_result_formatter, read_filtered_result,
-                         read_hs_records, read_proxies, write_records)
-from src.util.log import finished_script, get_logger
+from src.util.io import (hs_lookup_formatter, read_hs_lookups, read_hs_records,
+                         read_proxies, write_records)
+from src.util.log import get_logger, log_execution
+from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
+from src.worker.common import DEFAULT_WORKER_SIZE
 from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                             JobManager, JobQueue, get_hs_filtered_job,
                             get_hs_page_job)
@@ -30,14 +29,14 @@ N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
 
-async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
+async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
     """ Prepares the scraping job list and export queue based if theres an in-file or not. """
     potential_records = map_category_records_to_lookup_jobs(
         account_type=account_type, input=list(read_hs_records(in_file)))
 
     if not potential_records:
         potential_records = map_player_records_to_lookup_jobs(
-            account_type=account_type, input=list(read_filtered_result(in_file)))
+            account_type=account_type, input=list(read_hs_lookups(in_file)))
 
     if potential_records:
         hs_scrape_export_q = JobQueue[IJob]()
@@ -45,27 +44,27 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
             await hs_scrape_export_q.put(record)
         return [], len(potential_records), hs_scrape_export_q
 
-    filtered = {k: v for k, v in hs_filter.items() if k == hs_type}
+    filtered_entries = [
+        entry for entry in hs_filter if entry.hstype == hs_type]
 
-    if filtered:
+    if filtered_entries:
         hs_scrape_joblist, start_job_prio, end_job_prio = [], 1, MAX_CATEGORY_SIZE
 
-        for pred in filtered.values():
+        for entry in filtered_entries:
             temp_joblist = await get_hs_filtered_job(req=req,
                                                      start_rank=start_rank,
                                                      end_rank=-1,
-                                                     input=GetFilteredPageRangeRequest(
-                                                         predicate=pred,
-                                                         hs_type=hs_type,
+                                                     page_range_req=GetFilteredPageRangeRequest(
+                                                         filter_entry=entry,
                                                          account_type=account_type)
                                                      )
 
             if not hs_scrape_joblist:
                 hs_scrape_joblist = temp_joblist
-            else:
-                start_job_prio = start_job_prio if start_job_prio > temp_joblist[
-                    0].priority else temp_joblist[0].priority
-                end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
+
+            start_job_prio = start_job_prio if start_job_prio > temp_joblist[
+                0].priority else temp_joblist[0].priority
+            end_job_prio = end_job_prio if end_job_prio < temp_joblist[-1].priority else temp_joblist[-1].priority
 
         hs_scrape_joblist = [
             x for x in hs_scrape_joblist if start_job_prio <= x.priority <= end_job_prio]
@@ -76,16 +75,16 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
         hs_scrape_joblist = await get_hs_page_job(req=req,
                                                   start_rank=start_rank,
                                                   end_rank=-1,
-                                                  input=GetMaxHighscorePageRequest(
+                                                  max_page_req=GetMaxHighscorePageRequest(
                                                       hs_type=hs_type, account_type=account_type)
                                                   )
 
     return hs_scrape_joblist, hs_scrape_joblist[-1].end_rank - hs_scrape_joblist[0].start_rank + 1, JobQueue(maxsize=N_SCRAPE_SIZE)
 
 
-@finished_script
+@log_execution
 @benchmark
-async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: dict[HSType, Callable[[int | float], bool]], num_workers: int):
+async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry], num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
@@ -116,7 +115,7 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             )
 
             filter_start = hs_scrape_joblist[0].start_rank
-            filter_end = hs_scrape_joblist[0].end_rank
+            filter_end = hs_scrape_joblist[-1].end_rank
         else:
             hs_scrape_workers = []
             filter_start = hs_scrape_export_q.peek().priority
@@ -138,7 +137,7 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             write_records(in_queue=filter_q,
                           out_file=out_file,
                           total=record_count,
-                          format=filtered_result_formatter
+                          format=hs_lookup_formatter
                           )
         )]
         for w in hs_scrape_workers:
@@ -157,9 +156,9 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             await asyncio.gather(*T, return_exceptions=True)
 
 if __name__ == '__main__':
-    def parse_key_value_pairs(arg) -> dict[HSType, Callable[[int | float], bool]]:
+    def parse_key_value_pairs(arg) -> list[HSFilterEntry]:
         kv_pairs = arg.split(',')
-        result = {}
+        result = []
 
         for pair in kv_pairs:
             match = re.match(r'\s*(.*?)\s*(<=|>=|=|<|>)\s*(.*?)\s*$', pair)
@@ -189,7 +188,7 @@ if __name__ == '__main__':
             else:
                 raise ValueError(f"Unsupported operator: '{op}'")
 
-            result[key] = func
+            result.append(HSFilterEntry(hstype=key, predicate=func))
 
         return result
 
@@ -202,9 +201,11 @@ if __name__ == '__main__':
     parser.add_argument('--rank-start', default=1, type=int,
                         help="Rank number that it should start filtering at (default: 1)")
     parser.add_argument('--account-type', default='regular',
-                        type=HSAccountTypes.from_string, choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
+                        type=argparse_wrapper(HSAccountTypes.from_string),
+                        choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
     parser.add_argument('--hs-type', default='overall',
-                        type=HSType.from_string, choices=list(HSType), help="Hiscore category it should pull from")
+                        type=argparse_wrapper(HSType.from_string),
+                        choices=list(HSType), help="Hiscore category it should pull from")
     parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
                         help="Custom filter on what the accounts should have")
     parser.add_argument('--num-workers', default=DEFAULT_WORKER_SIZE, type=int,
