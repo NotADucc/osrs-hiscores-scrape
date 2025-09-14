@@ -2,6 +2,7 @@ import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from src.request.errors import NotFound, RetryFailed
 from src.worker.job import JobManager, JobQueue
 from src.worker.worker import Worker
@@ -22,15 +23,14 @@ async def test_run_successful_job_processing(sample_fake_client_session):
     async def request_fn(req, job):
         job.result = "ok"
 
-
     async def enqueue_fn(out_q, job):
         await out_q.put(job)
 
     worker = Worker(
-        req=sample_fake_client_session, 
-        in_queue=in_q, 
+        req=sample_fake_client_session,
+        in_queue=in_q,
         out_queue=out_q,
-        job_manager=job_manager, 
+        job_manager=job_manager,
         request_fn=request_fn,
         enqueue_fn=enqueue_fn
     )
@@ -38,7 +38,6 @@ async def test_run_successful_job_processing(sample_fake_client_session):
     async def stopper():
         await asyncio.sleep(0.05)
         await job_manager.await_until_finished()
-
 
     asyncio.create_task(stopper())
     await worker.run()
@@ -67,10 +66,10 @@ async def test_run_not_found_increments_counter(sample_fake_client_session):
         await out_q.put(job)
 
     worker = Worker(
-        req=sample_fake_client_session, 
-        in_queue=in_q, 
+        req=sample_fake_client_session,
+        in_queue=in_q,
         out_queue=out_q,
-        job_manager=job_manager, 
+        job_manager=job_manager,
         request_fn=request_fn,
         enqueue_fn=enqueue_fn
     )
@@ -78,7 +77,6 @@ async def test_run_not_found_increments_counter(sample_fake_client_session):
     async def stopper():
         await asyncio.sleep(0.05)
         await job_manager.await_until_finished()
-
 
     asyncio.create_task(stopper())
     await worker.run()
@@ -106,17 +104,17 @@ async def test_run_retry_failed_requeues_and_raises(sample_fake_client_session):
         await out_q.put(job)
 
     worker = Worker(
-        req=sample_fake_client_session, 
-        in_queue=in_q, 
+        req=sample_fake_client_session,
+        in_queue=in_q,
         out_queue=out_q,
-        job_manager=job_manager, 
+        job_manager=job_manager,
         request_fn=request_fn,
         enqueue_fn=enqueue_fn
     )
 
-
     with (
-        patch("src.worker.worker.retry", new=AsyncMock(side_effect=RetryFailed("retry failed"))),
+        patch("src.worker.worker.retry", new=AsyncMock(
+            side_effect=RetryFailed("retry failed"))),
         pytest.raises(RetryFailed)
     ):
         await worker.run(skip_failed=False)
@@ -144,16 +142,17 @@ async def test_run_retry_failed_moves_on(sample_fake_client_session):
         await out_q.put(job)
 
     worker = Worker(
-        req=sample_fake_client_session, 
-        in_queue=in_q, 
+        req=sample_fake_client_session,
+        in_queue=in_q,
         out_queue=out_q,
-        job_manager=job_manager, 
+        job_manager=job_manager,
         request_fn=request_fn,
         enqueue_fn=enqueue_fn
     )
 
     with (
-        patch("src.worker.worker.retry", new=AsyncMock(side_effect=RetryFailed("retry failed")))
+        patch("src.worker.worker.retry", new=AsyncMock(
+            side_effect=RetryFailed("retry failed")))
     ):
         await worker.run(skip_failed=True)
 

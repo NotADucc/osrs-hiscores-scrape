@@ -1,7 +1,10 @@
 from src.request.common import HSAccountTypes
 from src.request.results import CategoryRecord, PlayerRecord
 from src.worker.job import HSLookupJob
-from src.worker.mappers import map_category_record_to_lookup_job, map_category_records_to_lookup_jobs, map_player_record_to_lookup_job, map_player_records_to_lookup_jobs
+from src.worker.mappers import (map_category_record_to_lookup_job,
+                                map_category_records_to_lookup_jobs,
+                                map_player_record_to_lookup_job,
+                                map_player_records_to_lookup_jobs)
 
 
 def test_map_player_record_to_lookup_job(sample_player_record: PlayerRecord):

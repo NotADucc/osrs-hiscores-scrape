@@ -1,13 +1,17 @@
 import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
-import pytest
 from dataclasses import fields
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from src.request.common import HSAccountTypes, HSType
-from src.request.dto import GetFilteredPageRangeResult, GetMaxHighscorePageRequest, GetMaxHighscorePageResult
+from src.request.dto import (GetFilteredPageRangeResult,
+                             GetMaxHighscorePageResult)
 from src.request.request import Requests
 from src.request.results import CategoryRecord, PlayerRecord
-from src.worker.job import HSCategoryJob, HSLookupJob, JobManager, JobQueue, extract_page_nr_from_rank, get_hs_filtered_job, get_hs_page_job
+from src.worker.job import (HSCategoryJob, HSLookupJob, JobManager, JobQueue,
+                            extract_page_nr_from_rank, get_hs_filtered_job,
+                            get_hs_page_job)
 
 
 def test_hslookupjob_initialization_defaults():
@@ -301,6 +305,7 @@ async def test_get_hs_page_job_end_rank_adjusted(sample_fake_client_session):
     assert result[1].start_idx == 0
     assert result[1].end_idx == 15
 
+
 @pytest.mark.asyncio
 async def test_get_hs_page_job_start_rank_equals_end_rank(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
@@ -328,6 +333,7 @@ async def test_get_hs_page_job_start_rank_equals_end_rank(sample_fake_client_ses
     assert result[0].start_idx == 24
     assert result[0].end_idx == 25
 
+
 @pytest.mark.asyncio
 async def test_get_hs_page_job_start_rank_greater_than_end_rank_returns_empty(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
@@ -347,6 +353,7 @@ async def test_get_hs_page_job_start_rank_greater_than_end_rank_returns_empty(sa
     mock_extract.assert_called_once_with(start_rank=51, end_rank=-1)
 
     assert result == []
+
 
 @pytest.mark.asyncio
 async def test_get_hs_filtered_job(sample_fake_client_session):
