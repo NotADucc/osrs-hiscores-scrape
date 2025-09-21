@@ -72,6 +72,22 @@ async def test_https_request_rate_limited(sample_fake_client_session):
 
 
 @pytest.mark.asyncio
+async def test_https_request_rate_limited_code(sample_fake_client_session):
+    req = Requests(sample_fake_client_session)
+
+    mock_resp = AsyncMock()
+    mock_resp.status = 429
+    mock_resp.text.return_value = "temporarily blocked"
+    mock_resp.url = URL(TEST_URL)
+    sample_fake_client_session.get.return_value.__aenter__.return_value = mock_resp
+
+    with patch("fake_useragent.UserAgent") as mock_ua:
+        mock_ua.return_value.random = TEST_USER_AGENT
+        with pytest.raises(IsRateLimited):
+            await req.https_request(TEST_URL, params={})
+
+
+@pytest.mark.asyncio
 async def test_https_request_not_found(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 

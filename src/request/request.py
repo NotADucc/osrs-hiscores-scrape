@@ -209,7 +209,7 @@ class Requests():
         try:
             async with session.get(url, headers=headers, params=params, proxy=proxy, timeout=ClientTimeout(total=30)) as resp:
                 text = await resp.text()
-                if _is_rate_limited(text):
+                if resp.status == 429  or _is_rate_limited(text):
                     raise IsRateLimited(
                         f"rate limited: '{url}'", details={"url": resp.url, "params": params, "proxy": proxy})
 
