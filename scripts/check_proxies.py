@@ -40,6 +40,7 @@ async def request_proxy(req: Requests, job: ProxyJob):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         async with session.get("http://httpbin.org/ip", proxy=proxy, timeout=aiohttp.ClientTimeout(total=30)) as resp:
             if resp.status == 200:
+                logger.debug(f'OK: {await resp.json()}')
                 job.result = proxy
             elif resp.status in (402, 403, 404):
                 logger.error(
