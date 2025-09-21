@@ -197,10 +197,14 @@ class Requests():
             ServerBusy: If the request times out.
         """
         headers = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-            "Content-Type": "text/html",
-            'User-Agent': UserAgent().random,
+            # "Access-Control-Allow-Origin": "*",
+            # "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+            # "Content-Type": "text/html",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-US;q=0.9,en;q=0.8",
+            "referer": "https://www.google.com/",
+            'User-Agent': UserAgent().google,
         }
 
         proxy = self.get_proxy()

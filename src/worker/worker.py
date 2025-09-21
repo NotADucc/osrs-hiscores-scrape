@@ -52,8 +52,8 @@ class Worker:
             NotFound: Simply increments the job counter and continues.
             CancelledError, RetryFailed: Requeues the job forcibly and re-raises the exception.
         """
-        await asyncio.sleep(initial_delay)
         while not self.job_manager.is_finished():
+            await asyncio.sleep(initial_delay)
             done, _ = await asyncio.wait(
                 [
                     asyncio.create_task(self.in_q.get()),
