@@ -8,7 +8,9 @@ logger = get_logger()
 
 @log_execution
 def main():
-    logger.debug(', '.join(HSType.debug()))
+    hs_debug = HSType.debug()
+    logger.debug('\n'.join(hs_debug))
+    logger.debug(str(len(hs_debug)))
     input()
 
 

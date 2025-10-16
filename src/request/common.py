@@ -228,7 +228,7 @@ class HSType(Enum):
 
     @staticmethod
     def debug() -> list[str]:
-        return [f'{v}: {v.get_csv_value()}' for v in HSType]
+        return [f'{v}: {(v.get_category(), v.get_category_value(), v.get_csv_value())}' for v in HSType]
 
     @staticmethod
     def from_string(s: str) -> 'HSType':
