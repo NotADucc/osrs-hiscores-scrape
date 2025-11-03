@@ -192,8 +192,8 @@ def test_initialization():
 
         HSType.zuk, HSType.jad,
 
-        HSType.vardorvis, HSType.venenatis,
-        HSType.vorkath, HSType.wt, HSType.yama, HSType.zalcano, HSType.zulrah
+        HSType.vardorvis, HSType.venenatis, HSType.vorkath,
+        HSType.wt, HSType.yama, HSType.zalcano, HSType.zulrah
     ]
     assert all(boss.name in player_record.misc for boss in bosses_true)
 
