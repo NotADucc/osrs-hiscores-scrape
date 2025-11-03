@@ -53,6 +53,21 @@ def test_hs_incrementer_misc():
     assert val.csv_value == 1
 
 
+def test_hs_incrementer_misc_false():
+    incr = HSIncrementer()
+
+    val = incr.misc_increment(False)
+
+    assert val.category == 1
+    assert val.category_value == 0
+    assert val.csv_value == -1
+
+    val = incr.misc_increment()
+
+    assert val.category == 1
+    assert val.category_value == 1
+    assert val.csv_value == 0
+
 def test_hs_incrementer_mix():
     incr = HSIncrementer()
 
@@ -118,6 +133,13 @@ def test_hs_type_combat_special_case():
     assert combat.get_csv_value() == -1
     assert combat.is_combat()
 
+
+def test_hs_type_csv_len():
+    assert HSType.csv_len() == 111 # run api to see count
+
+def test_hs_type_get_csv_types():
+    lst = HSType.get_csv_types()
+    assert len(lst) == HSType.csv_len()
 
 @pytest.mark.parametrize(
     "hs_type, expected_value",

@@ -28,10 +28,10 @@ class PlayerRecord:
         self.skills = {}
         self.misc = {}
 
-        hs_types = list(HSType)
-
-        if len(hs_types) - 1 != len(csv):
+        if HSType.csv_len() != len(csv):
             return
+        
+        hs_types = list(HSType)
 
         for hs_type in hs_types[1:]:
             csv_val = hs_type.get_csv_value()

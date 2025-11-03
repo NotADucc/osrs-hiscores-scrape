@@ -40,12 +40,12 @@ def sample_category_records() -> list[CategoryRecord]:
 
 @pytest.fixture
 def sample_player_record_csv_list() -> list[str]:
-    return ["1,50,101333" if hs_type.is_skill() else "1,50" for hs_type in list(HSType)[:-1]]
+    return ["1,50,101333" if hs_type.is_skill() else "1,50" for hs_type in HSType.get_csv_types()]
 
 
 @pytest.fixture
 def sample_player_record_csv_list_incomplete() -> list[str]:
-    return ["-1,1,-1" if hs_type.is_skill() else "-1,1" for hs_type in list(HSType)[:-1]]
+    return ["-1,1,-1" if hs_type.is_skill() else "-1,1" for hs_type in HSType.get_csv_types()]
 
 
 @pytest.fixture

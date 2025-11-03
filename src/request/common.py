@@ -68,10 +68,15 @@ class HSIncrementer():
         self._arr[2] += 1
         return HSValue(category=0, category_value=cat_val, csv_value=csv_val)
 
-    def misc_increment(self) -> HSValue:
+    def misc_increment(self, has_csv_mapping = True) -> HSValue:
         cat_val, csv_val = self._arr[1], self._arr[2]
         self._arr[1] += 1
-        self._arr[2] += 1
+
+        if not has_csv_mapping:
+            csv_val = -1
+        else :
+            self._arr[2] += 1
+
         return HSValue(category=1, category_value=cat_val, csv_value=csv_val)
 
 
@@ -107,19 +112,20 @@ class HSType(Enum):
     hunter = HSCategoryMapperIncrementer.skill_increment()
     construction = HSCategoryMapperIncrementer.skill_increment()
     # start non skilling stuff, for some reason its split up in 2
+    grid_points = HSCategoryMapperIncrementer.misc_increment()
     league_points = HSCategoryMapperIncrementer.misc_increment()
     dmm = HSCategoryMapperIncrementer.misc_increment()
     bh_hunter = HSCategoryMapperIncrementer.misc_increment()
     bh_rogue = HSCategoryMapperIncrementer.misc_increment()
     bh_legacy_hunter = HSCategoryMapperIncrementer.misc_increment()
     bh_legacy_rogue = HSCategoryMapperIncrementer.misc_increment()
-    cs_all = HSCategoryMapperIncrementer.misc_increment()
-    cs_beginner = HSCategoryMapperIncrementer.misc_increment()
-    cs_easy = HSCategoryMapperIncrementer.misc_increment()
-    cs_medium = HSCategoryMapperIncrementer.misc_increment()
-    cs_hard = HSCategoryMapperIncrementer.misc_increment()
-    cs_elite = HSCategoryMapperIncrementer.misc_increment()
-    cs_master = HSCategoryMapperIncrementer.misc_increment()
+    clue_all = HSCategoryMapperIncrementer.misc_increment()
+    clue_beginner = HSCategoryMapperIncrementer.misc_increment()
+    clue_easy = HSCategoryMapperIncrementer.misc_increment()
+    clue_medium = HSCategoryMapperIncrementer.misc_increment()
+    clue_hard = HSCategoryMapperIncrementer.misc_increment()
+    clue_elite = HSCategoryMapperIncrementer.misc_increment()
+    clue_master = HSCategoryMapperIncrementer.misc_increment()
     lms_rank = HSCategoryMapperIncrementer.misc_increment()
     pvp_arena_rank = HSCategoryMapperIncrementer.misc_increment()
     sw_zeal = HSCategoryMapperIncrementer.misc_increment()
@@ -222,9 +228,17 @@ class HSType(Enum):
             "attack", "defence", "strength", "hitpoints",
             "ranged", "prayer", "magic", "combat"
         }
-
+    
     def __str__(self) -> str:
         return self.name
+
+    @staticmethod
+    def csv_len() -> int:
+        return len([item for item in list(HSType) if item.get_csv_value() != -1])
+
+    @staticmethod
+    def get_csv_types() -> list['HSType']:
+        return [item for item in list(HSType) if item.get_csv_value() != -1]
 
     @staticmethod
     def debug() -> list[str]:
