@@ -147,13 +147,13 @@ def test_initialization():
     assert all(mg.name in player_record.misc for mg in minigames_true)
 
     minigames_false = [
-        HSType.grid_points, HSType.league_points, HSType.dmm, HSType.bh_hunter, HSType.bh_rogue, 
+        HSType.grid_points, HSType.league_points, HSType.dmm, HSType.bh_hunter, HSType.bh_rogue,
         HSType.bh_legacy_hunter, HSType.bh_legacy_rogue, HSType.pvp_arena_rank, HSType.sw_zeal
     ]
     assert all(mg.name not in player_record.misc for mg in minigames_false)
 
     clues_true = [
-        HSType.clue_all, HSType.clue_beginner, HSType.clue_easy, HSType.clue_medium, HSType.clue_hard, 
+        HSType.clue_all, HSType.clue_beginner, HSType.clue_easy, HSType.clue_medium, HSType.clue_hard,
         HSType.clue_elite, HSType.clue_master
     ]
     assert all(clue.name in player_record.misc for clue in clues_true)
@@ -164,34 +164,34 @@ def test_initialization():
     bosses_true = [
         HSType.sire, HSType.hydra, HSType.amoxliatl, HSType.araxxor, HSType.artio,
 
-        HSType.barrows_chests, HSType.bryophyta, 
+        HSType.barrows_chests, HSType.bryophyta,
 
         HSType.calvarion, HSType.cerberus, HSType.cox, HSType.chaos_elemental, HSType.chaos_fanatic, HSType.saradomin,
-        HSType.corp, HSType.crazy_archaeologist, 
-        
+        HSType.corp, HSType.crazy_archaeologist,
+
         HSType.dks_prime, HSType.dks_rex, HSType.dks_supreme, HSType.deranged_archaeologist, HSType.doom_mokhaiotl, HSType.duke,
 
-        HSType.bandos, HSType.giant_mole, HSType.gg, 
-        
-        HSType.hespori, 
-        
-        HSType.kq, HSType.kbd, HSType.kraken, HSType.armadyl, HSType.zamorak, 
-        
-        HSType.lunar_chests, 
-        
+        HSType.bandos, HSType.giant_mole, HSType.gg,
+
+        HSType.hespori,
+
+        HSType.kq, HSType.kbd, HSType.kraken, HSType.armadyl, HSType.zamorak,
+
+        HSType.lunar_chests,
+
         HSType.mimic,
 
         HSType.nex, HSType.nightmare, HSType.psn, HSType.obor, HSType.phantom_muspah,
 
         HSType.sarachnis, HSType.scorpia, HSType.scurrius, HSType.skotizo, HSType.sol,
         HSType.spindel,
-         
+
         HSType.tempoross, HSType.gauntlet, HSType.cg, HSType.hueycoatl,
         HSType.leviathan, HSType.royal_titans, HSType.whisperer, HSType.tob, HSType.thermy,
-        HSType.toa, HSType.toa_em, 
-        
-        HSType.zuk, HSType.jad, 
-        
+        HSType.toa, HSType.toa_em,
+
+        HSType.zuk, HSType.jad,
+
         HSType.vardorvis, HSType.venenatis,
         HSType.vorkath, HSType.wt, HSType.yama, HSType.zalcano, HSType.zulrah
     ]
@@ -201,6 +201,7 @@ def test_initialization():
         HSType.callisto, HSType.cox_cm, HSType.hmt, HSType.vetion
     ]
     assert all(boss.name not in player_record.misc for boss in bosses_false)
+
 
 def test_initialization_incomplete_csv():
     csv = [
@@ -216,7 +217,7 @@ def test_initialization_incomplete_csv():
 
     assert not player_record.skills
     assert not player_record.misc
-    
+
 
 def tes_get_stat_overall(sample_player_record: PlayerRecord):
     assert sample_player_record.get_stat(

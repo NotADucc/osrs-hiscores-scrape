@@ -30,7 +30,7 @@ class PlayerRecord:
 
         if HSType.csv_len() != len(csv):
             return
-        
+
         hs_types = list(HSType)
 
         for hs_type in hs_types[1:]:
