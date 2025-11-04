@@ -109,7 +109,7 @@ class JobQueue(Generic[JQ]):
     """ An asynchronous priority queue wrapper. """
 
     def __init__(self, maxsize=None):
-        self._q = asyncio.PriorityQueue[JQ]()
+        self._q = asyncio.PriorityQueue()
         self._got = asyncio.Event()
         self._max_size = maxsize
 
