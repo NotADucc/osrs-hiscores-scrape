@@ -175,6 +175,7 @@ class HSType(Enum):
     sarachnis = HSCategoryMapperIncrementer.misc_increment()
     scorpia = HSCategoryMapperIncrementer.misc_increment()
     scurrius = HSCategoryMapperIncrementer.misc_increment()
+    shellbane_gryphon = HSCategoryMapperIncrementer.misc_increment()
     skotizo = HSCategoryMapperIncrementer.misc_increment()
     sol = HSCategoryMapperIncrementer.misc_increment()
     spindel = HSCategoryMapperIncrementer.misc_increment()
