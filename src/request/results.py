@@ -48,7 +48,8 @@ class PlayerRecord:
                 self.skills[hs_type.name] = splitted[1]
 
             elif hs_type.is_misc():
-                if splitted[0] == -1:
+                # player can have a score even tho rank is unknown
+                if splitted[1] <= 0:
                     continue
                 # self.misc[mapper_val.name] = { 'rank': splitted[0], 'kc': splitted[1] }
                 self.misc[hs_type.name] = splitted[1]
