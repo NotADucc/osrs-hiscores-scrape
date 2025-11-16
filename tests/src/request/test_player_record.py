@@ -168,7 +168,7 @@ def test_initialization():
 
         HSType.barrows_chests, HSType.bryophyta,
 
-        HSType.callisto, HSType.calvarion, HSType.cerberus, HSType.cox, HSType.cox_cm, HSType.chaos_elemental, 
+        HSType.callisto, HSType.calvarion, HSType.cerberus, HSType.cox, HSType.cox_cm, HSType.chaos_elemental,
         HSType.chaos_fanatic, HSType.saradomin, HSType.corp, HSType.crazy_archaeologist,
 
         HSType.dks_prime, HSType.dks_rex, HSType.dks_supreme, HSType.deranged_archaeologist, HSType.doom_mokhaiotl, HSType.duke,
