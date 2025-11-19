@@ -32,6 +32,7 @@ def test_initialization():
         "308677,82,2493914",
         "444326,82,2545592",
         "461147,83,2832391",
+        "-1,1,1",
         "-1,0",
         "-1,0",
         "-1,0",
@@ -135,7 +136,7 @@ def test_initialization():
         HSType.prayer, HSType.magic, HSType.cooking, HSType.woodcutting, HSType.fletching,
         HSType.fishing, HSType.firemaking, HSType.crafting, HSType.smithing, HSType.mining,
         HSType.herblore, HSType.agility, HSType.thieving, HSType.slayer, HSType.farming,
-        HSType.runecrafting, HSType.hunter, HSType.construction,
+        HSType.runecrafting, HSType.hunter, HSType.construction, HSType.sailing,
     ]
     assert all(skill.name in player_record.skills for skill in skills_true)
 

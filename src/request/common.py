@@ -111,6 +111,7 @@ class HSType(Enum):
     runecrafting = HSCategoryMapperIncrementer.skill_increment()
     hunter = HSCategoryMapperIncrementer.skill_increment()
     construction = HSCategoryMapperIncrementer.skill_increment()
+    sailing = HSCategoryMapperIncrementer.skill_increment()
     # start non skilling stuff, for some reason its split up in 2
     grid_points = HSCategoryMapperIncrementer.misc_increment()
     league_points = HSCategoryMapperIncrementer.misc_increment()

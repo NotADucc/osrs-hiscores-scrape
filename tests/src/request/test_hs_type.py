@@ -136,7 +136,7 @@ def test_hs_type_combat_special_case():
 
 
 def test_hs_type_csv_len():
-    assert HSType.csv_len() == 112  # run api to see count
+    assert HSType.csv_len() == 113  # run api to see count
 
 
 def test_hs_type_get_csv_types():
