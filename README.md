@@ -110,7 +110,7 @@ py .\scripts\fetch_max_page.py --account-type hc --hs-type zuk
 
 ## check_proxies.py
 
-Proxy checker script, valid ones are written away and formatted as 'http://user:password@ip:port'.
+Proxy checker script, valid ones are written away and formatted as `http://user:password@ip:port`.
 
 ```console
 py .\scripts\check_proxies.py --proxy-file proxy_file.txt
