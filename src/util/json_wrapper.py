@@ -1,14 +1,15 @@
 import json
-from typing import Any
 from dataclasses import asdict
+from typing import Any
 
 _json_lib = json
 
+
 class PlayerRecordEncoder(json.JSONEncoder):
-    def default(self, obj): # type: ignore
+    def default(self, obj):  # type: ignore
         from src.request.results import PlayerRecordInfo
         if isinstance(obj, PlayerRecordInfo):
-            return asdict(obj) # type: ignore
+            return asdict(obj)  # type: ignore
         return super().default(obj)
 
 
