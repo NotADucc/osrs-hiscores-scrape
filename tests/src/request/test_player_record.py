@@ -126,10 +126,10 @@ def test_initialization():
     player_record = PlayerRecord("TestUser", csv, datetime(2025, 11, 16))
 
     assert player_record.username == "TestUser"
-    assert player_record.rank == 271397
-    assert player_record.total_level == 2084
-    assert player_record.total_xp == 297498066
-    assert math.isclose(player_record.combat_lvl, 125.35)
+    assert player_record.overall.rank == 271397
+    assert player_record.overall.lvl == 2084
+    assert player_record.overall.xp == 297498066
+    assert math.isclose(player_record.combat_lvl.value, 125.35)
 
     skills_true = [
         HSType.attack, HSType.defence, HSType.strength, HSType.hitpoints, HSType.ranged,
@@ -213,10 +213,10 @@ def test_initialization_incomplete_csv():
     player_record = PlayerRecord("TestUser", csv, datetime(2025, 11, 3))
 
     assert player_record.username == "TestUser"
-    assert player_record.rank == 268860
-    assert player_record.total_level == 2084
-    assert player_record.total_xp == 295930696
-    assert math.isclose(player_record.combat_lvl, 3)
+    assert player_record.overall.rank == 268860
+    assert player_record.overall.lvl == 2084
+    assert player_record.overall.xp == 295930696
+    assert math.isclose(player_record.combat_lvl.value, 3)
 
     assert not player_record.skills
     assert not player_record.misc
@@ -224,7 +224,7 @@ def test_initialization_incomplete_csv():
 
 def tes_get_stat_overall(sample_player_record: PlayerRecord):
     assert sample_player_record.get_stat(
-        HSType.overall) == sample_player_record.total_level
+        HSType.overall) == sample_player_record.overall.lvl
 
 
 def test_get_stat_combat(sample_player_record: PlayerRecord):
@@ -258,7 +258,7 @@ def test_meets_and_lacks_requirements(sample_player_record: PlayerRecord):
 def test_ordering(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts: datetime):
     better_total = PlayerRecord(
         "BetterTotal", sample_player_record_csv_list, sample_ts)
-    better_total.total_level = sample_player_record.total_level + 1
+    better_total.overall.lvl = sample_player_record.overall.lvl + 1
 
     assert sample_player_record < better_total
     assert better_total > sample_player_record
@@ -267,9 +267,9 @@ def test_ordering(sample_player_record: PlayerRecord, sample_player_record_csv_l
 
 def test_eq_same_values(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts: datetime):
     copy = PlayerRecord("TestUser", sample_player_record_csv_list, sample_ts)
-    copy.total_level = sample_player_record.total_level
-    copy.total_xp = sample_player_record.total_xp
-    copy.rank = sample_player_record.rank
+    copy.overall.lvl = sample_player_record.overall.lvl
+    copy.overall.xp = sample_player_record.overall.xp
+    copy.overall.rank = sample_player_record.overall.rank
 
     assert sample_player_record == copy
 
@@ -279,7 +279,7 @@ def test_to_and_from_dict(sample_player_record: PlayerRecord):
     restored = PlayerRecord.from_dict(d)
 
     assert restored.username == sample_player_record.username
-    assert restored.total_level == sample_player_record.total_level
+    assert restored.overall.lvl == sample_player_record.overall.lvl
     assert restored.skills == sample_player_record.skills
     assert restored.misc == sample_player_record.misc
 

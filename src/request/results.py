@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime
 from functools import total_ordering
 from typing import Any, List
@@ -7,7 +9,48 @@ from src.request.dto import HSFilterEntry
 from src.stats.common import calc_combat_level
 from src.util import json_wrapper
 
+class PlayerRecordInfo(ABC):
+    @abstractmethod
+    def get_rank(self) -> int:
+        pass
 
+    @abstractmethod
+    def get_value(self) -> int | float:
+        pass
+
+@dataclass
+class PlayerRecordScalarInfo(PlayerRecordInfo):
+    value: int | float
+
+    def get_rank(self) -> int:
+        return -1
+
+    def get_value(self) -> int | float:
+        return self.value
+    
+@dataclass
+class PlayerRecordSkillInfo(PlayerRecordInfo):
+    """ Wrapper object to handle playerrecord skill rankings """
+    rank: int
+    lvl: int
+    xp: int
+    def get_rank(self) -> int:
+        return self.rank
+
+    def get_value(self) -> int:
+        return self.lvl
+
+@dataclass
+class PlayerRecordMiscInfo(PlayerRecordInfo):
+    """ Wrapper object to handle playerrecord misc rankings """
+    rank: int
+    kc: int
+    def get_rank(self) -> int:
+        return self.rank
+
+    def get_value(self) -> int:
+        return self.kc
+    
 @total_ordering
 class PlayerRecord:
     """
@@ -21,12 +64,14 @@ class PlayerRecord:
         first_record = [int(x) for x in csv[0].split(',')]
 
         self.ts = ts
-        self.rank = first_record[0]
-        self.total_level = first_record[1]
-        self.combat_lvl = 3
-        self.total_xp = first_record[2]
-        self.skills = {}
-        self.misc = {}
+        self.overall = PlayerRecordSkillInfo(
+            rank=first_record[0],
+            lvl=first_record[1],
+            xp=first_record[2]
+        )
+        self.combat_lvl = PlayerRecordScalarInfo(value=3)
+        self.skills : dict[str, PlayerRecordSkillInfo] = {}
+        self.misc : dict[str, PlayerRecordMiscInfo] = {}
 
         if HSType.csv_len() != len(csv):
             return
@@ -42,31 +87,40 @@ class PlayerRecord:
             splitted = [int(x) for x in csv[csv_val].split(',')]
 
             if hs_type.is_skill():
-                # self.skills[mapper_val.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
+                self.skills[hs_type.name] = PlayerRecordSkillInfo(
+                    rank=splitted[0], 
+                    lvl=splitted[1], 
+                    xp=splitted[2]
+                )
+                # self.skills[hs_type.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
+                # self.skills[hs_type.name] = splitted[1]
                 # just lvl for now, saving rank, lvl, xp and maybe virtual lvl is gonna be too much
                 # or have a flag that can enable it
-                self.skills[hs_type.name] = splitted[1]
 
             elif hs_type.is_misc():
                 # player can have a score even tho rank is unknown
                 if splitted[1] <= 0:
                     continue
-                # self.misc[mapper_val.name] = { 'rank': splitted[0], 'kc': splitted[1] }
-                self.misc[hs_type.name] = splitted[1]
+                self.misc[hs_type.name] = PlayerRecordMiscInfo(
+                    rank=splitted[0],
+                    kc=splitted[1]
+                )
+                # self.misc[hs_type.name] = { 'rank': splitted[0], 'kc': splitted[1] }
+                # self.misc[hs_type.name] = splitted[1]
 
         cmb_level = calc_combat_level(
-            attack=self.skills[HSType.attack.name],
-            defence=self.skills[HSType.defence.name],
-            strength=self.skills[HSType.strength.name],
-            hitpoints=self.skills[HSType.hitpoints.name],
-            ranged=self.skills[HSType.ranged.name],
-            prayer=self.skills[HSType.prayer.name],
-            magic=self.skills[HSType.magic.name]
+            attack=self.skills[HSType.attack.name].lvl,
+            defence=self.skills[HSType.defence.name].lvl,
+            strength=self.skills[HSType.strength.name].lvl,
+            hitpoints=self.skills[HSType.hitpoints.name].lvl,
+            ranged=self.skills[HSType.ranged.name].lvl,
+            prayer=self.skills[HSType.prayer.name].lvl,
+            magic=self.skills[HSType.magic.name].lvl
         )
 
-        self.combat_lvl = cmb_level
+        self.combat_lvl = PlayerRecordScalarInfo(value=cmb_level)
 
-    def get_stat(self, hs_type: HSType) -> int | float:
+    def get_stat(self, hs_type: HSType) -> PlayerRecordInfo:
         """ 
         Retrieve record value for a given highscore type. 
 
@@ -74,13 +128,13 @@ class PlayerRecord:
             ValueError raised if `HSType` is unknown.
         """
         if hs_type is HSType.overall:
-            val = self.total_level
+            val = self.overall
         elif hs_type is HSType.combat:
             val = self.combat_lvl
         elif hs_type.is_skill():
-            val = self.skills.get(hs_type.name, 0)
+            val = self.skills.get(hs_type.name, PlayerRecordSkillInfo(rank=-1,lvl=-1,xp=-1))
         elif hs_type.is_misc():
-            val = self.misc.get(hs_type.name, 0)
+            val = self.misc.get(hs_type.name, PlayerRecordMiscInfo(rank=-1,kc=-1))
         else:
             raise ValueError(f"Unknown hs type: {hs_type.name}")
 
@@ -92,14 +146,16 @@ class PlayerRecord:
 
     def meets_requirements(self, requirements: list[HSFilterEntry]) -> bool:
         """ Check if the player satisfies all given requirements. """
-        return all(entry.predicate(self.get_stat(entry.hstype)) for entry in requirements)
+        return all(entry.predicate(self.get_stat(entry.hstype).get_value()) for entry in requirements)
 
-    def __lt__(self, other) -> bool:
-        if self.total_level < other.total_level:
+    def __lt__(self, other: 'PlayerRecord') -> bool:
+        if self.overall.lvl < other.overall.lvl:
             return True
-        elif self.total_level == other.total_level and self.total_xp < other.total_xp:
+        elif self.overall.lvl == other.overall.lvl \
+            and self.overall.xp < other.overall.xp:
             return True
-        elif self.total_xp == other.total_xp and self.rank > other.rank:
+        elif self.overall.xp == other.overall.xp \
+            and self.overall.rank > other.overall.rank:
             return True
         return False
 
@@ -110,12 +166,12 @@ class PlayerRecord:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "rank": self.rank,
+            "rank": self.overall.rank,
             "username": self.username,
             "timestamp": self.ts.isoformat(),
-            "total_level": self.total_level,
+            "total_level": self.overall.lvl,
             "combat_lvl": self.combat_lvl,
-            "total_xp": self.total_xp,
+            "total_xp": self.overall.xp,
             "skills": self.skills,
             "misc": self.misc,
         }

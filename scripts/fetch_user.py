@@ -26,7 +26,7 @@ async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
 
         convert = player_record.to_dict() if not hs_type else \
             {
-                "rank": player_record.rank,
+                "rank": player_record.overall.rank,
                 "username": player_record.username,
                 "timestamp": player_record.ts.isoformat(),
                 hs_type.name: player_record.get_stat(hs_type=hs_type),
