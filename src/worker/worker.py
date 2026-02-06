@@ -54,7 +54,8 @@ class Worker:
         """
         while not self.job_manager.is_finished():
             await asyncio.sleep(initial_delay)
-            done, _ = await asyncio.wait(
+
+            done, pending = await asyncio.wait(
                 [
                     asyncio.create_task(self.in_q.get()),
                     asyncio.create_task(
@@ -62,6 +63,9 @@ class Worker:
                 ],
                 return_when=asyncio.FIRST_COMPLETED,
             )
+
+            for task in pending:
+                task.cancel()
 
             job = next(iter(done)).result()
 
