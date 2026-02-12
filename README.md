@@ -22,7 +22,7 @@ python -m pip install -r requirements.txt -e .
 - Check if proxies are valid.
 
 > [!Note]
-> Use apostrophes/quotes when you have an argument value that contains a space.
+> Use apostrophes (single quotes) or double quotes (depending on what shell u use) when you have an argument value that contains a space.
 > Look at [Filter Codeblock](#filter_hspy) for an example.
 
 # Usage
