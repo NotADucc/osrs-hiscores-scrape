@@ -641,6 +641,7 @@ def test_extract_multiple_records_and_cleanup_username():
     assert r2.username == "Baz Qux"  # \xa0 replaced with space
     assert r2.score == 9876
 
+
 def test_extract_single_record_and_remove_empty_right_td():
     page = make_page("""
       <tr class="personal-hiscores__row">
@@ -659,6 +660,7 @@ def test_extract_single_record_and_remove_empty_right_td():
     assert rec.rank == 1
     assert rec.username == "PlayerOne"
     assert rec.score == 1234
+
 
 def test_raises_when_table_missing():
     page = "<html><body><p>No table</p></body></html>"
@@ -679,6 +681,7 @@ def test_raises_when_unexpected_parse_error():
 
     with pytest.raises(ParsingFailed):
         request._extract_hs_page_records(page)
+
 
 @pytest.mark.asyncio
 async def test_get_last_score_empty(sample_fake_client_session):
