@@ -294,8 +294,7 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
     try:
         for record in records:
             td_right = [
-                # type: ignore
-                td for td in record.find_all('td', class_='right')
+                td for td in record.find_all('td', class_='right')  # type: ignore # nopep8
                 if td.text.strip()
             ]
 
