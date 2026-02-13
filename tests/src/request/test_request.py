@@ -641,6 +641,24 @@ def test_extract_multiple_records_and_cleanup_username():
     assert r2.username == "Baz Qux"  # \xa0 replaced with space
     assert r2.score == 9876
 
+def test_extract_single_record_and_remove_empty_right_td():
+    page = make_page("""
+      <tr class="personal-hiscores__row">
+        <td class="right"></td>
+        <td class="right">1</td>
+        <td class="left"><a>PlayerOne</a></td>
+        <td class="right">1234</td>
+      </tr>
+    """)
+
+    records = request._extract_hs_page_records(page)
+
+    assert len(records) == 1
+    rec = records[0]
+
+    assert rec.rank == 1
+    assert rec.username == "PlayerOne"
+    assert rec.score == 1234
 
 def test_raises_when_table_missing():
     page = "<html><body><p>No table</p></body></html>"
@@ -648,6 +666,19 @@ def test_raises_when_table_missing():
     with pytest.raises(ParsingFailed):
         request._extract_hs_page_records(page)
 
+
+def test_raises_when_unexpected_parse_error():
+    page = make_page("""
+      <tr class="personal-hiscores__row">
+        <td class="right"></td>
+        <td class="right">Unexpected change</td>
+        <td class="left"><a>Happened</a></td>
+        <td class="right">Here</td>
+      </tr>
+    """)
+
+    with pytest.raises(ParsingFailed):
+        request._extract_hs_page_records(page)
 
 @pytest.mark.asyncio
 async def test_get_last_score_empty(sample_fake_client_session):

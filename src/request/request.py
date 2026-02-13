@@ -280,7 +280,7 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
     Parse a hiscore page of OSRS personal highscores and extract rank, username, and score records.
 
     Raises:
-        ParsingFailed: If the hiscore table cannot be found on the page.
+        ParsingFailed: If the hiscore table cannot be found on the page or if an unexpected parsing error occurs.
     """
     soup = BeautifulSoup(page, "html.parser")
     table = soup.find(class_='personal-hiscores__table')
@@ -291,18 +291,24 @@ def _extract_hs_page_records(page: str) -> list[CategoryRecord]:
     records = table.find_all(class_='personal-hiscores__row')
 
     result = []
-
-    for record in records:
-        td_right = record.find_all('td', class_='right')  # type: ignore
-
-        rank = int(td_right[0].text.replace(',', '').strip())
-        # some names contain special char - "non-breaking space."
-        username = record.find('td', class_='left').a.text.strip().replace(  # type: ignore
-            'Ā', ' ').replace('\xa0', ' ')  # type: ignore
-        score = int(td_right[1].text.replace(',', '').strip())
-        result.append(CategoryRecord(
-            rank=rank, score=score, username=username))
-
+    try:
+        for record in records:
+            td_right = [
+                td for td in record.find_all('td', class_='right') # type: ignore
+                if td.text.strip()
+            ]
+            
+            rank = int(td_right[0].text.replace(',', '').strip())
+            # some names contain special char - "non-breaking space."
+            username = record.find('td', class_='left').a.text.strip().replace(  # type: ignore
+                'Ā', ' ').replace('\xa0', ' ')  # type: ignore
+            score = int(td_right[1].text.replace(',', '').strip())
+            result.append(CategoryRecord(
+                rank=rank, score=score, username=username))
+            
+    except Exception as err:
+        raise ParsingFailed("Unexpected error while parsing hiscore records") from err
+    
     return result
 
 
