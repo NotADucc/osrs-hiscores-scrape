@@ -140,6 +140,7 @@ class HSType(Enum):
     araxxor = HSCategoryMapperIncrementer.misc_increment()
     artio = HSCategoryMapperIncrementer.misc_increment()
     barrows_chests = HSCategoryMapperIncrementer.misc_increment()
+    brutus = HSCategoryMapperIncrementer.misc_increment()
     bryophyta = HSCategoryMapperIncrementer.misc_increment()
     callisto = HSCategoryMapperIncrementer.misc_increment()
     calvarion = HSCategoryMapperIncrementer.misc_increment()
