@@ -13,8 +13,8 @@ python -m pip install -r requirements.txt -e .
 
 # Main Features
 - Filter usernames based on skills/bossing achievements and save that resultset to a file.
-- Analyse a highscore category (Count, total-, max-, min scores, etc.)
-- Pull a hiscore category and save the player names to a file.
+- Analyse a highscore category by creating some statistics like mean, median, min, max, quartiles and population/sample data.
+- Fetch hiscore category pages and save the player names to a file.
 
 # Misc Features
 - Fetch an individual's stats from OSRS hiscores.
@@ -65,7 +65,7 @@ py .\scripts\analyse_category.py --out-file output.txt --hs-type zuk --account-t
 
 ## fetch_pages.py
 
-Scrape hiscore category pages, scraped page records gets saved to an output file.
+Scrape hiscore category pages, scraped names and scores gets saved to an output file.
 
 ```console
 py .\scripts\fetch_pages.py --out-file output.txt --account-type pure --hs-type zuk
