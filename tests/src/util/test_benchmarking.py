@@ -13,8 +13,8 @@ async def test_benchmark_async_function():
         return x * 2
 
     with patch("src.util.mem_profile.memory_usage_psutil", side_effect=[100.0, 105.0]), \
-         patch("time.perf_counter", side_effect=[1.0, 2.0]), \
-         patch("src.util.log.LoggerWrapper.debug") as mock_logger:
+            patch("time.perf_counter", side_effect=[1.0, 2.0]), \
+            patch("src.util.log.LoggerWrapper.debug") as mock_logger:
 
         wrapped = benchmark(dummy_async)
         result = await wrapped(5)
@@ -36,8 +36,8 @@ async def test_benchmark_sync_function():
         return x * 2
 
     with patch("src.util.mem_profile.memory_usage_psutil", side_effect=[100.0, 105.0]), \
-         patch("time.perf_counter", side_effect=[1.0, 2.0]), \
-         patch("src.util.log.LoggerWrapper.debug") as mock_logger:
+            patch("time.perf_counter", side_effect=[1.0, 2.0]), \
+            patch("src.util.log.LoggerWrapper.debug") as mock_logger:
 
         wrapped = benchmark(dummy_sync)
         result = await wrapped(5)

@@ -19,7 +19,7 @@ def benchmark(callback: Callable):
         filename = os.path.basename(inspect.getfile(callback))
         start_time = time.perf_counter()
         tracemalloc.start()
-        start_mem = mem_profile.memory_usage_psutil() 
+        start_mem = mem_profile.memory_usage_psutil()
 
         try:
             result = callback(*args, **kwargs)
@@ -38,5 +38,5 @@ def benchmark(callback: Callable):
             )
             logger.debug(f"Python peak memory: {peak / (1024 ** 2):.6f} MB")
             logger.debug(f"OS-level memory: {end_mem - start_mem:.6f} MB")
-    
+
     return wrapper
