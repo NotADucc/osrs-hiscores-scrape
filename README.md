@@ -23,18 +23,18 @@ python -m pip install -r requirements.txt -e .
 
 > [!Note]
 > Use apostrophes (single quotes) or double quotes (depending on what shell u use) when you have an argument value that contains a space.
-> Look at [Filter Codeblock](#filter_hspy) for an example.
+> Look at [Filter Codeblock](#filter_categorypy) for an example.
 
 # Usage
 
-## filter_hs.py
+## filter_category.py
 
-Scrape hiscores while filtering accounts based on category information (combat, skill levels, boss kc, etc.), filtered data gets saved to an output file.
+Scrape hiscore pages while filtering accounts based on category information (combat, skill levels, boss kc, etc.), filtered player data gets saved to an output file.
 
 ```console
-py .\scripts\filter_hs.py --out-file output.txt --filter 'ranged=50,attack<50'
-py .\scripts\filter_hs.py --out-file output.txt --filter 'ranged>50 , attack>=50'
-py .\scripts\filter_hs.py --out-file output.txt --filter 'ranged<=50, attack=50' 
+py .\scripts\filter_category.py --out-file output.txt --filter 'ranged=50,attack<50'
+py .\scripts\filter_category.py --out-file output.txt --filter 'ranged>50 , attack>=50'
+py .\scripts\filter_category.py --out-file output.txt --filter 'ranged<=50, attack=50' 
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
@@ -63,12 +63,12 @@ py .\scripts\analyse_category.py --out-file output.txt --hs-type zuk --account-t
 | `--account-type`  | Yes      | Account type it should pull from       |
 
 
-## scrape_hs.py
+## fetch_pages.py
 
-Scrape hiscore category, scraped data gets saved to an output file.
+Scrape hiscore category pages, scraped page records gets saved to an output file.
 
 ```console
-py .\scripts\scrape_hs.py --out-file output.txt --account-type pure --hs-type zuk
+py .\scripts\fetch_pages.py --out-file output.txt --account-type pure --hs-type zuk
 ```
 | Argument      | Required | Description                                |
 | ------------- | -------- | ------------------------------------------ |
