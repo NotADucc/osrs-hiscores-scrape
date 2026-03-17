@@ -59,6 +59,7 @@ def test_initialization():
         "6958,2222",
         "136540,20",
         "885064,27",
+        "57729,688",
         "369702,5",
         "-1,4",
         "215072,20",
@@ -167,7 +168,7 @@ def test_initialization():
     bosses_true = [
         HSType.sire, HSType.hydra, HSType.amoxliatl, HSType.araxxor, HSType.artio,
 
-        HSType.barrows_chests, HSType.bryophyta,
+        HSType.barrows_chests, HSType.bryophyta, HSType.brutus,
 
         HSType.callisto, HSType.calvarion, HSType.cerberus, HSType.cox, HSType.cox_cm, HSType.chaos_elemental,
         HSType.chaos_fanatic, HSType.saradomin, HSType.corp, HSType.crazy_archaeologist,
