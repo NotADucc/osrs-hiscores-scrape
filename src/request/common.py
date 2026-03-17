@@ -227,9 +227,9 @@ class HSType(Enum):
 
     def is_combat(self) -> bool:
         """ Determine whether the OSRS category represents a combat stat. """
-        return self.name in {
-            "attack", "defence", "strength", "hitpoints",
-            "ranged", "prayer", "magic", "combat"
+        return self in {
+            HSType.attack, HSType.defence, HSType.strength, HSType.hitpoints,
+            HSType.ranged, HSType.prayer, HSType.magic, HSType.combat
         }
 
     def __str__(self) -> str:
