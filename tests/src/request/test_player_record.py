@@ -223,9 +223,9 @@ def test_initialization_incomplete_csv():
     assert not player_record.misc
 
 
-def tes_get_stat_overall(sample_player_record: PlayerRecord):
+def test_get_stat_overall(sample_player_record: PlayerRecord):
     assert sample_player_record.get_stat(
-        HSType.overall) == sample_player_record.overall.lvl
+        HSType.overall) == sample_player_record.overall
 
 
 def test_get_stat_combat(sample_player_record: PlayerRecord):
