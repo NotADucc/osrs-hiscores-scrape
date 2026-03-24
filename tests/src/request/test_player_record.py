@@ -248,16 +248,17 @@ def test_get_stat_misc_returns_default(sample_player_record_incomplete: PlayerRe
 
 
 def test_meets_and_lacks_requirements():
-    player_record = PlayerRecord("test", ["1,50,101333" if hs_type.is_skill() else "1,50" for hs_type in HSType.get_csv_types()], datetime(2023, 1, 1))
+    player_record = PlayerRecord("test", ["1,50,101333" if hs_type.is_skill(
+    ) else "1,50" for hs_type in HSType.get_csv_types()], datetime(2023, 1, 1))
     expected_cmb_lvl = calc_combat_level(
-            attack=50,
-            defence=50,
-            strength=50,
-            hitpoints=50,
-            ranged=50,
-            prayer=50,
-            magic=50
-        )
+        attack=50,
+        defence=50,
+        strength=50,
+        hitpoints=50,
+        ranged=50,
+        prayer=50,
+        magic=50
+    )
 
     req_overall = HSFilterEntry(HSType.overall, lambda v: v >= 50)
     assert player_record.meets_requirements([req_overall])
@@ -290,7 +291,7 @@ def test_meets_and_lacks_requirements():
     req_misc_fail = HSFilterEntry(HSType.zuk, lambda v: v > 50)
     assert not player_record.meets_requirements([req_misc_fail])
     assert player_record.lacks_requirements([req_misc_fail])
-    
+
 
 def test_ordering(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts: datetime):
     better_total = PlayerRecord(
