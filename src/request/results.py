@@ -23,6 +23,7 @@ class PlayerRecordInfo(ABC):
     def to_dict(self) -> dict:
         pass
 
+
 @dataclass
 class PlayerRecordScalarInfo(PlayerRecordInfo):
     value: int | float
@@ -32,11 +33,12 @@ class PlayerRecordScalarInfo(PlayerRecordInfo):
 
     def get_value(self) -> int | float:
         return self.value
-    
+
     def to_dict(self) -> dict:
         return {
             "value": self.value
         }
+
 
 @dataclass
 class PlayerRecordSkillInfo(PlayerRecordInfo):
@@ -50,13 +52,14 @@ class PlayerRecordSkillInfo(PlayerRecordInfo):
 
     def get_value(self) -> int:
         return self.lvl
-    
+
     def to_dict(self) -> dict:
         return {
             "rank": self.rank,
             "lvl": self.lvl,
             "xp": self.xp
         }
+
 
 @dataclass
 class PlayerRecordMiscInfo(PlayerRecordInfo):
@@ -69,12 +72,13 @@ class PlayerRecordMiscInfo(PlayerRecordInfo):
 
     def get_value(self) -> int:
         return self.kc
-    
+
     def to_dict(self) -> dict:
         return {
             "rank": self.rank,
             "kc": self.kc
         }
+
 
 @total_ordering
 class PlayerRecord:
@@ -207,13 +211,15 @@ class PlayerRecord:
     def from_dict(cls, data: dict[str, Any]) -> 'PlayerRecord':
         ts = datetime.fromisoformat(data["timestamp"])
 
-        fake_csv = [f"{data['overall_rank']},{data['total_level']},{data['total_xp']}"]
+        fake_csv = [
+            f"{data['overall_rank']},{data['total_level']},{data['total_xp']}"]
         obj = cls(data["username"], fake_csv, ts)
 
-
         obj.combat_lvl = PlayerRecordScalarInfo(data["combat_lvl"])
-        obj.skills = { k: PlayerRecordSkillInfo(**v) for k, v in data["skills"].items() }
-        obj.misc = { k: PlayerRecordMiscInfo(**v) for k, v in data["misc"].items() }
+        obj.skills = {k: PlayerRecordSkillInfo(
+            **v) for k, v in data["skills"].items()}
+        obj.misc = {k: PlayerRecordMiscInfo(**v)
+                    for k, v in data["misc"].items()}
 
         return obj
 
