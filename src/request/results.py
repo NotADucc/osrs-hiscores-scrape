@@ -19,6 +19,9 @@ class PlayerRecordInfo(ABC):
     def get_value(self) -> int | float:
         pass
 
+    @abstractmethod
+    def to_dict(self) -> dict:
+        pass
 
 @dataclass
 class PlayerRecordScalarInfo(PlayerRecordInfo):
@@ -29,7 +32,11 @@ class PlayerRecordScalarInfo(PlayerRecordInfo):
 
     def get_value(self) -> int | float:
         return self.value
-
+    
+    def to_dict(self) -> dict:
+        return {
+            "value": self.value
+        }
 
 @dataclass
 class PlayerRecordSkillInfo(PlayerRecordInfo):
@@ -43,7 +50,13 @@ class PlayerRecordSkillInfo(PlayerRecordInfo):
 
     def get_value(self) -> int:
         return self.lvl
-
+    
+    def to_dict(self) -> dict:
+        return {
+            "rank": self.rank,
+            "lvl": self.lvl,
+            "xp": self.xp
+        }
 
 @dataclass
 class PlayerRecordMiscInfo(PlayerRecordInfo):
@@ -56,7 +69,12 @@ class PlayerRecordMiscInfo(PlayerRecordInfo):
 
     def get_value(self) -> int:
         return self.kc
-
+    
+    def to_dict(self) -> dict:
+        return {
+            "rank": self.rank,
+            "kc": self.kc
+        }
 
 @total_ordering
 class PlayerRecord:
@@ -175,25 +193,27 @@ class PlayerRecord:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "rank": self.overall.rank,
+            "overall_rank": self.overall.rank,
             "username": self.username,
             "timestamp": self.ts.isoformat(),
             "total_level": self.overall.lvl,
             "combat_lvl": self.combat_lvl,
             "total_xp": self.overall.xp,
-            "skills": self.skills,
-            "misc": self.misc,
+            "skills": {k: v.to_dict() for k, v in self.skills.items()},
+            "misc": {k: v.to_dict() for k, v in self.misc.items()},
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'PlayerRecord':
-        """ Reconstructs a PlayerRecord from a dict produced by to_dict(). """
         ts = datetime.fromisoformat(data["timestamp"])
-        fake_csv = [f"{data['rank']},{data['total_level']},{data['total_xp']}"]
+
+        fake_csv = [f"{data['overall_rank']},{data['total_level']},{data['total_xp']}"]
         obj = cls(data["username"], fake_csv, ts)
-        obj.combat_lvl = data["combat_lvl"]
-        obj.skills = data["skills"]
-        obj.misc = data["misc"]
+
+
+        obj.combat_lvl = PlayerRecordScalarInfo(data["combat_lvl"])
+        obj.skills = { k: PlayerRecordSkillInfo(**v) for k, v in data["skills"].items() }
+        obj.misc = { k: PlayerRecordMiscInfo(**v) for k, v in data["misc"].items() }
 
         return obj
 

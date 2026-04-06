@@ -16,6 +16,16 @@ from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 
 logger = get_logger()
 
+def inline_dict(d):
+    return "{ " + ", ".join(f'"{k}": {v}' for k, v in d.items()) + " }"
+
+def format_section(section):
+    lines = []
+    for name, data in section.items():
+        inline = inline_dict(data)
+        lines.append(f'  "{name}": {inline}')
+    return "{\n" + ",\n".join(lines) + "\n }"
+
 
 @log_execution
 @benchmark
@@ -23,16 +33,24 @@ async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
         player_record = await retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=account_type))
-
+        
         convert = player_record.to_dict() if not hs_type else \
-            {
-                "rank": player_record.overall.rank,
-                "username": player_record.username,
-                "timestamp": player_record.ts.isoformat(),
-                hs_type.name: player_record.get_stat(hs_type=hs_type),
+        {
+            "rank": player_record.overall.rank,
+            "username": player_record.username,
+            "timestamp": player_record.ts.isoformat(),
+            hs_type.name: player_record.get_stat(hs_type=hs_type),
         }
-        json_output = json_wrapper.to_json(convert, indent=1)
+        
+        convert_copy = convert.copy()
 
+        convert_copy["skills"] = "__SKILLS__"
+        convert_copy["misc"] = "__MISC__"
+        json_output = json_wrapper.to_json(convert_copy, indent=1)
+
+        json_output = json_output.replace('"__SKILLS__"', format_section(convert["skills"]))
+        json_output = json_output.replace('"__MISC__"', format_section(convert["misc"]))
+        
         print(json_output)
 
 

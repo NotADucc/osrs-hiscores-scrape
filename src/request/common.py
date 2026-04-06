@@ -42,7 +42,7 @@ class HSAccountTypes(Enum):
     @staticmethod
     def from_string(s: str) -> 'HSAccountTypes':
         try:
-            return HSAccountTypes[s]
+            return HSAccountTypes[s.lower()]
         except KeyError:
             valid_values = ', '.join(HSAccountTypes.__members__.keys())
             raise KeyError(f'value given: {s}, valid values [{valid_values}]')
@@ -250,7 +250,7 @@ class HSType(Enum):
     @staticmethod
     def from_string(s: str) -> 'HSType':
         try:
-            return HSType[s]
+            return HSType[s.lower()]
         except KeyError:
             valid_values = ', '.join(HSType.__members__.keys())
             raise KeyError(f'value given: {s}, valid values [{valid_values}]')
