@@ -225,6 +225,10 @@ class HSType(Enum):
         """ Determine whether the OSRS category represents misc. """
         return self.get_category() == 1
 
+    def is_boss(self) -> bool:
+        """ Determine whether the OSRS category represents a boss. """
+        return HSType.sire.value.csv_value <= self.value.csv_value <= HSType.zulrah.value.csv_value
+
     def is_combat(self) -> bool:
         """ Determine whether the OSRS category represents a combat stat. """
         return self in {

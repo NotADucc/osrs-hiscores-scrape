@@ -119,12 +119,42 @@ def test_hs_type_is_combat_false(hs_type: HSType):
     assert not hs_type.is_combat()
 
 
-def test_hs_type_is_skill_and_is_misc():
+def test_hs_type_is_skill():
+    assert HSType.overall.is_skill()
     assert HSType.attack.is_skill()
-    assert not HSType.attack.is_misc()
+    assert HSType.sailing.is_skill()
 
-    assert HSType.league_points.is_misc()
-    assert not HSType.league_points.is_skill()
+    assert not HSType.grid_points.is_skill()
+    assert not HSType.collections_logged.is_skill()
+    assert not HSType.sire.is_skill()
+    assert not HSType.zulrah.is_skill()
+    assert not HSType.combat.is_skill()
+
+
+def test_hs_type_is_misc():
+    assert HSType.grid_points.is_misc()
+    assert HSType.collections_logged.is_misc()
+    assert HSType.sire.is_misc()
+    assert HSType.zulrah.is_misc()
+    
+    assert not HSType.combat.is_misc()
+
+    assert not HSType.overall.is_misc()
+    assert not HSType.attack.is_misc()
+    assert not HSType.sailing.is_misc()
+
+
+def test_hs_type_is_boss():
+    assert HSType.sire.is_boss()
+    assert HSType.zulrah.is_boss()
+
+    assert not HSType.grid_points.is_boss()
+    assert not HSType.collections_logged.is_boss()
+    assert not HSType.combat.is_boss()
+
+    assert not HSType.overall.is_boss()
+    assert not HSType.attack.is_boss()
+    assert not HSType.sailing.is_boss()
 
 
 def test_hs_type_combat_special_case():
