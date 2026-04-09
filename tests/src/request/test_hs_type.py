@@ -136,7 +136,7 @@ def test_hs_type_is_misc():
     assert HSType.collections_logged.is_misc()
     assert HSType.sire.is_misc()
     assert HSType.zulrah.is_misc()
-    
+
     assert not HSType.combat.is_misc()
 
     assert not HSType.overall.is_misc()
