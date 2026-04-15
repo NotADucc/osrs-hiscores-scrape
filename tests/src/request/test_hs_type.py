@@ -129,7 +129,7 @@ def test_hs_type_is_skill():
 
     assert not HSType.sire.is_skill()
     assert not HSType.zulrah.is_skill()
-    
+
     assert not HSType.combat.is_skill()
 
 

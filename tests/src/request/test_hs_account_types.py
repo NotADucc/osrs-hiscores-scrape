@@ -7,6 +7,7 @@ def tests_are_unique():
     names = [e.name for e in HSAccountTypes]
     assert len(names) == len(set(names))
 
+
 ACCOUNT_TYPE_TEST_CASES = [
     (HSAccountTypes.regular, "hiscore_oldschool"),
     (HSAccountTypes.pure, "hiscore_oldschool_skiller_defence"),
@@ -19,6 +20,7 @@ ACCOUNT_TYPE_TEST_CASES = [
     (HSAccountTypes.tournament, "hiscore_oldschool_tournament"),
     (HSAccountTypes.fsw, "hiscore_oldschool_fresh_start"),
 ]
+
 
 @pytest.mark.parametrize("account_type, expected_value", ACCOUNT_TYPE_TEST_CASES)
 def test_values(account_type, expected_value):
