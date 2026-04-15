@@ -18,11 +18,15 @@ class HSAccountTypes(Enum):
         skiller
     """
     regular = 'hiscore_oldschool'
-    pure = 'hiscore_oldschool_skiller_defence'
     im = 'hiscore_oldschool_ironman'
     uim = 'hiscore_oldschool_ultimate'
     hc = 'hiscore_oldschool_hardcore_ironman'
+    pure = 'hiscore_oldschool_skiller_defence'
     skiller = 'hiscore_oldschool_skiller'
+    dmm = 'hiscore_oldschool_deadman'
+    leagues = 'hiscore_oldschool_seasonal'
+    tournament = 'hiscore_oldschool_tournament'
+    fsw = 'hiscore_oldschool_fresh_start'
 
     def lookup_overall(self) -> str:
         return f'https://secure.runescape.com/m={self.value}/overall'
