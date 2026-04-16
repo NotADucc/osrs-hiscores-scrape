@@ -709,7 +709,7 @@ def test__extract_record_scores_misc(monkeypatch, sample_category_records: list[
         return score
 
     monkeypatch.setattr(
-        "osrs_hiscore_scrape.request.request.calc_skill_level", fake_calc_skill_level)
+        "osrs_hiscore_scrape.stats.common.calc_skill_level", fake_calc_skill_level)
 
     res = request._extract_record_scores(
         records=sample_category_records, hs_type=HSType.combat)
