@@ -6,8 +6,8 @@ import threading
 from collections import defaultdict
 from typing import Any, Callable, TypeVar, cast
 
-LOGGER_LEVEL = logging.DEBUG
-logger = None
+DEFAULT_LOGGER_LEVEL = logging.DEBUG
+logger = {}
 
 
 class CustomFormatter(logging.Formatter):
@@ -46,14 +46,18 @@ class CustomFormatter(logging.Formatter):
 
 
 class LoggerWrapper:
-    def __init__(self, formatter: logging.Formatter):
+    def __init__(self, formatter: logging.Formatter, name: str, level: int):
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
 
-        logger = logging.getLogger('logger')
-        logger.setLevel(LOGGER_LEVEL)
-        logger.addHandler(handler)
+        logger = logging.getLogger(name=name)
+        logger.setLevel(level)
+        
+        if (len(logger.handlers)):
+            logger.handlers.clear()
 
+        logger.addHandler(handler)
+  
         self.logger = logger
         self._counts = defaultdict(int)
         self._lock = threading.Lock()
@@ -84,18 +88,16 @@ class LoggerWrapper:
             return dict(self._counts)
 
 
-def setup_custom_logger(formatter: logging.Formatter) -> LoggerWrapper:
+def setup_custom_logger(formatter: logging.Formatter, name: str, level: int) -> LoggerWrapper:
     """ Set up a custom logger with a colorized stream handler. """
-    return LoggerWrapper(formatter=formatter)
+    return LoggerWrapper(formatter=formatter, name=name, level=level)
 
 
-def get_logger() -> LoggerWrapper:
+def get_logger(name: str, level: int = DEFAULT_LOGGER_LEVEL) -> LoggerWrapper:
     """ Retrieve the global custom logger instance, creating it if necessary. """
-    global logger
-    logger = setup_custom_logger(
-        formatter=CustomFormatter()) if logger is None else logger
-    return logger
-
+    if name not in logger: 
+        logger[name] = setup_custom_logger(formatter=CustomFormatter(), name=name, level=level)
+    return logger[name]
 
 T = TypeVar("T", bound=Callable[..., Any])
 
@@ -105,7 +107,7 @@ def log_execution(func: T) -> T:
     also displays the count of logs per type.
     """
     async def message_wrapper(*args, **kwargs):
-        logger = get_logger()
+        logger = get_logger(__name__)
         try:
             logger.info(f"start: {func.__name__}")
             result = func(*args, **kwargs)

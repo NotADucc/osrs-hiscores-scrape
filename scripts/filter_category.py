@@ -31,7 +31,7 @@ from osrs_hiscore_scrape.worker.worker import (create_workers,
                                                request_hs_page,
                                                request_user_stats)
 
-logger = get_logger()
+logger = get_logger(__name__)
 N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 

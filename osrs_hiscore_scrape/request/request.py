@@ -18,7 +18,7 @@ from .errors import (IsRateLimited, NotFound, ParsingFailed, RequestFailed,
                      ServerBusy)
 from .results import CategoryRecord, PlayerRecord
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 class Requests():

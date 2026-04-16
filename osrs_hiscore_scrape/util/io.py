@@ -11,7 +11,7 @@ from ..worker.job import HSLookupJob
 from . import json_wrapper
 from .log import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 ENCODING = "utf-8"
 
 

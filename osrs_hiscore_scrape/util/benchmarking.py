@@ -9,7 +9,7 @@ from typing import Callable
 from . import mem_profile
 from .log import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def benchmark(callback: Callable):

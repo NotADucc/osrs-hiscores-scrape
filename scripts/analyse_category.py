@@ -24,7 +24,7 @@ from osrs_hiscore_scrape.worker.worker import (create_workers,
                                                enqueue_analyse_page_category,
                                                request_hs_page)
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 @log_execution

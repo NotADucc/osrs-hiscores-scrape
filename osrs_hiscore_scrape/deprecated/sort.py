@@ -5,7 +5,7 @@ import sys
 from ..util.log import get_logger
 from ..util.script_utils import script_running_in_cmd_guard
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def main(in_file):

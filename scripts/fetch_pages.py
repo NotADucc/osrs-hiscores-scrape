@@ -18,7 +18,7 @@ from osrs_hiscore_scrape.worker.job import (IJob, JobManager, JobQueue,
 from osrs_hiscore_scrape.worker.worker import (create_workers, enqueue_hs_page,
                                                request_hs_page)
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 @log_execution

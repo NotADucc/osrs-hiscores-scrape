@@ -10,14 +10,18 @@ from osrs_hiscore_scrape.util.log import (CustomFormatter, get_logger,
 @pytest.fixture
 def logger_instance():
     """Provide a fresh logger instance for each test."""
-    return setup_custom_logger(CustomFormatter())
+    return setup_custom_logger(CustomFormatter(), __name__, logging.DEBUG)
 
 
-def test_get_logger_singleton():
-    logger1 = get_logger()
-    logger2 = get_logger()
+def test_get_logger_same_name():
+    logger1 = get_logger(__name__)
+    logger2 = get_logger(__name__)
     assert logger1 is logger2
 
+def test_get_logger_different_name():
+    logger1 = get_logger(__name__)
+    logger2 = get_logger('test')
+    assert logger1 is not logger2
 
 def test_logger_counts(logger_instance, caplog):
     caplog.set_level(logging.DEBUG)

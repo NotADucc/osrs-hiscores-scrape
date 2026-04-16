@@ -13,7 +13,7 @@ from osrs_hiscore_scrape.util.script_utils import script_running_in_cmd_guard
 from osrs_hiscore_scrape.worker.job import IJob, JobManager, JobQueue
 from osrs_hiscore_scrape.worker.worker import create_workers
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 N_PROXY_WORKERS = 20
 

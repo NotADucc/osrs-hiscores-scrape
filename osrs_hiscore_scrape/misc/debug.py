@@ -3,7 +3,7 @@ import sys
 from ..request.common import HSType
 from ..util.log import get_logger, log_execution
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 @log_execution

@@ -15,7 +15,7 @@ from osrs_hiscore_scrape.util.retry_handler import retry
 from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 @log_execution
