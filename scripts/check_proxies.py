@@ -5,13 +5,13 @@ from dataclasses import dataclass
 
 import aiohttp
 
-from src.request.errors import RequestFailed
-from src.request.request import Requests
-from src.util.io import read_proxies, write_records
-from src.util.log import get_logger, log_execution
-from src.util.script_utils import script_running_in_cmd_guard
-from src.worker.job import IJob, JobManager, JobQueue
-from src.worker.worker import create_workers
+from osrs_hiscore_scrape.request.errors import RequestFailed
+from osrs_hiscore_scrape.request.request import Requests
+from osrs_hiscore_scrape.util.io import read_proxies, write_records
+from osrs_hiscore_scrape.util.log import get_logger, log_execution
+from osrs_hiscore_scrape.util.script_utils import script_running_in_cmd_guard
+from osrs_hiscore_scrape.worker.job import IJob, JobManager, JobQueue
+from osrs_hiscore_scrape.worker.worker import create_workers
 
 logger = get_logger()
 

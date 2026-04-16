@@ -4,15 +4,15 @@ import sys
 
 import aiohttp
 
-from src.request.common import HSAccountTypes, HSType
-from src.request.dto import GetPlayerRequest
-from src.request.errors import NotFound
-from src.request.request import Requests
-from src.util import json_wrapper
-from src.util.benchmarking import benchmark
-from src.util.log import get_logger, log_execution
-from src.util.retry_handler import retry
-from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
+from osrs_hiscore_scrape.request.common import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.dto import GetPlayerRequest
+from osrs_hiscore_scrape.request.errors import NotFound
+from osrs_hiscore_scrape.request.request import Requests
+from osrs_hiscore_scrape.util import json_wrapper
+from osrs_hiscore_scrape.util.benchmarking import benchmark
+from osrs_hiscore_scrape.util.log import get_logger, log_execution
+from osrs_hiscore_scrape.util.retry_handler import retry
+from osrs_hiscore_scrape.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
 
 logger = get_logger()
 

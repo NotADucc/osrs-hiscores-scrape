@@ -6,21 +6,21 @@ from functools import partial
 
 import aiohttp
 
-from src.request.common import MAX_CATEGORY_SIZE, HSAccountTypes, HSType
-from src.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
-from src.request.request import Requests
-from src.util.benchmarking import benchmark
-from src.util.io import (hs_lookup_formatter, read_hs_lookups, read_hs_records,
+from osrs_hiscore_scrape.request.common import MAX_CATEGORY_SIZE, HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.dto import GetFilteredPageRangeRequest, HSFilterEntry
+from osrs_hiscore_scrape.request.request import Requests
+from osrs_hiscore_scrape.util.benchmarking import benchmark
+from osrs_hiscore_scrape.util.io import (hs_lookup_formatter, read_hs_lookups, read_hs_records,
                          read_proxies, write_records)
-from src.util.log import get_logger, log_execution
-from src.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
-from src.worker.common import DEFAULT_WORKER_SIZE
-from src.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
+from osrs_hiscore_scrape.util.log import get_logger, log_execution
+from osrs_hiscore_scrape.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
+from osrs_hiscore_scrape.worker.common import DEFAULT_WORKER_SIZE
+from osrs_hiscore_scrape.worker.job import (GetMaxHighscorePageRequest, HSCategoryJob, IJob,
                             JobManager, JobQueue, get_hs_filtered_job,
                             get_hs_page_job)
-from src.worker.mappers import (map_category_records_to_lookup_jobs,
+from osrs_hiscore_scrape.worker.mappers import (map_category_records_to_lookup_jobs,
                                 map_player_records_to_lookup_jobs)
-from src.worker.worker import (create_workers, enqueue_page_usernames,
+from osrs_hiscore_scrape.worker.worker import (create_workers, enqueue_page_usernames,
                                enqueue_user_stats_filter, request_hs_page,
                                request_user_stats)
 
