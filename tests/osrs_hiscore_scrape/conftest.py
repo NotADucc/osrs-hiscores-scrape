@@ -1,4 +1,5 @@
 import builtins
+import logging
 import sys
 import types
 from datetime import datetime, timezone
@@ -6,14 +7,14 @@ from unittest.mock import MagicMock
 
 import psutil
 import pytest
-import logging
 from aiohttp import ClientSession
 
 from osrs_hiscore_scrape.request.common import HSType
 from osrs_hiscore_scrape.request.results import CategoryRecord, PlayerRecord
 
+# todo: there should be a better way right?
+logging.getLogger('logger').handlers.clear()
 
-logging.getLogger('logger').handlers.clear() # todo: there should be a better way right?
 
 @pytest.fixture
 def sample_ts() -> datetime:
