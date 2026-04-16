@@ -19,8 +19,9 @@ Homepage = "https://github.com/NotADucc/osrs-hiscores-scrape"
 Repository = "https://github.com/NotADucc/osrs-hiscores-scrape"
 Issues = "https://github.com/NotADucc/osrs-hiscores-scrape/issues"
 
-[tool.setuptools]
-packages = ["osrs_hiscore_scrape"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["osrs_hiscore_scrape*"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
