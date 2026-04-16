@@ -3,7 +3,8 @@ import math
 
 import pytest
 
-from osrs_hiscore_scrape.stats.common import calc_combat_level, calc_skill_level
+from osrs_hiscore_scrape.stats.common import (calc_combat_level,
+                                              calc_skill_level)
 
 
 @pytest.mark.parametrize(

@@ -7,9 +7,9 @@ from tqdm import tqdm
 
 from ..request.common import HSAccountTypes, HSType
 from ..request.results import CategoryRecord, PlayerRecord
+from ..worker.job import HSLookupJob
 from . import json_wrapper
 from .log import get_logger
-from ..worker.job import HSLookupJob
 
 logger = get_logger()
 ENCODING = "utf-8"

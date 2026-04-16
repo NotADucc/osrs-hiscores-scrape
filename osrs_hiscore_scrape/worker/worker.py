@@ -3,13 +3,12 @@ from asyncio import CancelledError, Queue
 from typing import Callable
 
 from ..request.dto import (GetHighscorePageRequest, GetPlayerRequest,
-                             HSFilterEntry)
+                           HSFilterEntry)
 from ..request.errors import NotFound, RetryFailed
 from ..request.request import Requests
 from ..request.results import CategoryInfo
 from ..util.retry_handler import retry
-from .job import (HSCategoryJob, HSLookupJob, IJob, JobManager,
-                            JobQueue)
+from .job import HSCategoryJob, HSLookupJob, IJob, JobManager, JobQueue
 
 
 class Worker:

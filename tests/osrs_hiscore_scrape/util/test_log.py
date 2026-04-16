@@ -3,8 +3,8 @@ import logging
 
 import pytest
 
-from osrs_hiscore_scrape.util.log import (CustomFormatter, get_logger, log_execution,
-                          setup_custom_logger)
+from osrs_hiscore_scrape.util.log import (CustomFormatter, get_logger,
+                                          log_execution, setup_custom_logger)
 
 
 @pytest.fixture

@@ -3,7 +3,8 @@ import sys
 
 import pytest
 
-from osrs_hiscore_scrape.util.script_utils import argparse_wrapper, script_running_in_cmd_guard
+from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
+                                                   script_running_in_cmd_guard)
 
 
 def test_argparse_wrapper():

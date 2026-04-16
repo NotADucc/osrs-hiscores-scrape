@@ -6,12 +6,14 @@ import pytest
 
 from osrs_hiscore_scrape.request.common import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeResult,
-                             GetMaxHighscorePageResult)
+                                             GetMaxHighscorePageResult)
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.request.results import CategoryRecord, PlayerRecord
-from osrs_hiscore_scrape.worker.job import (HSCategoryJob, HSLookupJob, JobManager, JobQueue,
-                            extract_page_nr_from_rank, get_hs_filtered_job,
-                            get_hs_page_job)
+from osrs_hiscore_scrape.worker.job import (HSCategoryJob, HSLookupJob,
+                                            JobManager, JobQueue,
+                                            extract_page_nr_from_rank,
+                                            get_hs_filtered_job,
+                                            get_hs_page_job)
 
 
 def test_hslookupjob_initialization_defaults():

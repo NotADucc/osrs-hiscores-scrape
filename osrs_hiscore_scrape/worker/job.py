@@ -5,7 +5,7 @@ from typing import Any, Generic, List, TypeVar
 
 from ..request.common import HS_PAGE_SIZE, HSAccountTypes, HSType
 from ..request.dto import (GetFilteredPageRangeRequest,
-                             GetMaxHighscorePageRequest)
+                           GetMaxHighscorePageRequest)
 from ..request.request import Requests
 from ..request.results import CategoryRecord, PlayerRecord
 

@@ -4,10 +4,10 @@ from datetime import datetime
 from functools import total_ordering
 from typing import Any, List
 
-from .common import HSType
-from .dto import HSFilterEntry
 from ..stats.common import calc_combat_level
 from ..util import json_wrapper
+from .common import HSType
+from .dto import HSFilterEntry
 
 
 class PlayerRecordInfo(ABC):
