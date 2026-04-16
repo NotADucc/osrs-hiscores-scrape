@@ -200,7 +200,7 @@ class PlayerRecord:
             "overall_rank": self.overall.rank,
             "username": self.username,
             "timestamp": self.ts.isoformat(),
-            "total_level": self.overall.lvl,
+            "total_lvl": self.overall.lvl,
             "combat_lvl": self.combat_lvl,
             "total_xp": self.overall.xp,
             "skills": {k: v.to_dict() for k, v in self.skills.items()},
@@ -212,7 +212,7 @@ class PlayerRecord:
         ts = datetime.fromisoformat(data["timestamp"])
 
         fake_csv = [
-            f"{data['overall_rank']},{data['total_level']},{data['total_xp']}"]
+            f"{data['overall_rank']},{data['total_lvl']},{data['total_xp']}"]
         obj = cls(data["username"], fake_csv, ts)
 
         obj.combat_lvl = PlayerRecordScalarInfo(data["combat_lvl"])
