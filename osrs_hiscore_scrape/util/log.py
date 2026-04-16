@@ -52,12 +52,12 @@ class LoggerWrapper:
 
         logger = logging.getLogger(name=name)
         logger.setLevel(level)
-        
+
         if (len(logger.handlers)):
             logger.handlers.clear()
 
         logger.addHandler(handler)
-  
+
         self.logger = logger
         self._counts = defaultdict(int)
         self._lock = threading.Lock()
@@ -95,9 +95,11 @@ def setup_custom_logger(formatter: logging.Formatter, name: str, level: int) -> 
 
 def get_logger(name: str, level: int = DEFAULT_LOGGER_LEVEL) -> LoggerWrapper:
     """ Retrieve the global custom logger instance, creating it if necessary. """
-    if name not in logger: 
-        logger[name] = setup_custom_logger(formatter=CustomFormatter(), name=name, level=level)
+    if name not in logger:
+        logger[name] = setup_custom_logger(
+            formatter=CustomFormatter(), name=name, level=level)
     return logger[name]
+
 
 T = TypeVar("T", bound=Callable[..., Any])
 

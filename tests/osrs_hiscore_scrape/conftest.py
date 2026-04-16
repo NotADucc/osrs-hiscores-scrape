@@ -13,7 +13,6 @@ from osrs_hiscore_scrape.request.common import HSType
 from osrs_hiscore_scrape.request.results import CategoryRecord, PlayerRecord
 from osrs_hiscore_scrape.util.log import logger
 
-
 # todo: there should be a better way right?
 for key, _ in logger.items():
     logging.getLogger(key).handlers.clear()
