@@ -3,9 +3,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from osrs_hiscore_scrape.request.errors import NotFound, RetryFailed
-from osrs_hiscore_scrape.worker.job import JobManager, JobQueue
-from osrs_hiscore_scrape.worker.worker import Worker
+from osrs_hiscore_scrape.exceptions.errors import NotFound, RetryFailed
+from osrs_hiscore_scrape.job.records import JobManager, JobQueue
+from osrs_hiscore_scrape.worker.records import Worker
 
 
 @pytest.mark.asyncio

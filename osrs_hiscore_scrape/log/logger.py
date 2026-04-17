@@ -1,10 +1,6 @@
-import asyncio
-import functools
-import inspect
 import logging
 import threading
 from collections import defaultdict
-from typing import Any, Callable, TypeVar, cast
 
 DEFAULT_LOGGER_LEVEL = logging.DEBUG
 logger = {}
@@ -99,36 +95,3 @@ def get_logger(name: str, level: int = DEFAULT_LOGGER_LEVEL) -> LoggerWrapper:
         logger[name] = setup_custom_logger(
             formatter=CustomFormatter(), name=name, level=level)
     return logger[name]
-
-
-T = TypeVar("T", bound=Callable[..., Any])
-
-
-def log_execution(func: T) -> T:
-    """Decorator that logs when a (async) or (sync) method has finished,
-    also displays the count of logs per type.
-    """
-    async def message_wrapper(*args, **kwargs):
-        logger = get_logger(__name__)
-        try:
-            logger.info(f"start: {func.__name__}")
-            result = func(*args, **kwargs)
-            if inspect.isawaitable(result):
-                result = await result
-            return cast(T, result)
-        except KeyboardInterrupt:
-            raise
-        finally:
-            logger.debug(f"log type count: {logger.get_counts()}")
-            logger.info(f"finished: {func.__name__}")
-
-    @functools.wraps(func)
-    async def async_wrapper(*args, **kwargs):
-        return await message_wrapper(*args, **kwargs)
-
-    @functools.wraps(func)
-    def sync_wrapper(*args, **kwargs):
-        return asyncio.run(message_wrapper(*args, **kwargs))
-
-    return cast(T, async_wrapper) if inspect.iscoroutinefunction(func) \
-        else cast(T, sync_wrapper)

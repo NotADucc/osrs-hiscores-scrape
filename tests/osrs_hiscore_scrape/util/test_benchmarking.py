@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from osrs_hiscore_scrape.util.benchmarking import benchmark
+from osrs_hiscore_scrape.log.decorators import profile_execution
 
 
 @pytest.mark.asyncio
@@ -16,7 +16,7 @@ async def test_benchmark_async_function():
             patch("time.perf_counter", side_effect=[1.0, 2.0]), \
             patch("osrs_hiscore_scrape.util.log.LoggerWrapper.debug") as mock_logger:
 
-        wrapped = benchmark(dummy_async)
+        wrapped = profile_execution(dummy_async)
         result = await wrapped(5)
 
         assert result == 10
@@ -39,7 +39,7 @@ async def test_benchmark_sync_function():
             patch("time.perf_counter", side_effect=[1.0, 2.0]), \
             patch("osrs_hiscore_scrape.util.log.LoggerWrapper.debug") as mock_logger:
 
-        wrapped = benchmark(dummy_sync)
+        wrapped = profile_execution(dummy_sync)
         result = await wrapped(5)
 
         assert result == 10

@@ -5,13 +5,14 @@ from dataclasses import dataclass
 
 import aiohttp
 
-from osrs_hiscore_scrape.request.errors import RequestFailed
+from osrs_hiscore_scrape.exception.records import RequestFailed
+from osrs_hiscore_scrape.job.records import IJob, JobManager, JobQueue
+from osrs_hiscore_scrape.log.decorators import log_lifecycle
+from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util.io import read_proxies, write_records
-from osrs_hiscore_scrape.util.log import get_logger, log_execution
 from osrs_hiscore_scrape.util.script_utils import script_running_in_cmd_guard
-from osrs_hiscore_scrape.worker.job import IJob, JobManager, JobQueue
-from osrs_hiscore_scrape.worker.worker import create_workers
+from osrs_hiscore_scrape.worker.records import create_workers
 
 logger = get_logger(__name__)
 
@@ -54,7 +55,7 @@ async def enqueue_proxy(queue: JobQueue | asyncio.Queue, job: ProxyJob):
     await queue.put(job if job.result else None)
 
 
-@log_execution
+@log_lifecycle
 async def main(proxy_file: str):
     potential_proxies = read_proxies(proxy_file=proxy_file)
 

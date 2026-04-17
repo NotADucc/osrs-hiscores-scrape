@@ -1,0 +1,2 @@
+HS_PAGE_SIZE: int = 25
+MAX_CATEGORY_SIZE: int = 80_000

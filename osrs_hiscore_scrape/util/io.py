@@ -5,11 +5,11 @@ from typing import Callable, Iterator
 
 from tqdm import tqdm
 
-from ..request.common import HSAccountTypes, HSType
-from ..request.results import CategoryRecord, PlayerRecord
-from ..worker.job import HSLookupJob
+from ..job.records import HSLookupJob
+from ..log.logger import get_logger
+from ..request.hs_types import HSAccountTypes, HSType
+from ..request.records import CategoryRecord, PlayerRecord
 from . import json_wrapper
-from .log import get_logger
 
 logger = get_logger(__name__)
 ENCODING = "utf-8"

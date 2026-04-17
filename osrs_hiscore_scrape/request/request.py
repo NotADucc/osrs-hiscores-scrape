@@ -6,17 +6,18 @@ from aiohttp import ClientConnectionError, ClientSession, ClientTimeout
 from bs4 import BeautifulSoup, Tag
 from fake_useragent import UserAgent
 
-from ..stats.common import calc_skill_level
-from ..util.log import get_logger
+from ..exception.records import (IsRateLimited, NotFound, ParsingFailed,
+                                 RequestFailed, ServerBusy)
+from ..log.logger import get_logger
+from ..statistic.calculators import calc_skill_level
 from ..util.predicate_utils import get_comparison
 from ..util.retry_handler import retry
-from .common import HS_PAGE_SIZE, MAX_CATEGORY_SIZE, HSType
+from .constants import HS_PAGE_SIZE, MAX_CATEGORY_SIZE
 from .dto import (GetFilteredPageRangeRequest, GetFilteredPageRangeResult,
                   GetHighscorePageRequest, GetMaxHighscorePageRequest,
                   GetMaxHighscorePageResult, GetPlayerRequest)
-from .errors import (IsRateLimited, NotFound, ParsingFailed, RequestFailed,
-                     ServerBusy)
-from .results import CategoryRecord, PlayerRecord
+from .hs_types import HSType
+from .records import CategoryRecord, PlayerRecord
 
 logger = get_logger(__name__)
 

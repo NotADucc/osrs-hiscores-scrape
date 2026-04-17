@@ -7,7 +7,7 @@ _json_lib = json
 
 class PlayerRecordEncoder(json.JSONEncoder):
     def default(self, obj):  # type: ignore
-        from ..request.results import PlayerRecordInfo
+        from ..request.records import PlayerRecordInfo
         if isinstance(obj, PlayerRecordInfo):
             return asdict(obj)  # type: ignore
         return super().default(obj)

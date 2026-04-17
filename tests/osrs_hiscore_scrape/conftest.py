@@ -9,9 +9,9 @@ import psutil
 import pytest
 from aiohttp import ClientSession
 
-from osrs_hiscore_scrape.request.common import HSType
-from osrs_hiscore_scrape.request.results import CategoryRecord, PlayerRecord
-from osrs_hiscore_scrape.util.log import logger
+from osrs_hiscore_scrape.log.logger import logger
+from osrs_hiscore_scrape.request.hs_types import HSType
+from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 
 # todo: there should be a better way right?
 for key, _ in logger.items():

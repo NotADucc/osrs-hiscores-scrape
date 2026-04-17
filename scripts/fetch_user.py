@@ -4,13 +4,13 @@ import sys
 
 import aiohttp
 
-from osrs_hiscore_scrape.request.common import HSAccountTypes, HSType
+from osrs_hiscore_scrape.exception.records import NotFound
 from osrs_hiscore_scrape.request.dto import GetPlayerRequest
-from osrs_hiscore_scrape.request.errors import NotFound
+from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util import json_wrapper
-from osrs_hiscore_scrape.util.benchmarking import benchmark
-from osrs_hiscore_scrape.util.log import get_logger, log_execution
+from osrs_hiscore_scrape.log.decorators import profile_execution, log_lifecycle
+from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.util.retry_handler import retry
 from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
@@ -30,8 +30,8 @@ def format_section(section):
     return "{\n" + ",\n".join(lines) + "\n }"
 
 
-@log_execution
-@benchmark
+@log_lifecycle
+@profile_execution
 async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)

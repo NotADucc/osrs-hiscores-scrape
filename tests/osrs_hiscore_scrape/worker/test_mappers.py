@@ -1,9 +1,9 @@
-from osrs_hiscore_scrape.request.common import HSAccountTypes
-from osrs_hiscore_scrape.request.results import CategoryRecord, PlayerRecord
-from osrs_hiscore_scrape.worker.job import HSLookupJob
-from osrs_hiscore_scrape.worker.mappers import (
+from osrs_hiscore_scrape.job.mappers import (
     map_category_record_to_lookup_job, map_category_records_to_lookup_jobs,
     map_player_record_to_lookup_job, map_player_records_to_lookup_jobs)
+from osrs_hiscore_scrape.job.records import HSLookupJob
+from osrs_hiscore_scrape.request.hs_types import HSAccountTypes
+from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 
 
 def test_map_player_record_to_lookup_job(sample_player_record: PlayerRecord):

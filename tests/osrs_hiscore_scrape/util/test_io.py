@@ -5,14 +5,14 @@ import tempfile
 
 import pytest
 
-from osrs_hiscore_scrape.request.common import HSAccountTypes, HSType
-from osrs_hiscore_scrape.request.results import CategoryRecord, PlayerRecord
+from osrs_hiscore_scrape.job.records import HSLookupJob
+from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.io import (ENCODING, build_temp_file,
                                          hs_lookup_formatter, read_hs_lookups,
                                          read_hs_records, read_proxies,
                                          write_record, write_records)
-from osrs_hiscore_scrape.worker.job import HSLookupJob
 
 
 @pytest.fixture(autouse=True)

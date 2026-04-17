@@ -1,6 +1,6 @@
 import pytest
 
-from osrs_hiscore_scrape.request.common import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_types import HSAccountTypes
 
 
 def tests_are_unique():

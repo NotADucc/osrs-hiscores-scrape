@@ -6,30 +6,31 @@ from functools import partial
 
 import aiohttp
 
-from osrs_hiscore_scrape.request.common import (MAX_CATEGORY_SIZE,
-                                                HSAccountTypes, HSType)
+from osrs_hiscore_scrape.job.job_builder import (get_hs_filtered_job,
+                                                 get_hs_page_job)
+from osrs_hiscore_scrape.job.job_handlers import (enqueue_page_usernames,
+                                                  enqueue_user_stats_filter,
+                                                  request_hs_page,
+                                                  request_user_stats)
+from osrs_hiscore_scrape.job.mappers import (
+    map_category_records_to_lookup_jobs, map_player_records_to_lookup_jobs)
+from osrs_hiscore_scrape.job.records import (HSCategoryJob, IJob, JobManager,
+                                            JobQueue)
+from osrs_hiscore_scrape.request.constants import MAX_CATEGORY_SIZE
+from osrs_hiscore_scrape.request.hs_types import (HSAccountTypes, HSType)
 from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeRequest,
+                                             GetMaxHighscorePageRequest,
                                              HSFilterEntry)
 from osrs_hiscore_scrape.request.request import Requests
-from osrs_hiscore_scrape.util.benchmarking import benchmark
+from osrs_hiscore_scrape.log.decorators import profile_execution, log_lifecycle
 from osrs_hiscore_scrape.util.io import (hs_lookup_formatter, read_hs_lookups,
                                          read_hs_records, read_proxies,
                                          write_records)
-from osrs_hiscore_scrape.util.log import get_logger, log_execution
+from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
-from osrs_hiscore_scrape.worker.common import DEFAULT_WORKER_SIZE
-from osrs_hiscore_scrape.worker.job import (GetMaxHighscorePageRequest,
-                                            HSCategoryJob, IJob, JobManager,
-                                            JobQueue, get_hs_filtered_job,
-                                            get_hs_page_job)
-from osrs_hiscore_scrape.worker.mappers import (
-    map_category_records_to_lookup_jobs, map_player_records_to_lookup_jobs)
-from osrs_hiscore_scrape.worker.worker import (create_workers,
-                                               enqueue_page_usernames,
-                                               enqueue_user_stats_filter,
-                                               request_hs_page,
-                                               request_user_stats)
+from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE
+from osrs_hiscore_scrape.worker.records import create_workers
 
 logger = get_logger(__name__)
 N_SCRAPE_WORKERS = 2
@@ -89,8 +90,8 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
     return hs_scrape_joblist, hs_scrape_joblist[-1].end_rank - hs_scrape_joblist[0].start_rank + 1, JobQueue(maxsize=N_SCRAPE_SIZE)
 
 
-@log_execution
-@benchmark
+@log_lifecycle
+@profile_execution
 async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry], num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))

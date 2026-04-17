@@ -1,8 +1,9 @@
 import pytest
 
-from osrs_hiscore_scrape.request.errors import (IsRateLimited, NotFound,
-                                                ParsingFailed, RequestFailed,
-                                                RetryFailed, ServerBusy)
+from osrs_hiscore_scrape.exceptions.errors import (IsRateLimited, NotFound,
+                                                   ParsingFailed,
+                                                   RequestFailed, RetryFailed,
+                                                   ServerBusy)
 
 
 @pytest.mark.parametrize(

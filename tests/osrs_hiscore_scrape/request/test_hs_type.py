@@ -1,6 +1,6 @@
 import pytest
 
-from osrs_hiscore_scrape.request.common import HSIncrementer, HSType, HSValue
+from osrs_hiscore_scrape.request.hs_types import HSIncrementer, HSType, HSValue
 
 
 @pytest.mark.parametrize(

@@ -2,7 +2,7 @@ import tempfile
 
 import pytest
 
-from osrs_hiscore_scrape.request.errors import NotFound, RetryFailed
+from osrs_hiscore_scrape.exceptions.errors import NotFound, RetryFailed
 from osrs_hiscore_scrape.util.io import ENCODING
 from osrs_hiscore_scrape.util.retry_handler import retry
 

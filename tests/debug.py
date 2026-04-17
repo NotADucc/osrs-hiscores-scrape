@@ -1,7 +1,7 @@
 import sys
 
-from ..osrs_hiscore_scrape.request.common import HSType
-from ..osrs_hiscore_scrape.util.log import get_logger, log_execution
+from ..osrs_hiscore_scrape.log.logger import get_logger, log_execution
+from ..osrs_hiscore_scrape.request.hs_types import HSType
 
 logger = get_logger(__name__)
 

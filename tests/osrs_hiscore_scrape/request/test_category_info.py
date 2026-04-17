@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from osrs_hiscore_scrape.request.results import CategoryInfo, CategoryRecord
+from osrs_hiscore_scrape.request.records import CategoryInfo, CategoryRecord
 
 
 def test_initialization(sample_ts: datetime):

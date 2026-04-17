@@ -1,4 +1,4 @@
-from osrs_hiscore_scrape.request.results import CategoryRecord
+from osrs_hiscore_scrape.request.records import CategoryRecord
 
 
 def test_initialization(sample_category_record: CategoryRecord):

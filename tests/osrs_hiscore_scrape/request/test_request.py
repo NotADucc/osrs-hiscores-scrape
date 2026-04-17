@@ -5,14 +5,14 @@ import pytest
 from aiohttp import ClientConnectionError
 from yarl import URL
 
+from osrs_hiscore_scrape.exceptions.errors import (IsRateLimited, NotFound,
+                                                   ParsingFailed,
+                                                   RequestFailed, ServerBusy)
 from osrs_hiscore_scrape.request import request
-from osrs_hiscore_scrape.request.common import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.dto import HSFilterEntry
-from osrs_hiscore_scrape.request.errors import (IsRateLimited, NotFound,
-                                                ParsingFailed, RequestFailed,
-                                                ServerBusy)
+from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 from osrs_hiscore_scrape.request.request import Requests
-from osrs_hiscore_scrape.request.results import CategoryRecord, PlayerRecord
 
 TEST_URL = "http://test"
 TEST_USER_AGENT = "test-agent"

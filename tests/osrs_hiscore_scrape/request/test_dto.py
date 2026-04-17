@@ -2,13 +2,13 @@ from typing import Callable
 
 import pytest
 
-from osrs_hiscore_scrape.request.common import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeRequest,
                                              GetFilteredPageRangeResult,
                                              GetHighscorePageRequest,
                                              GetMaxHighscorePageRequest,
                                              GetMaxHighscorePageResult,
                                              GetPlayerRequest, HSFilterEntry)
+from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
 
 
 @pytest.mark.parametrize(

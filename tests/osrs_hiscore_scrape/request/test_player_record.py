@@ -1,10 +1,10 @@
 import math
 from datetime import datetime
 
-from osrs_hiscore_scrape.request.common import HSType
 from osrs_hiscore_scrape.request.dto import HSFilterEntry
-from osrs_hiscore_scrape.request.results import PlayerRecord
-from osrs_hiscore_scrape.stats.common import calc_combat_level
+from osrs_hiscore_scrape.request.hs_types import HSType
+from osrs_hiscore_scrape.request.records import PlayerRecord
+from osrs_hiscore_scrape.statistic.calculators import calc_combat_level
 
 
 def test_initialization():

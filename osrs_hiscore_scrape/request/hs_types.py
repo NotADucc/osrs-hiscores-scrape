@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-HS_PAGE_SIZE: int = 25
-MAX_CATEGORY_SIZE: int = 80_000
-
 
 class HSAccountTypes(Enum):
     """
