@@ -4,7 +4,7 @@ import logging
 import pytest
 
 from osrs_hiscore_scrape.log.logger import (CustomFormatter, get_logger,
-                                         log_execution, setup_custom_logger)
+                                         setup_custom_logger)
 
 
 @pytest.fixture
@@ -47,40 +47,6 @@ def test_logger_counts(logger_instance, caplog):
     assert "error msg" in messages
     assert "debug msg" in messages
     assert "critical msg" in messages
-
-
-def test_log_execution_sync(caplog):
-    caplog.set_level(logging.DEBUG)
-
-    @log_execution
-    def sample_sync(x, y):
-        return x + y
-
-    result = sample_sync(2, 3)
-    assert result == 5
-
-    logs = [rec.message for rec in caplog.records]
-    assert "start: sample_sync" in logs
-    assert "finished: sample_sync" in logs
-    assert any("log type count" in msg for msg in logs)
-
-
-@pytest.mark.asyncio
-async def test_log_execution_async(caplog):
-    caplog.set_level(logging.DEBUG)
-
-    @log_execution
-    async def sample_async(x, y):
-        await asyncio.sleep(0.01)
-        return x + y
-
-    result = await sample_async(2, 3)
-    assert result == 5
-
-    logs = [rec.message for rec in caplog.records]
-    assert "start: sample_async" in logs
-    assert "finished: sample_async" in logs
-    assert any("log type count" in msg for msg in logs)
 
 
 def test_custom_formatter_colors():

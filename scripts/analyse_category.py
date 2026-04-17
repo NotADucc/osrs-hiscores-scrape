@@ -15,7 +15,7 @@ from osrs_hiscore_scrape.request.dto import GetMaxHighscorePageRequest
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.request.records import CategoryInfo
 from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
-from osrs_hiscore_scrape.util.io import (build_temp_file, read_hs_records,
+from osrs_hiscore_scrape.util.io import (build_temp_file, read_category_records,
                                          read_proxies, write_record,
                                          write_records)
 from osrs_hiscore_scrape.log.logger import get_logger
@@ -35,7 +35,7 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 
     temp_file = build_temp_file(out_file, account_type, hs_type)
 
-    for record in read_hs_records(temp_file):
+    for record in read_category_records(temp_file):
         category_info.add(record=record)
 
     start_rank = category_info.min.rank + 1 if category_info.min else 1

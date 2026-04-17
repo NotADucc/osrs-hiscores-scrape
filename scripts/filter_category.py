@@ -23,8 +23,8 @@ from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeRequest,
                                              HSFilterEntry)
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.log.decorators import profile_execution, log_lifecycle
-from osrs_hiscore_scrape.util.io import (hs_lookup_formatter, read_hs_lookups,
-                                         read_hs_records, read_proxies,
+from osrs_hiscore_scrape.util.io import (hs_lookup_formatter, read_player_records,
+                                         read_category_records, read_proxies,
                                          write_records)
 from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
@@ -40,11 +40,11 @@ N_SCRAPE_SIZE = 100
 async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
     """ Prepares the scraping job list and export queue based if theres an in-file or not. """
     potential_records = map_category_records_to_lookup_jobs(
-        account_type=account_type, input=list(read_hs_records(in_file)))
+        account_type=account_type, input=list(read_category_records(in_file)))
 
     if not potential_records:
         potential_records = map_player_records_to_lookup_jobs(
-            account_type=account_type, input=list(read_hs_lookups(in_file)))
+            account_type=account_type, input=list(read_player_records(in_file)))
 
     if potential_records:
         hs_scrape_export_q = JobQueue[IJob]()

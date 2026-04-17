@@ -10,8 +10,8 @@ from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.io import (ENCODING, build_temp_file,
-                                         hs_lookup_formatter, read_hs_lookups,
-                                         read_hs_records, read_proxies,
+                                         hs_lookup_formatter, read_player_records,
+                                         read_category_records, read_proxies,
                                          write_record, write_records)
 
 
@@ -121,65 +121,68 @@ def test_read_proxies():
 def test_read_proxies_empty():
     with tempfile.NamedTemporaryFile(delete=False) as proxy_file:
         proxy_files = read_proxies(proxy_file=proxy_file.name)
-        assert not proxy_files
+        assert proxy_files == []
 
 
 def test_read_proxies_no_file():
     proxy_files = read_proxies(proxy_file=None)
-    assert not proxy_files
+    assert proxy_files == []
 
 
 def test_read_proxies_false_file():
     proxy_files = read_proxies(proxy_file="false_file")
-    assert not proxy_files
+    assert proxy_files == []
 
 
-def test_read_hs_records():
+def test_read_category_records():
     data = CategoryRecord(rank=-1, score=-1, username="test")
+
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(str(data).encode(encoding=ENCODING))
         file.flush()
 
-        hs_records = read_hs_records(file_path=file.name)
-        assert next(hs_records) == data
+        category_records = read_category_records(file_path=file.name)
+        assert next(category_records) == data
 
 
-def test_read_hs_records_with_false_data():
+def test_read_category_records_with_false_data():
     data = CategoryRecord(rank=-1, score=-1, username="test")
+
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(str(data).encode(encoding=ENCODING))
         file.write(b'\n')
         file.write(b'false data')
         file.flush()
 
-        hs_records = read_hs_records(file_path=file.name)
-        assert next(hs_records) == data
-        assert next(hs_records, None) == None
+        category_records = read_category_records(file_path=file.name)
+        assert next(category_records) == data
+        assert next(category_records, None) == None
 
 
-def test_read_hs_records_with_false_data_inline():
+def test_read_category_records_with_false_data_inline():
     data = CategoryRecord(rank=-1, score=-1, username="test")
+
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(str(data).encode(encoding=ENCODING))
         file.write(b'false data')
         file.flush()
 
-        hs_records = read_hs_records(file_path=file.name)
-        assert next(hs_records, None) == None
+        category_records = read_category_records(file_path=file.name)
+        assert next(category_records, None) == None
 
 
-def test_read_hs_records_empty():
+def test_read_category_records_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        hs_records = list(read_hs_records(file_path=file.name))
-        assert not hs_records
+        category_records = list(read_category_records(file_path=file.name))
+        assert category_records == []
 
 
-def test_read_hs_records_no_file():
-    hs_records = list(read_hs_records(file_path=None))  # type: ignore
-    assert not hs_records
+def test_read_category_records_no_file():
+    category_records = list(read_category_records(file_path=None))  # type: ignore
+    assert category_records == []
 
 
-def test_read_hs_lookups():
+def test_read_player_records():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
@@ -188,11 +191,11 @@ def test_read_hs_lookups():
         file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.flush()
 
-        player_records = read_hs_lookups(file_path=file.name)
+        player_records = read_player_records(file_path=file.name)
         assert next(player_records) == record
 
 
-def test_read_hs_lookups_with_false_data():
+def test_read_player_records_with_false_data():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
@@ -201,12 +204,12 @@ def test_read_hs_lookups_with_false_data():
         file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.flush()
 
-        player_records = read_hs_lookups(file_path=file.name)
+        player_records = read_player_records(file_path=file.name)
         assert next(player_records) == record
         assert next(player_records, None) == None
 
 
-def test_read_hs_lookups_with_false_data_inline():
+def test_read_player_records_with_false_data_inline():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
@@ -216,19 +219,19 @@ def test_read_hs_lookups_with_false_data_inline():
         file.write(b'false data')
         file.flush()
 
-        player_records = read_hs_lookups(file_path=file.name)
+        player_records = read_player_records(file_path=file.name)
         assert next(player_records, None) == None
 
 
-def test_read_hs_lookups_empty():
+def test_read_player_records_empty():
     with tempfile.NamedTemporaryFile(delete=False) as file:
-        hs_records = list(read_hs_lookups(file_path=file.name))
-        assert not hs_records
+        player_records = list(read_player_records(file_path=file.name))
+        assert player_records == []
 
 
-def test_read_hs_lookups_no_file():
-    hs_records = list(read_hs_lookups(file_path=None))  # type: ignore
-    assert not hs_records
+def test_read_player_records_no_file():
+    player_records = list(read_player_records(file_path=None))  # type: ignore
+    assert player_records == []
 
 
 def test_hs_lookup_formatter():

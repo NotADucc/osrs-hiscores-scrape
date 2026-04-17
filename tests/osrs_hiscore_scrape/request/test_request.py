@@ -5,7 +5,7 @@ import pytest
 from aiohttp import ClientConnectionError
 from yarl import URL
 
-from osrs_hiscore_scrape.exceptions.errors import (IsRateLimited, NotFound,
+from osrs_hiscore_scrape.exception.records import (IsRateLimited, NotFound,
                                                    ParsingFailed,
                                                    RequestFailed, ServerBusy)
 from osrs_hiscore_scrape.request import request
@@ -709,7 +709,7 @@ def test__extract_record_scores_misc(monkeypatch, sample_category_records: list[
         return score
 
     monkeypatch.setattr(
-        "osrs_hiscore_scrape.stats.common.calc_skill_level", fake_calc_skill_level)
+        "osrs_hiscore_scrape.statistic.calculators.calc_skill_level", fake_calc_skill_level)
 
     res = request._extract_record_scores(
         records=sample_category_records, hs_type=HSType.combat)

@@ -8,6 +8,14 @@ from ..request.request import Requests
 from ..util.retry_handler import retry
 
 
+# there is a design bug, well i see it as a bug
+# when using 2 workers that are dependant on eachother, lets say 'master' and 'slave'
+# when the master skips a record, the slave has no idea about that since
+# the master JobManager gets skipped but the slave's doesn't
+# it's already an issue #16
+# no clue if i should actually account for that edge case
+# or just leave it be
+
 class Worker:
     """
     Represents an asynchronous worker that processes jobs from an input queue

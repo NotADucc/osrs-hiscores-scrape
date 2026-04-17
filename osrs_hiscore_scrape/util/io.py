@@ -50,7 +50,7 @@ def read_proxies(proxy_file: str | None) -> list[str]:
     return proxies
 
 
-def read_hs_records(file_path: str) -> Iterator[CategoryRecord]:
+def read_category_records(file_path: str) -> Iterator[CategoryRecord]:
     """ Reads a list of category records from a file, each line in the file is treated as a separate record. """
     if not file_path or not os.path.isfile(file_path):
         return iter([])
@@ -63,13 +63,14 @@ def read_hs_records(file_path: str) -> Iterator[CategoryRecord]:
 
             try:
                 data = json_wrapper.from_json(line)
+                
                 yield CategoryRecord(**data)
             except Exception as e:
                 logger.warning(f"Skipping invalid record in {file_path}: {e}")
                 continue
 
 
-def read_hs_lookups(file_path: str) -> Iterator[PlayerRecord]:
+def read_player_records(file_path: str) -> Iterator[PlayerRecord]:
     """ Reads a list of filtered records from a file, each line in the file is treated as a separate record. """
     if not file_path or not os.path.isfile(file_path):
         return iter([])
@@ -81,7 +82,9 @@ def read_hs_lookups(file_path: str) -> Iterator[PlayerRecord]:
                 continue
 
             try:
-                data = json_wrapper.from_json(line)["record"]
+                parsed = json_wrapper.from_json(line)
+                data = parsed.get("record", parsed)
+
                 yield PlayerRecord.from_dict(data)
             except Exception as e:
                 logger.warning(f"Skipping invalid record in {file_path}: {e}")
