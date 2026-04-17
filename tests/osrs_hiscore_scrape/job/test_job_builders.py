@@ -2,12 +2,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from osrs_hiscore_scrape.job.job_builder import get_hs_filtered_job, get_hs_page_job, _extract_page_nr_from_rank
+from osrs_hiscore_scrape.job.job_builder import (_extract_page_nr_from_rank,
+                                                 get_hs_filtered_job,
+                                                 get_hs_page_job)
 from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeResult,
                                              GetMaxHighscorePageResult)
 from osrs_hiscore_scrape.request.hs_types import HSAccountTypes
 from osrs_hiscore_scrape.request.request import Requests
-
 
 
 @pytest.mark.asyncio

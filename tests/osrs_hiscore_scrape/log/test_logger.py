@@ -1,10 +1,9 @@
-import asyncio
 import logging
 
 import pytest
 
 from osrs_hiscore_scrape.log.logger import (CustomFormatter, get_logger,
-                                         setup_custom_logger)
+                                            setup_custom_logger)
 
 
 @pytest.fixture

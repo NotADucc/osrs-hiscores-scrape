@@ -10,8 +10,9 @@ from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.io import (ENCODING, build_temp_file,
-                                         hs_lookup_formatter, read_player_records,
-                                         read_category_records, read_proxies,
+                                         hs_lookup_formatter,
+                                         read_category_records,
+                                         read_player_records, read_proxies,
                                          write_record, write_records)
 
 
@@ -178,7 +179,8 @@ def test_read_category_records_empty():
 
 
 def test_read_category_records_no_file():
-    category_records = list(read_category_records(file_path=None))  # type: ignore
+    category_records = list(read_category_records(
+        file_path=None))  # type: ignore
     assert category_records == []
 
 

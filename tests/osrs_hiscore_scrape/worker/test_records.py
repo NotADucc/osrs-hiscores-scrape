@@ -159,6 +159,7 @@ async def test_run_retry_failed_moves_on(sample_fake_client_session):
     assert len(in_q) == 0
     assert job_manager.value == 1
 
+
 def test_create_workers_args_passed():
     req = MagicMock()
     in_queue = MagicMock()
@@ -185,12 +186,12 @@ def test_create_workers_args_passed():
 def test_create_workers_zero():
     with patch("osrs_hiscore_scrape.worker.records.Worker") as MockWorker:
         workers = create_workers(
-            req=None, # type: ignore
-            in_queue=None, # type: ignore
-            out_queue=None, # type: ignore
-            job_manager=None, # type: ignore
-            request_fn=None, # type: ignore
-            enqueue_fn=None, # type: ignore
+            req=None,  # type: ignore
+            in_queue=None,  # type: ignore
+            out_queue=None,  # type: ignore
+            job_manager=None,  # type: ignore
+            request_fn=None,  # type: ignore
+            enqueue_fn=None,  # type: ignore
             num_workers=0,
         )
 

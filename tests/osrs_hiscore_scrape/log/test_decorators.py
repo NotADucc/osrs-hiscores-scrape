@@ -6,6 +6,7 @@ import pytest
 
 from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
 
+
 @pytest.mark.asyncio
 async def test_profile_execution_async_function():
     async def dummy_async(x):

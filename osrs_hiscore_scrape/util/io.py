@@ -63,7 +63,7 @@ def read_category_records(file_path: str) -> Iterator[CategoryRecord]:
 
             try:
                 data = json_wrapper.from_json(line)
-                
+
                 yield CategoryRecord(**data)
             except Exception as e:
                 logger.warning(f"Skipping invalid record in {file_path}: {e}")

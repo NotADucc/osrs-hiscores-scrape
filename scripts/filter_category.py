@@ -15,18 +15,19 @@ from osrs_hiscore_scrape.job.job_handlers import (enqueue_page_usernames,
 from osrs_hiscore_scrape.job.mappers import (
     map_category_records_to_lookup_jobs, map_player_records_to_lookup_jobs)
 from osrs_hiscore_scrape.job.records import (HSCategoryJob, IJob, JobManager,
-                                            JobQueue)
+                                             JobQueue)
+from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
+from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.request.constants import MAX_CATEGORY_SIZE
-from osrs_hiscore_scrape.request.hs_types import (HSAccountTypes, HSType)
 from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeRequest,
                                              GetMaxHighscorePageRequest,
                                              HSFilterEntry)
+from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.request import Requests
-from osrs_hiscore_scrape.log.decorators import profile_execution, log_lifecycle
-from osrs_hiscore_scrape.util.io import (hs_lookup_formatter, read_player_records,
-                                         read_category_records, read_proxies,
+from osrs_hiscore_scrape.util.io import (hs_lookup_formatter,
+                                         read_category_records,
+                                         read_player_records, read_proxies,
                                          write_records)
-from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
 from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE

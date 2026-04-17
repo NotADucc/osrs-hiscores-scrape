@@ -1,15 +1,11 @@
+import asyncio
 import datetime
 import functools
 import inspect
 import os
 import time
 import tracemalloc
-from typing import Callable
-import asyncio
-import functools
-import inspect
 from typing import Any, Callable, TypeVar, cast
-
 
 from ..util import mem_profile
 from .logger import get_logger

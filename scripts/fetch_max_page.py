@@ -5,12 +5,12 @@ import sys
 
 import aiohttp
 
+from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
+from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.request.dto import GetMaxHighscorePageRequest
 from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util import json_wrapper
-from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
-from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.util.retry_handler import retry
 from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
                                                    script_running_in_cmd_guard)

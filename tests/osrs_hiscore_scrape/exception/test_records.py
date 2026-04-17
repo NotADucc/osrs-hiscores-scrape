@@ -14,6 +14,7 @@ EXCEPTION_CLASSES = [
     (ServerBusy),
 ]
 
+
 @pytest.mark.parametrize("exc_class", EXCEPTION_CLASSES)
 def test_error_without_details(exc_class):
     message = f"raise {exc_class.__name__}"
