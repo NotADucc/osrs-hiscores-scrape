@@ -6,9 +6,11 @@
 
 # Get started
 ```console
-pip install -r requirements.txt -e .
+pip install -r requirements.txt .
+pip install -r requirements.txt -e . # editable mode if u plan on modifying package
 # or
-python -m pip install -r requirements.txt -e .
+python -m pip install -r requirements.txt .
+python -m pip install -r requirements.txt -e . # editable mode if u plan on modifying package
 ```
 
 # Main Features
