@@ -86,6 +86,8 @@ HSCategoryMapperIncrementer = HSIncrementer()
 # hs categories are split into 2: skills and misc/activities
 # i split it more than that to more accuratly reflect what they are
 # or so they're grouped more logically
+
+
 class HSType(Enum):
     """ 
     Enum of OSRS hiscore categories, each value contains data to make hiscore lookup easier.
@@ -223,15 +225,15 @@ class HSType(Enum):
     def is_skill(self) -> bool:
         """ Determine whether the OSRS category represents a skill. """
         return self.get_category() == 0
-    
+
     def is_activity(self) -> bool:
         """ Determine whether the OSRS category represents an activity, basically every non skill. """
         return self.get_category() == 1
-    
+
     def is_seasonal_mode(self) -> bool:
         """ Determine whether the OSRS category represents a seasonal gamemode """
         return self in (HSType.league_points, HSType.grid_points, HSType.dmm)
-    
+
     def is_clue(self) -> bool:
         """ Determine whether the OSRS category represents a seasonal gamemode """
         return self.name.startswith("clue_")
@@ -259,7 +261,7 @@ class HSType(Enum):
             or self.is_boss()
             or self.is_combat()
         )
-    
+
     def is_boss(self) -> bool:
         """ Determine whether the OSRS category represents a boss. """
         return HSType.sire.value.csv_value <= self.value.csv_value <= HSType.zulrah.value.csv_value

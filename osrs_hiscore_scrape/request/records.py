@@ -9,6 +9,7 @@ from ..util import json_wrapper
 from .dto import HSFilterEntry
 from .hs_types import HSType
 
+
 def _player_record_bucket_builder():
     return {
         hs.name: (
@@ -22,7 +23,9 @@ def _player_record_bucket_builder():
         for hs in HSType
     }
 
+
 _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP = _player_record_bucket_builder()
+
 
 class PlayerRecordInfo(ABC):
     @abstractmethod
@@ -93,6 +96,7 @@ class PlayerRecordActivityInfo(PlayerRecordInfo):
             "score": self.score
         }
 
+
 @total_ordering
 class PlayerRecord:
     """
@@ -138,7 +142,7 @@ class PlayerRecord:
             else:
                 # if splitted[1] <= 0:
                 #     continue
-                
+
                 bucket = _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP[hs_type.name]
                 getattr(self, bucket)[hs_type.name] = PlayerRecordActivityInfo(
                     rank=splitted[0],
@@ -168,7 +172,8 @@ class PlayerRecord:
                 hs_type.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
         else:
             bucket = _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP[hs_type.name]
-            val = getattr(self, bucket).get(hs_type.name, PlayerRecordActivityInfo(rank=-1, score=-1))
+            val = getattr(self, bucket).get(
+                hs_type.name, PlayerRecordActivityInfo(rank=-1, score=-1))
 
         return val
 
@@ -182,10 +187,10 @@ class PlayerRecord:
 
     def __lt__(self, other: 'PlayerRecord') -> bool:
         current_overall = self.skills.get(
-                HSType.overall.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
+            HSType.overall.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
         other_overall = other.skills.get(
-                HSType.overall.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
-        
+            HSType.overall.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
+
         if current_overall.lvl < other_overall.lvl:
             return True
         elif current_overall.lvl == other_overall.lvl \
@@ -222,14 +227,20 @@ class PlayerRecord:
 
         obj.combat_lvl = PlayerRecordScalarInfo(data["combat_lvl"])
 
-        obj.skills = {k: PlayerRecordSkillInfo(**v) for k, v in data["skills"].items()}
+        obj.skills = {k: PlayerRecordSkillInfo(
+            **v) for k, v in data["skills"].items()}
 
-        obj.seasonal_modes = {k: PlayerRecordActivityInfo(**v) for k, v in data["seasonal_modes"].items()}
-        obj.clues = {k: PlayerRecordActivityInfo(**v) for k, v in data["clues"].items()}
-        obj.minigames = {k: PlayerRecordActivityInfo(**v) for k, v in data["minigames"].items()}
-        obj.misc = {k: PlayerRecordActivityInfo(**v) for k, v in data["misc"].items()}
-        obj.bosses = {k: PlayerRecordActivityInfo(**v) for k, v in data["bosses"].items()}
-        
+        obj.seasonal_modes = {k: PlayerRecordActivityInfo(
+            **v) for k, v in data["seasonal_modes"].items()}
+        obj.clues = {k: PlayerRecordActivityInfo(
+            **v) for k, v in data["clues"].items()}
+        obj.minigames = {k: PlayerRecordActivityInfo(
+            **v) for k, v in data["minigames"].items()}
+        obj.misc = {k: PlayerRecordActivityInfo(
+            **v) for k, v in data["misc"].items()}
+        obj.bosses = {k: PlayerRecordActivityInfo(
+            **v) for k, v in data["bosses"].items()}
+
         return obj
 
     def __str__(self):

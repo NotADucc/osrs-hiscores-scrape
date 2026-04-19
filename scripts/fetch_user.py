@@ -46,7 +46,8 @@ async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
 
         convert_copy = convert.copy()
 
-        sections = ["skills", "seasonal_modes", "misc", "minigames", "clues", "bosses"]
+        sections = ["skills", "seasonal_modes",
+                    "misc", "minigames", "clues", "bosses"]
         for section in sections:
             convert_copy[section] = f'__{section}__'
 
@@ -55,7 +56,6 @@ async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
         for section in sections:
             json_output = json_output.replace(
                 f'"__{section}__"', format_section(convert[section]))
-
 
         colored_text = [
             f"\x1b[31;20m{line}\x1b[0m" if '"score": 0' in line or '"xp": 0' in line

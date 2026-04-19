@@ -3,7 +3,8 @@ from datetime import datetime
 
 from osrs_hiscore_scrape.request.dto import HSFilterEntry
 from osrs_hiscore_scrape.request.hs_types import HSType
-from osrs_hiscore_scrape.request.records import PlayerRecord, PlayerRecordSkillInfo
+from osrs_hiscore_scrape.request.records import (PlayerRecord,
+                                                 PlayerRecordSkillInfo)
 from osrs_hiscore_scrape.statistic.calculators import calc_combat_level
 
 
@@ -137,7 +138,7 @@ def test_initialization():
 
     minigames = [
         HSType.lms_rank, HSType.rifts_closed, HSType.pvp_arena_rank,
-        HSType.bh_hunter, HSType.bh_rogue, HSType.bh_legacy_hunter, 
+        HSType.bh_hunter, HSType.bh_rogue, HSType.bh_legacy_hunter,
         HSType.bh_legacy_rogue, HSType.sw_zeal
     ]
     assert all(mg.name in player_record.minigames for mg in minigames)
@@ -191,11 +192,13 @@ def test_get_stat_skill(sample_player_record: PlayerRecord):
             result = sample_player_record.skills[hs_type.name]
             assert sample_player_record.get_stat(hs_type=hs_type) == result
 
+
 def test_get_stat_seasonal_modes(sample_player_record: PlayerRecord):
     for hs_type in HSType.get_csv_types():
         if hs_type.is_seasonal_mode():
             result = sample_player_record.seasonal_modes[hs_type.name]
             assert sample_player_record.get_stat(hs_type=hs_type) == result
+
 
 def test_get_stat_clues(sample_player_record: PlayerRecord):
     for hs_type in HSType.get_csv_types():
@@ -203,11 +206,13 @@ def test_get_stat_clues(sample_player_record: PlayerRecord):
             result = sample_player_record.clues[hs_type.name]
             assert sample_player_record.get_stat(hs_type=hs_type) == result
 
+
 def test_get_stat_minigames(sample_player_record: PlayerRecord):
     for hs_type in HSType.get_csv_types():
         if hs_type.is_minigame():
             result = sample_player_record.minigames[hs_type.name]
             assert sample_player_record.get_stat(hs_type=hs_type) == result
+
 
 def test_get_stat_bosses(sample_player_record: PlayerRecord):
     for hs_type in HSType.get_csv_types():
@@ -215,11 +220,13 @@ def test_get_stat_bosses(sample_player_record: PlayerRecord):
             result = sample_player_record.bosses[hs_type.name]
             assert sample_player_record.get_stat(hs_type=hs_type) == result
 
+
 def test_get_stat_misc(sample_player_record: PlayerRecord):
     for hs_type in HSType.get_csv_types():
         if hs_type.is_misc():
             result = sample_player_record.misc[hs_type.name]
             assert sample_player_record.get_stat(hs_type=hs_type) == result
+
 
 def test_get_stat_misc_returns_default(sample_player_record_incomplete: PlayerRecord):
     some_misc = next(h for h in HSType if h.is_misc())
@@ -276,13 +283,13 @@ def test_meets_and_lacks_requirements():
 def test_ordering(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts: datetime):
     better_record = PlayerRecord(
         "BetterTotal", sample_player_record_csv_list, sample_ts)
-    
+
     sample_total = sample_player_record.get_stat(hs_type=HSType.overall)
     better_total = better_record.get_stat(hs_type=HSType.overall)
 
     assert isinstance(sample_total, PlayerRecordSkillInfo)
     assert isinstance(better_total, PlayerRecordSkillInfo)
-    
+
     better_total.lvl = sample_total.lvl + 1
 
     assert sample_player_record < better_record

@@ -250,6 +250,7 @@ def test_hs_type_is_activity():
     assert all(hs.is_activity() for hs in test_cases)
     assert all(not hs.is_activity() for hs in delta)
 
+
 def test_hs_type_is_seasonal_mode():
     test_cases = {
         HSType.grid_points,
@@ -386,13 +387,13 @@ def test_hs_type_is_boss():
 
 def test_hs_type_is_combat():
     test_cases = {
-        HSType.attack, 
-        HSType.defence, 
-        HSType.strength, 
+        HSType.attack,
+        HSType.defence,
+        HSType.strength,
         HSType.hitpoints,
-        HSType.ranged, 
-        HSType.prayer, 
-        HSType.magic, 
+        HSType.ranged,
+        HSType.prayer,
+        HSType.magic,
         HSType.combat
     }
     delta = set(HSType) - test_cases
