@@ -120,43 +120,285 @@ def test_hs_type_is_combat_false(hs_type: HSType):
 
 
 def test_hs_type_is_skill():
-    assert HSType.overall.is_skill()
-    assert HSType.attack.is_skill()
-    assert HSType.sailing.is_skill()
+    test_cases = {
+        HSType.overall,
+        HSType.attack,
+        HSType.defence,
+        HSType.strength,
+        HSType.hitpoints,
+        HSType.ranged,
+        HSType.prayer,
+        HSType.magic,
+        HSType.cooking,
+        HSType.woodcutting,
+        HSType.fletching,
+        HSType.fishing,
+        HSType.firemaking,
+        HSType.crafting,
+        HSType.smithing,
+        HSType.mining,
+        HSType.herblore,
+        HSType.agility,
+        HSType.thieving,
+        HSType.slayer,
+        HSType.farming,
+        HSType.runecrafting,
+        HSType.hunter,
+        HSType.construction,
+        HSType.sailing,
+    }
+    delta = set(HSType) - test_cases - {HSType.combat}
 
-    assert not HSType.grid_points.is_skill()
-    assert not HSType.collections_logged.is_skill()
+    assert all(hs.is_skill() for hs in test_cases)
+    assert all(not hs.is_skill() for hs in delta)
 
-    assert not HSType.sire.is_skill()
-    assert not HSType.zulrah.is_skill()
 
-    assert not HSType.combat.is_skill()
+def test_hs_type_is_activity():
+    test_cases = {
+        HSType.grid_points,
+        HSType.league_points,
+        HSType.dmm,
+        HSType.bh_hunter,
+        HSType.bh_rogue,
+        HSType.bh_legacy_hunter,
+        HSType.bh_legacy_rogue,
+        HSType.clue_all,
+        HSType.clue_beginner,
+        HSType.clue_easy,
+        HSType.clue_medium,
+        HSType.clue_hard,
+        HSType.clue_elite,
+        HSType.clue_master,
+        HSType.lms_rank,
+        HSType.pvp_arena_rank,
+        HSType.sw_zeal,
+        HSType.rifts_closed,
+        HSType.colosseum_glory,
+        HSType.collections_logged,
+        HSType.sire,
+        HSType.hydra,
+        HSType.amoxliatl,
+        HSType.araxxor,
+        HSType.artio,
+        HSType.barrows_chests,
+        HSType.brutus,
+        HSType.bryophyta,
+        HSType.callisto,
+        HSType.calvarion,
+        HSType.cerberus,
+        HSType.cox,
+        HSType.cox_cm,
+        HSType.chaos_elemental,
+        HSType.chaos_fanatic,
+        HSType.saradomin,
+        HSType.corp,
+        HSType.crazy_archaeologist,
+        HSType.dks_prime,
+        HSType.dks_rex,
+        HSType.dks_supreme,
+        HSType.deranged_archaeologist,
+        HSType.doom_mokhaiotl,
+        HSType.duke,
+        HSType.bandos,
+        HSType.giant_mole,
+        HSType.gg,
+        HSType.hespori,
+        HSType.kq,
+        HSType.kbd,
+        HSType.kraken,
+        HSType.armadyl,
+        HSType.zamorak,
+        HSType.lunar_chests,
+        HSType.mimic,
+        HSType.nex,
+        HSType.nightmare,
+        HSType.psn,
+        HSType.obor,
+        HSType.phantom_muspah,
+        HSType.sarachnis,
+        HSType.scorpia,
+        HSType.scurrius,
+        HSType.shellbane_gryphon,
+        HSType.skotizo,
+        HSType.sol,
+        HSType.spindel,
+        HSType.tempoross,
+        HSType.gauntlet,
+        HSType.cg,
+        HSType.hueycoatl,
+        HSType.leviathan,
+        HSType.royal_titans,
+        HSType.whisperer,
+        HSType.tob,
+        HSType.hmt,
+        HSType.thermy,
+        HSType.toa,
+        HSType.toa_em,
+        HSType.zuk,
+        HSType.jad,
+        HSType.vardorvis,
+        HSType.venenatis,
+        HSType.vetion,
+        HSType.vorkath,
+        HSType.wt,
+        HSType.yama,
+        HSType.zalcano,
+        HSType.zulrah,
+    }
+    delta = set(HSType) - test_cases - {HSType.combat}
+
+    assert all(hs.is_activity() for hs in test_cases)
+    assert all(not hs.is_activity() for hs in delta)
+
+def test_hs_type_is_seasonal_mode():
+    test_cases = {
+        HSType.grid_points,
+        HSType.league_points,
+        HSType.dmm,
+    }
+    delta = set(HSType) - test_cases - {HSType.combat}
+
+    assert all(hs.is_seasonal_mode() for hs in test_cases)
+    assert all(not hs.is_seasonal_mode() for hs in delta)
+
+
+def test_hs_type_is_clue():
+    test_cases = {
+        HSType.clue_all,
+        HSType.clue_beginner,
+        HSType.clue_easy,
+        HSType.clue_medium,
+        HSType.clue_hard,
+        HSType.clue_elite,
+        HSType.clue_master,
+    }
+    delta = set(HSType) - test_cases - {HSType.combat}
+
+    assert all(hs.is_clue() for hs in test_cases)
+    assert all(not hs.is_clue() for hs in delta)
+
+
+def test_hs_type_is_minigame():
+    test_cases = {
+        HSType.bh_hunter,
+        HSType.bh_rogue,
+        HSType.bh_legacy_hunter,
+        HSType.bh_legacy_rogue,
+        HSType.lms_rank,
+        HSType.pvp_arena_rank,
+        HSType.sw_zeal,
+        HSType.rifts_closed,
+    }
+    delta = set(HSType) - test_cases - {HSType.combat}
+
+    assert all(hs.is_minigame() for hs in test_cases)
+    assert all(not hs.is_minigame() for hs in delta)
 
 
 def test_hs_type_is_misc():
-    assert HSType.grid_points.is_misc()
-    assert HSType.collections_logged.is_misc()
-    assert HSType.sire.is_misc()
-    assert HSType.zulrah.is_misc()
+    test_cases = {
+        HSType.colosseum_glory,
+        HSType.collections_logged,
+    }
+    delta = set(HSType) - test_cases - {HSType.combat}
 
-    assert not HSType.combat.is_misc()
-
-    assert not HSType.overall.is_misc()
-    assert not HSType.attack.is_misc()
-    assert not HSType.sailing.is_misc()
+    assert all(hs.is_misc() for hs in test_cases)
+    assert all(not hs.is_misc() for hs in delta)
 
 
 def test_hs_type_is_boss():
-    assert HSType.sire.is_boss()
-    assert HSType.zulrah.is_boss()
+    test_cases = {
+        HSType.sire,
+        HSType.hydra,
+        HSType.amoxliatl,
+        HSType.araxxor,
+        HSType.artio,
+        HSType.barrows_chests,
+        HSType.brutus,
+        HSType.bryophyta,
+        HSType.callisto,
+        HSType.calvarion,
+        HSType.cerberus,
+        HSType.cox,
+        HSType.cox_cm,
+        HSType.chaos_elemental,
+        HSType.chaos_fanatic,
+        HSType.saradomin,
+        HSType.corp,
+        HSType.crazy_archaeologist,
+        HSType.dks_prime,
+        HSType.dks_rex,
+        HSType.dks_supreme,
+        HSType.deranged_archaeologist,
+        HSType.doom_mokhaiotl,
+        HSType.duke,
+        HSType.bandos,
+        HSType.giant_mole,
+        HSType.gg,
+        HSType.hespori,
+        HSType.kq,
+        HSType.kbd,
+        HSType.kraken,
+        HSType.armadyl,
+        HSType.zamorak,
+        HSType.lunar_chests,
+        HSType.mimic,
+        HSType.nex,
+        HSType.nightmare,
+        HSType.psn,
+        HSType.obor,
+        HSType.phantom_muspah,
+        HSType.sarachnis,
+        HSType.scorpia,
+        HSType.scurrius,
+        HSType.shellbane_gryphon,
+        HSType.skotizo,
+        HSType.sol,
+        HSType.spindel,
+        HSType.tempoross,
+        HSType.gauntlet,
+        HSType.cg,
+        HSType.hueycoatl,
+        HSType.leviathan,
+        HSType.royal_titans,
+        HSType.whisperer,
+        HSType.tob,
+        HSType.hmt,
+        HSType.thermy,
+        HSType.toa,
+        HSType.toa_em,
+        HSType.zuk,
+        HSType.jad,
+        HSType.vardorvis,
+        HSType.venenatis,
+        HSType.vetion,
+        HSType.vorkath,
+        HSType.wt,
+        HSType.yama,
+        HSType.zalcano,
+        HSType.zulrah,
+    }
+    delta = set(HSType) - test_cases - {HSType.combat}
 
-    assert not HSType.grid_points.is_boss()
-    assert not HSType.collections_logged.is_boss()
-    assert not HSType.combat.is_boss()
+    assert all(hs.is_boss() for hs in test_cases)
+    assert all(not hs.is_boss() for hs in delta)
 
-    assert not HSType.overall.is_boss()
-    assert not HSType.attack.is_boss()
-    assert not HSType.sailing.is_boss()
+
+def test_hs_type_is_combat():
+    test_cases = {
+        HSType.attack, 
+        HSType.defence, 
+        HSType.strength, 
+        HSType.hitpoints,
+        HSType.ranged, 
+        HSType.prayer, 
+        HSType.magic, 
+        HSType.combat
+    }
+    delta = set(HSType) - test_cases
+
+    assert all(hs.is_combat() for hs in test_cases)
+    assert all(not hs.is_combat() for hs in delta)
 
 
 def test_hs_type_combat_special_case():
@@ -164,7 +406,6 @@ def test_hs_type_combat_special_case():
     assert combat.get_category() == -1
     assert combat.get_category_value() == -1
     assert combat.get_csv_value() == -1
-    assert combat.is_combat()
 
 
 def test_hs_type_csv_len():

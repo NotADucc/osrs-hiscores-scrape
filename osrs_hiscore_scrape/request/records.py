@@ -9,6 +9,20 @@ from ..util import json_wrapper
 from .dto import HSFilterEntry
 from .hs_types import HSType
 
+def _player_record_bucket_builder():
+    return {
+        hs.name: (
+            'skills' if hs.is_skill()
+            else 'seasonal_modes' if hs.is_seasonal_mode()
+            else 'clues' if hs.is_clue()
+            else 'minigames' if hs.is_minigame()
+            else 'bosses' if hs.is_boss()
+            else 'misc'
+        )
+        for hs in HSType
+    }
+
+_PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP = _player_record_bucket_builder()
 
 class PlayerRecordInfo(ABC):
     @abstractmethod
@@ -62,23 +76,22 @@ class PlayerRecordSkillInfo(PlayerRecordInfo):
 
 
 @dataclass
-class PlayerRecordMiscInfo(PlayerRecordInfo):
-    """ Wrapper object to handle playerrecord misc rankings """
+class PlayerRecordActivityInfo(PlayerRecordInfo):
+    """ Wrapper object to handle playerrecord activity rankings """
     rank: int
-    kc: int
+    score: int
 
     def get_rank(self) -> int:
         return self.rank
 
     def get_value(self) -> int:
-        return self.kc
+        return self.score
 
     def to_dict(self) -> dict:
         return {
             "rank": self.rank,
-            "kc": self.kc
+            "score": self.score
         }
-
 
 @total_ordering
 class PlayerRecord:
@@ -89,25 +102,22 @@ class PlayerRecord:
     def __init__(self, username: str, csv: List[str], ts: datetime):
         self.username = username
 
-        # first line is rank, total lvl and total xp
-        first_record = [int(x) for x in csv[0].split(',')]
-
         self.ts = ts
-        self.overall = PlayerRecordSkillInfo(
-            rank=first_record[0],
-            lvl=first_record[1],
-            xp=first_record[2]
-        )
         self.combat_lvl = PlayerRecordScalarInfo(value=3)
+
         self.skills: dict[str, PlayerRecordSkillInfo] = {}
-        self.misc: dict[str, PlayerRecordMiscInfo] = {}
+
+        self.seasonal_modes: dict[str, PlayerRecordActivityInfo] = {}
+        self.clues: dict[str, PlayerRecordActivityInfo] = {}
+        self.minigames: dict[str, PlayerRecordActivityInfo] = {}
+        self.misc: dict[str, PlayerRecordActivityInfo] = {}
+
+        self.bosses: dict[str, PlayerRecordActivityInfo] = {}
 
         if HSType.csv_len() != len(csv):
             return
 
-        hs_types = list(HSType)
-
-        for hs_type in hs_types[1:]:
+        for hs_type in list(HSType):
             csv_val = hs_type.get_csv_value()
 
             if csv_val == -1:
@@ -115,27 +125,25 @@ class PlayerRecord:
 
             splitted = [int(x) for x in csv[csv_val].split(',')]
 
+            # if it ever gets too cluttered
+            #    can add flags to simplify the output
+            #    like only showing rank + lvl for skills
+            #    only display misc/bosses where the player has a score
             if hs_type.is_skill():
                 self.skills[hs_type.name] = PlayerRecordSkillInfo(
                     rank=splitted[0],
                     lvl=splitted[1],
                     xp=splitted[2]
                 )
-                # self.skills[hs_type.name] = { 'rank': splitted[0], 'lvl': splitted[1], 'xp': splitted[2] }
-                # self.skills[hs_type.name] = splitted[1]
-                # just lvl for now, saving rank, lvl, xp and maybe virtual lvl is gonna be too much
-                # or have a flag that can enable it
-
-            elif hs_type.is_misc():
-                # player can have a score even tho rank is unknown
-                if splitted[1] <= 0:
-                    continue
-                self.misc[hs_type.name] = PlayerRecordMiscInfo(
+            else:
+                # if splitted[1] <= 0:
+                #     continue
+                
+                bucket = _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP[hs_type.name]
+                getattr(self, bucket)[hs_type.name] = PlayerRecordActivityInfo(
                     rank=splitted[0],
-                    kc=splitted[1]
+                    score=splitted[1]
                 )
-                # self.misc[hs_type.name] = { 'rank': splitted[0], 'kc': splitted[1] }
-                # self.misc[hs_type.name] = splitted[1]
 
         cmb_level = calc_combat_level(
             attack=self.skills[HSType.attack.name].lvl,
@@ -151,23 +159,16 @@ class PlayerRecord:
 
     def get_stat(self, hs_type: HSType) -> PlayerRecordInfo:
         """ 
-        Retrieve record value for a given highscore type. 
-
-        Raises:
-            ValueError raised if `HSType` is unknown.
+        Retrieve record value for a given highscore type. Record value contains -1 if value is missing.
         """
-        if hs_type is HSType.overall:
-            val = self.overall
-        elif hs_type is HSType.combat:
+        if hs_type is HSType.combat:
             val = self.combat_lvl
         elif hs_type.is_skill():
             val = self.skills.get(
                 hs_type.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
-        elif hs_type.is_misc():
-            val = self.misc.get(
-                hs_type.name, PlayerRecordMiscInfo(rank=-1, kc=-1))
         else:
-            raise ValueError(f"Unknown hs type: {hs_type.name}")
+            bucket = _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP[hs_type.name]
+            val = getattr(self, bucket).get(hs_type.name, PlayerRecordActivityInfo(rank=-1, score=-1))
 
         return val
 
@@ -180,13 +181,18 @@ class PlayerRecord:
         return all(entry.predicate(self.get_stat(entry.hstype).get_value()) for entry in requirements)
 
     def __lt__(self, other: 'PlayerRecord') -> bool:
-        if self.overall.lvl < other.overall.lvl:
+        current_overall = self.skills.get(
+                HSType.overall.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
+        other_overall = other.skills.get(
+                HSType.overall.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
+        
+        if current_overall.lvl < other_overall.lvl:
             return True
-        elif self.overall.lvl == other.overall.lvl \
-                and self.overall.xp < other.overall.xp:
+        elif current_overall.lvl == other_overall.lvl \
+                and current_overall.xp < other_overall.xp:
             return True
-        elif self.overall.xp == other.overall.xp \
-                and self.overall.rank > other.overall.rank:
+        elif current_overall.xp == other_overall.xp \
+                and current_overall.rank > other_overall.rank:
             return True
         return False
 
@@ -197,30 +203,33 @@ class PlayerRecord:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "overall_rank": self.overall.rank,
             "username": self.username,
             "timestamp": self.ts.isoformat(),
-            "total_lvl": self.overall.lvl,
-            "combat_lvl": self.combat_lvl,
-            "total_xp": self.overall.xp,
+            "combat_lvl": self.combat_lvl.get_value(),
             "skills": {k: v.to_dict() for k, v in self.skills.items()},
+            "seasonal_modes": {k: v.to_dict() for k, v in self.seasonal_modes.items()},
+            "clues": {k: v.to_dict() for k, v in self.clues.items()},
+            "minigames": {k: v.to_dict() for k, v in self.minigames.items()},
             "misc": {k: v.to_dict() for k, v in self.misc.items()},
+            "bosses": {k: v.to_dict() for k, v in self.bosses.items()},
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'PlayerRecord':
         ts = datetime.fromisoformat(data["timestamp"])
 
-        fake_csv = [
-            f"{data['overall_rank']},{data['total_lvl']},{data['total_xp']}"]
-        obj = cls(data["username"], fake_csv, ts)
+        obj = cls(data["username"], [], ts)
 
         obj.combat_lvl = PlayerRecordScalarInfo(data["combat_lvl"])
-        obj.skills = {k: PlayerRecordSkillInfo(
-            **v) for k, v in data["skills"].items()}
-        obj.misc = {k: PlayerRecordMiscInfo(**v)
-                    for k, v in data["misc"].items()}
 
+        obj.skills = {k: PlayerRecordSkillInfo(**v) for k, v in data["skills"].items()}
+
+        obj.seasonal_modes = {k: PlayerRecordActivityInfo(**v) for k, v in data["seasonal_modes"].items()}
+        obj.clues = {k: PlayerRecordActivityInfo(**v) for k, v in data["clues"].items()}
+        obj.minigames = {k: PlayerRecordActivityInfo(**v) for k, v in data["minigames"].items()}
+        obj.misc = {k: PlayerRecordActivityInfo(**v) for k, v in data["misc"].items()}
+        obj.bosses = {k: PlayerRecordActivityInfo(**v) for k, v in data["bosses"].items()}
+        
         return obj
 
     def __str__(self):

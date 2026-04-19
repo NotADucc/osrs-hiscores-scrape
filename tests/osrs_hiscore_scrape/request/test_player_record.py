@@ -3,7 +3,7 @@ from datetime import datetime
 
 from osrs_hiscore_scrape.request.dto import HSFilterEntry
 from osrs_hiscore_scrape.request.hs_types import HSType
-from osrs_hiscore_scrape.request.records import PlayerRecord
+from osrs_hiscore_scrape.request.records import PlayerRecord, PlayerRecordSkillInfo
 from osrs_hiscore_scrape.statistic.calculators import calc_combat_level
 
 
@@ -128,84 +128,39 @@ def test_initialization():
     player_record = PlayerRecord("TestUser", csv, datetime(2025, 11, 16))
 
     assert player_record.username == "TestUser"
-    assert player_record.overall.rank == 271397
-    assert player_record.overall.lvl == 2084
-    assert player_record.overall.xp == 297498066
     assert math.isclose(player_record.combat_lvl.value, 125.35)
 
-    skills_true = [
-        HSType.attack, HSType.defence, HSType.strength, HSType.hitpoints, HSType.ranged,
-        HSType.prayer, HSType.magic, HSType.cooking, HSType.woodcutting, HSType.fletching,
-        HSType.fishing, HSType.firemaking, HSType.crafting, HSType.smithing, HSType.mining,
-        HSType.herblore, HSType.agility, HSType.thieving, HSType.slayer, HSType.farming,
-        HSType.runecrafting, HSType.hunter, HSType.construction, HSType.sailing,
+    skills = [
+        HSType.overall, HSType.sailing,
     ]
-    assert all(skill.name in player_record.skills for skill in skills_true)
+    assert all(skill.name in player_record.skills for skill in skills)
 
-    skills_false = []
-    assert all(skill.name not in player_record.skills for skill in skills_false)
-
-    minigames_true = [
-        HSType.lms_rank, HSType.rifts_closed, HSType.colosseum_glory, HSType.collections_logged,
-        HSType.pvp_arena_rank
+    minigames = [
+        HSType.lms_rank, HSType.rifts_closed, HSType.pvp_arena_rank,
+        HSType.bh_hunter, HSType.bh_rogue, HSType.bh_legacy_hunter, 
+        HSType.bh_legacy_rogue, HSType.sw_zeal
     ]
-    assert all(mg.name in player_record.misc for mg in minigames_true)
+    assert all(mg.name in player_record.minigames for mg in minigames)
 
-    minigames_false = [
-        HSType.grid_points, HSType.league_points, HSType.dmm, HSType.bh_hunter, HSType.bh_rogue,
-        HSType.bh_legacy_hunter, HSType.bh_legacy_rogue, HSType.sw_zeal
+    seasonal_modes = [
+        HSType.grid_points, HSType.league_points, HSType.dmm
     ]
-    assert all(mg.name not in player_record.misc for mg in minigames_false)
+    assert all(sm.name in player_record.seasonal_modes for sm in seasonal_modes)
 
-    clues_true = [
-        HSType.clue_all, HSType.clue_beginner, HSType.clue_easy, HSType.clue_medium, HSType.clue_hard,
-        HSType.clue_elite, HSType.clue_master
+    clues = [
+        HSType.clue_all, HSType.clue_master
     ]
-    assert all(clue.name in player_record.misc for clue in clues_true)
+    assert all(clue.name in player_record.clues for clue in clues)
 
-    clues_false = []
-    assert all(clue.name not in player_record.misc for clue in clues_false)
-
-    bosses_true = [
-        HSType.sire, HSType.hydra, HSType.amoxliatl, HSType.araxxor, HSType.artio,
-
-        HSType.barrows_chests, HSType.bryophyta, HSType.brutus,
-
-        HSType.callisto, HSType.calvarion, HSType.cerberus, HSType.cox, HSType.cox_cm, HSType.chaos_elemental,
-        HSType.chaos_fanatic, HSType.saradomin, HSType.corp, HSType.crazy_archaeologist,
-
-        HSType.dks_prime, HSType.dks_rex, HSType.dks_supreme, HSType.deranged_archaeologist, HSType.doom_mokhaiotl, HSType.duke,
-
-        HSType.bandos, HSType.giant_mole, HSType.gg,
-
-        HSType.hespori,
-
-        HSType.kq, HSType.kbd, HSType.kraken, HSType.armadyl, HSType.zamorak,
-
-        HSType.lunar_chests,
-
-        HSType.mimic,
-
-        HSType.nex, HSType.nightmare, HSType.psn, HSType.obor, HSType.phantom_muspah,
-
-        HSType.sarachnis, HSType.scorpia, HSType.scurrius, HSType.skotizo, HSType.sol,
-        HSType.spindel,
-
-        HSType.tempoross, HSType.gauntlet, HSType.cg, HSType.hueycoatl,
-        HSType.leviathan, HSType.royal_titans, HSType.whisperer, HSType.tob, HSType.thermy,
-        HSType.toa, HSType.toa_em,
-
-        HSType.zuk, HSType.jad,
-
-        HSType.vardorvis, HSType.venenatis, HSType.vetion, HSType.vorkath,
-        HSType.wt, HSType.yama, HSType.zalcano, HSType.zulrah
+    misc = [
+        HSType.colosseum_glory, HSType.collections_logged,
     ]
-    assert all(boss.name in player_record.misc for boss in bosses_true)
+    assert all(misc.name in player_record.misc for misc in misc)
 
-    bosses_false = [
-        HSType.hmt,
+    bosses = [
+        HSType.sire, HSType.zulrah
     ]
-    assert all(boss.name not in player_record.misc for boss in bosses_false)
+    assert all(boss.name in player_record.bosses for boss in bosses)
 
 
 def test_initialization_incomplete_csv():
@@ -215,18 +170,14 @@ def test_initialization_incomplete_csv():
     player_record = PlayerRecord("TestUser", csv, datetime(2025, 11, 3))
 
     assert player_record.username == "TestUser"
-    assert player_record.overall.rank == 268860
-    assert player_record.overall.lvl == 2084
-    assert player_record.overall.xp == 295930696
     assert math.isclose(player_record.combat_lvl.value, 3)
 
     assert not player_record.skills
+    assert not player_record.seasonal_modes
+    assert not player_record.minigames
+    assert not player_record.clues
     assert not player_record.misc
-
-
-def test_get_stat_overall(sample_player_record: PlayerRecord):
-    assert sample_player_record.get_stat(
-        HSType.overall) == sample_player_record.overall
+    assert not player_record.bosses
 
 
 def test_get_stat_combat(sample_player_record: PlayerRecord):
@@ -235,11 +186,40 @@ def test_get_stat_combat(sample_player_record: PlayerRecord):
 
 
 def test_get_stat_skill(sample_player_record: PlayerRecord):
-    for hs_type in HSType.get_csv_types()[1:]:
+    for hs_type in HSType.get_csv_types():
         if hs_type.is_skill():
-            skill_lvl = sample_player_record.skills[hs_type.name]
-            assert sample_player_record.get_stat(hs_type=hs_type) == skill_lvl
+            result = sample_player_record.skills[hs_type.name]
+            assert sample_player_record.get_stat(hs_type=hs_type) == result
 
+def test_get_stat_seasonal_modes(sample_player_record: PlayerRecord):
+    for hs_type in HSType.get_csv_types():
+        if hs_type.is_seasonal_mode():
+            result = sample_player_record.seasonal_modes[hs_type.name]
+            assert sample_player_record.get_stat(hs_type=hs_type) == result
+
+def test_get_stat_clues(sample_player_record: PlayerRecord):
+    for hs_type in HSType.get_csv_types():
+        if hs_type.is_clue():
+            result = sample_player_record.clues[hs_type.name]
+            assert sample_player_record.get_stat(hs_type=hs_type) == result
+
+def test_get_stat_minigames(sample_player_record: PlayerRecord):
+    for hs_type in HSType.get_csv_types():
+        if hs_type.is_minigame():
+            result = sample_player_record.minigames[hs_type.name]
+            assert sample_player_record.get_stat(hs_type=hs_type) == result
+
+def test_get_stat_bosses(sample_player_record: PlayerRecord):
+    for hs_type in HSType.get_csv_types():
+        if hs_type.is_boss():
+            result = sample_player_record.bosses[hs_type.name]
+            assert sample_player_record.get_stat(hs_type=hs_type) == result
+
+def test_get_stat_misc(sample_player_record: PlayerRecord):
+    for hs_type in HSType.get_csv_types():
+        if hs_type.is_misc():
+            result = sample_player_record.misc[hs_type.name]
+            assert sample_player_record.get_stat(hs_type=hs_type) == result
 
 def test_get_stat_misc_returns_default(sample_player_record_incomplete: PlayerRecord):
     some_misc = next(h for h in HSType if h.is_misc())
@@ -294,20 +274,34 @@ def test_meets_and_lacks_requirements():
 
 
 def test_ordering(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts: datetime):
-    better_total = PlayerRecord(
+    better_record = PlayerRecord(
         "BetterTotal", sample_player_record_csv_list, sample_ts)
-    better_total.overall.lvl = sample_player_record.overall.lvl + 1
+    
+    sample_total = sample_player_record.get_stat(hs_type=HSType.overall)
+    better_total = better_record.get_stat(hs_type=HSType.overall)
 
-    assert sample_player_record < better_total
-    assert better_total > sample_player_record
-    assert not (sample_player_record == better_total)
+    assert isinstance(sample_total, PlayerRecordSkillInfo)
+    assert isinstance(better_total, PlayerRecordSkillInfo)
+    
+    better_total.lvl = sample_total.lvl + 1
+
+    assert sample_player_record < better_record
+    assert better_record > sample_player_record
+    assert not (sample_player_record == better_record)
 
 
 def test_eq_same_values(sample_player_record: PlayerRecord, sample_player_record_csv_list: list[str], sample_ts: datetime):
     copy = PlayerRecord("TestUser", sample_player_record_csv_list, sample_ts)
-    copy.overall.lvl = sample_player_record.overall.lvl
-    copy.overall.xp = sample_player_record.overall.xp
-    copy.overall.rank = sample_player_record.overall.rank
+
+    sample_total = sample_player_record.get_stat(hs_type=HSType.overall)
+    copy_total = copy.get_stat(hs_type=HSType.overall)
+
+    assert isinstance(sample_total, PlayerRecordSkillInfo)
+    assert isinstance(copy_total, PlayerRecordSkillInfo)
+
+    copy_total.lvl = sample_total.lvl
+    copy_total.xp = sample_total.xp
+    copy_total.rank = sample_total.rank
 
     assert sample_player_record == copy
 
@@ -317,8 +311,13 @@ def test_to_and_from_dict(sample_player_record: PlayerRecord):
     restored = PlayerRecord.from_dict(d)
 
     assert restored.username == sample_player_record.username
-    assert restored.overall.lvl == sample_player_record.overall.lvl
+    assert restored.combat_lvl == sample_player_record.combat_lvl
+
     assert restored.skills == sample_player_record.skills
+    assert restored.seasonal_modes == sample_player_record.seasonal_modes
+    assert restored.clues == sample_player_record.clues
+    assert restored.minigames == sample_player_record.minigames
+    assert restored.bosses == sample_player_record.bosses
     assert restored.misc == sample_player_record.misc
 
 

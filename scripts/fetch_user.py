@@ -39,7 +39,6 @@ async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
 
         convert = player_record.to_dict() if not hs_type else \
             {
-            "rank": player_record.overall.rank,
             "username": player_record.username,
             "timestamp": player_record.ts.isoformat(),
             hs_type.name: player_record.get_stat(hs_type=hs_type),
@@ -47,16 +46,24 @@ async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
 
         convert_copy = convert.copy()
 
-        convert_copy["skills"] = "__SKILLS__"
-        convert_copy["misc"] = "__MISC__"
+        sections = ["skills", "seasonal_modes", "misc", "minigames", "clues", "bosses"]
+        for section in sections:
+            convert_copy[section] = f'__{section}__'
+
         json_output = json_wrapper.to_json(convert_copy, indent=1)
 
-        json_output = json_output.replace(
-            '"__SKILLS__"', format_section(convert["skills"]))
-        json_output = json_output.replace(
-            '"__MISC__"', format_section(convert["misc"]))
+        for section in sections:
+            json_output = json_output.replace(
+                f'"__{section}__"', format_section(convert[section]))
 
-        print(json_output)
+
+        colored_text = [
+            f"\x1b[31;20m{line}\x1b[0m" if '"score": 0' in line or '"xp": 0' in line
+            else line
+            for line in json_output.splitlines()
+        ]
+
+        print("\n".join(colored_text))
 
 
 if __name__ == '__main__':
