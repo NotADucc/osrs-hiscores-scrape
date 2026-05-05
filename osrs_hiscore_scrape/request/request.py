@@ -202,7 +202,7 @@ class Requests():
             "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "accept-encoding": "gzip, deflate, br, zstd",
             "accept-language": "en-US;q=0.9,en;q=0.8",
-            "referer": "https://www.google.com/",
+            # "referer": "https://www.google.com/",
             'User-Agent': UserAgent().google,
         }
 
@@ -217,8 +217,7 @@ class Requests():
                         f"rate limited: '{url}'", details={"url": resp.url, "params": params, "proxy": proxy, "headers": resp.headers})
 
                 if resp.status == 404:
-                    raise NotFound(f"Not found", details={
-                        "params": params, "proxy": proxy})
+                    raise NotFound(f"Not found", details={"url": url, "params": params, "proxy": proxy})
 
                 if resp.status == 200:
                     return text
