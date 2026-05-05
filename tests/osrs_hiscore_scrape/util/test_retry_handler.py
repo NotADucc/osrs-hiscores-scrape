@@ -105,3 +105,43 @@ async def test_error_file_class_function():
 
         err_log = err_file.read().decode(encoding=ENCODING).strip()
         assert "error | {'input': 10},ErrorClass.throw_error" == err_log
+
+
+@pytest.mark.asyncio
+async def test_retry_suppress_logger_no_logs(caplog):
+    state = {"count": 0}
+
+    async def fail_once_then_success():
+        state["count"] += 1
+        if state["count"] == 1:
+            raise Exception("fail")
+        return "ok"
+
+    result = await retry(
+        fail_once_then_success,
+        max_retries=3,
+        initial_delay=0,
+        suppress_logger=True,
+    )
+
+    assert result == "ok"
+    assert state["count"] == 2
+    assert caplog.records == []
+
+
+@pytest.mark.asyncio
+async def test_retry_suppress_logger_exhausted_no_logs(caplog):
+    async def always_fail():
+        raise Exception("fail")
+
+    with tempfile.NamedTemporaryFile(delete=False) as err_file:
+        with pytest.raises(RetryFailed):
+            await retry(
+                always_fail,
+                max_retries=2,
+                initial_delay=0,
+                err_file=err_file.name,
+                suppress_logger=True,
+            )
+
+    assert caplog.records == []
