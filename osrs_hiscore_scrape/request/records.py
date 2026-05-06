@@ -39,7 +39,20 @@ class PlayerRecordInfo(ABC):
     @abstractmethod
     def to_dict(self) -> dict:
         pass
+        
+    @abstractmethod
+    def _compare_value(self) -> int | float:
+        pass
 
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, PlayerRecordInfo):
+            return NotImplemented
+        return self._compare_value() < other._compare_value()
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PlayerRecordInfo):
+            return NotImplemented
+        return self._compare_value() == other._compare_value()
 
 @dataclass
 class PlayerRecordScalarInfo(PlayerRecordInfo):
@@ -55,7 +68,9 @@ class PlayerRecordScalarInfo(PlayerRecordInfo):
         return {
             "value": self.value
         }
-
+    
+    def _compare_value(self) -> int | float:
+        return self.value
 
 @dataclass
 class PlayerRecordSkillInfo(PlayerRecordInfo):
@@ -76,7 +91,9 @@ class PlayerRecordSkillInfo(PlayerRecordInfo):
             "lvl": self.lvl,
             "xp": self.xp
         }
-
+    
+    def _compare_value(self) -> int:
+        return self.xp
 
 @dataclass
 class PlayerRecordActivityInfo(PlayerRecordInfo):
@@ -95,6 +112,9 @@ class PlayerRecordActivityInfo(PlayerRecordInfo):
             "rank": self.rank,
             "score": self.score
         }
+    
+    def _compare_value(self) -> int:
+        return self.score
 
 
 @total_ordering

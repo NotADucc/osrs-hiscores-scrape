@@ -9,6 +9,7 @@ from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
 from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.request.dto import GetPlayerRequest
 from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.records import PlayerRecord
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.retry_handler import retry
@@ -32,17 +33,83 @@ def format_section(section):
 
 @log_lifecycle
 @profile_execution
-async def main(name: str, account_type: HSAccountTypes, hs_type: HSType):
+async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
-        player_record = await retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=account_type))
 
-        convert = player_record.to_dict() if not hs_type else \
+        base_routines = {
+            lookup_account_type: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=lookup_account_type)),
+        }
+        
+        if lookup_account_type == HSAccountTypes.regular:
+            base_routines[HSAccountTypes.im] = retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=HSAccountTypes.im), suppress_logger=True)
+
+        temp_results = await asyncio.gather(*base_routines.values(), return_exceptions=True)
+        results = dict(zip(base_routines.keys(), temp_results))
+        
+        player_record = results[lookup_account_type]
+        if isinstance(player_record, NotFound):
+            raise player_record
+
+        im_result = results.get(HSAccountTypes.im, None)
+        has_iron_result = isinstance(im_result, PlayerRecord)
+
+        if has_iron_result:
+            extra_iron_routines = {
+                HSAccountTypes.uim: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=HSAccountTypes.uim), suppress_logger=True),
+                HSAccountTypes.hc: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=HSAccountTypes.hc), suppress_logger=True)
+            }
+            temp_results = await asyncio.gather(*extra_iron_routines.values(), return_exceptions=True)
+            results.update(dict(zip(extra_iron_routines.keys(), temp_results)))
+
+        # it's needed for linter even though we do notfound check
+        assert isinstance(player_record, PlayerRecord)
+
+        predicted_account_type = HSAccountTypes.regular
+        de_ironed = None
+        dead_hc = None
+
+        if has_iron_result:
+            im_overall = im_result.get_stat(HSType.overall)
+            main_overall = player_record.get_stat(HSType.overall)
+
+            de_ironed = im_overall < main_overall
+            if not de_ironed:
+                predicted_account_type = HSAccountTypes.im
+
+                for im_type in (HSAccountTypes.uim, HSAccountTypes.hc):
+                    r = results.get(im_type, None)
+                    if isinstance(r, PlayerRecord):
+                        if r.get_stat(HSType.overall) == im_overall:
+                            predicted_account_type = im_type
+                            break
+
+            hc_result = results.get(HSAccountTypes.hc, None)
+            if isinstance(hc_result, PlayerRecord):
+                dead_hc = hc_result.get_stat(HSType.overall) < im_overall
+
+
+
+        base = player_record.to_dict() if not hs_type else \
             {
             "username": player_record.username,
             "timestamp": player_record.ts.isoformat(),
             hs_type.name: player_record.get_stat(hs_type=hs_type),
         }
+
+        convert = {}
+
+        for k, v in base.items():
+            convert[k] = v
+
+            if k == "username":
+                convert["iron_type"] = predicted_account_type.name
+
+                if dead_hc is not None:
+                    convert["dead_hc"] = dead_hc
+
+                if de_ironed is not None:
+                    convert["de_ironed"] = de_ironed
 
         convert_copy = convert.copy()
 
@@ -84,5 +151,5 @@ if __name__ == '__main__':
     except NotFound:
         sys.exit(0)
     except Exception as e:
-        logger.error(str(e))
+        logger.error(str(e), exc_info=True)
         sys.exit(2)
