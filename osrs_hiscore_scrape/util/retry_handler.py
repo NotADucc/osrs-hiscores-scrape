@@ -46,9 +46,11 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
 
         except Exception as err:
             details = getattr(err, "details", None)
-            message = f"{err}" + (f" | {details}" if details else "") + f" | {kwargs}"
+            message = f"{err}" + \
+                (f" | {details}" if details else "") + f" | {kwargs}"
 
-            _log_error(f"Attempt {attempt} failed: {message}", exc_info, suppress_logger)
+            _log_error(f"Attempt {attempt} failed: {message}",
+                       exc_info, suppress_logger)
             last_error = message
 
         await asyncio.sleep(attempt * initial_delay)
@@ -59,8 +61,7 @@ async def retry(callback: Callable[..., T | Awaitable[T]], max_retries: int = 10
     with open(err_file, "a", encoding="utf-8") as f:
         f.write(final_message + "\n")
 
-    _log_error(f"Max retries reached for '{final_message}'.", exc_info, suppress_logger)
+    _log_error(
+        f"Max retries reached for '{final_message}'.", exc_info, suppress_logger)
 
     raise RetryFailed(final_message)
-
-

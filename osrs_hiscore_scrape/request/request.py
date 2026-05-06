@@ -217,7 +217,8 @@ class Requests():
                         f"rate limited: '{url}'", details={"url": resp.url, "params": params, "proxy": proxy, "headers": resp.headers})
 
                 if resp.status == 404:
-                    raise NotFound(f"Not found", details={"url": url, "params": params, "proxy": proxy})
+                    raise NotFound(f"Not found", details={
+                                   "url": url, "params": params, "proxy": proxy})
 
                 if resp.status == 200:
                     return text

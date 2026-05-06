@@ -40,13 +40,14 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
         base_routines = {
             lookup_account_type: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=lookup_account_type)),
         }
-        
+
         if lookup_account_type == HSAccountTypes.regular:
-            base_routines[HSAccountTypes.im] = retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=HSAccountTypes.im), suppress_logger=True)
+            base_routines[HSAccountTypes.im] = retry(req.get_user_stats, player_req=GetPlayerRequest(
+                username=name, account_type=HSAccountTypes.im), suppress_logger=True)
 
         temp_results = await asyncio.gather(*base_routines.values(), return_exceptions=True)
         results = dict(zip(base_routines.keys(), temp_results))
-        
+
         player_record = results[lookup_account_type]
         if isinstance(player_record, NotFound):
             raise player_record
@@ -57,7 +58,8 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
         if has_iron_result:
             extra_iron_routines = {
                 HSAccountTypes.uim: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=HSAccountTypes.uim), suppress_logger=True),
-                HSAccountTypes.hc: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=HSAccountTypes.hc), suppress_logger=True)
+                HSAccountTypes.hc: retry(req.get_user_stats, player_req=GetPlayerRequest(
+                    username=name, account_type=HSAccountTypes.hc), suppress_logger=True)
             }
             temp_results = await asyncio.gather(*extra_iron_routines.values(), return_exceptions=True)
             results.update(dict(zip(extra_iron_routines.keys(), temp_results)))
@@ -87,8 +89,6 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
             hc_result = results.get(HSAccountTypes.hc, None)
             if isinstance(hc_result, PlayerRecord):
                 dead_hc = hc_result.get_stat(HSType.overall) < im_overall
-
-
 
         base = player_record.to_dict() if not hs_type else \
             {
