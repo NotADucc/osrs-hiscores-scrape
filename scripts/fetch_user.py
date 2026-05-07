@@ -68,27 +68,41 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
         assert isinstance(player_record, PlayerRecord)
 
         predicted_account_type = HSAccountTypes.regular
-        de_ironed = None
-        dead_hc = None
+        downgraded_statuses = {
+            "de_ironed": {
+                "account_type": None, # skip in loop
+                "value": None,
+            },
+            "de_ulted": {
+                "account_type": HSAccountTypes.uim,
+                "value": None,
+            },
+            "dead_hc": {
+                "account_type": HSAccountTypes.hc,
+                "value": None,
+            },
+        }
 
         if has_iron_result:
             im_overall = im_result.get_stat(HSType.overall)
             main_overall = player_record.get_stat(HSType.overall)
 
-            de_ironed = im_overall < main_overall
-            if not de_ironed:
+            downgraded_statuses["de_ironed"]["value"] = im_overall < main_overall
+
+            if not downgraded_statuses["de_ironed"]["value"]:
                 predicted_account_type = HSAccountTypes.im
 
-                for im_type in (HSAccountTypes.uim, HSAccountTypes.hc):
-                    r = results.get(im_type, None)
-                    if isinstance(r, PlayerRecord):
-                        if r.get_stat(HSType.overall) == im_overall:
-                            predicted_account_type = im_type
-                            break
+            for _, info in downgraded_statuses.items():
+                account_type = info["account_type"]
+                if account_type is None:
+                    continue
 
-            hc_result = results.get(HSAccountTypes.hc, None)
-            if isinstance(hc_result, PlayerRecord):
-                dead_hc = hc_result.get_stat(HSType.overall) < im_overall
+                r = results.get(account_type, None)
+                if isinstance(r, PlayerRecord):
+                    info["value"] = r.get_stat(HSType.overall) < main_overall
+                    if not info["value"]:
+                        predicted_account_type = account_type
+
 
         base = player_record.to_dict() if not hs_type else \
             {
@@ -103,13 +117,11 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
             convert[k] = v
 
             if k == "username":
-                convert["iron_type"] = predicted_account_type.name
-
-                if dead_hc is not None:
-                    convert["dead_hc"] = dead_hc
-
-                if de_ironed is not None:
-                    convert["de_ironed"] = de_ironed
+                convert["account_type"] = predicted_account_type.name
+                                
+                for k, v in downgraded_statuses.items():
+                    if v["value"] is not None:
+                        convert[k] = v["value"]
 
         convert_copy = convert.copy()
 
