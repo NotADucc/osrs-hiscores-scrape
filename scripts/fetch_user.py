@@ -70,7 +70,7 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
         predicted_account_type = HSAccountTypes.regular
         downgraded_statuses = {
             "de_ironed": {
-                "account_type": None, # skip in loop
+                "account_type": None,  # skip in loop
                 "value": None,
             },
             "de_ulted": {
@@ -103,7 +103,6 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
                     if not info["value"]:
                         predicted_account_type = account_type
 
-
         base = player_record.to_dict() if not hs_type else \
             {
             "username": player_record.username,
@@ -118,7 +117,7 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
 
             if k == "username":
                 convert["account_type"] = predicted_account_type.name
-                                
+
                 for k, v in downgraded_statuses.items():
                     if v["value"] is not None:
                         convert[k] = v["value"]
