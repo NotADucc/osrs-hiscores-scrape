@@ -14,13 +14,45 @@ permissions:
   contents: write 
 
 jobs:
-  format-job:
+  generate-job:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run generators
+        run: python tools/run_generators.py
+
+      - name: Commit and push generated files
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config --global user.email "robertohelper@outlook.com"
+            git config --global user.name "Gwilom-Bot"
+            git add .
+            git commit -am "automated chore: generate files" || true
+            git push || git pull --rebase && git push
+          fi
+
+
+  format-job:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs:
+      - generate-job
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -40,18 +72,15 @@ jobs:
       - name: Run autopep8
         run: autopep8 --in-place --recursive .
 
-      - name: Check for modified files
-        id: git-check
-        run: echo modified=$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi) >> $GITHUB_OUTPUT
-
-      - name: Push
-        if: steps.git-check.outputs.modified == 'true'
+      - name: Commit and push formatted files
         run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
             git config --global user.email "robertohelper@outlook.com"
             git config --global user.name "Gwilom-Bot"
             git add .
-            git commit -am "refactor: ran autopep, isort and autoflake" || true
+            git commit -am "automated chore: ran autopep, isort and autoflake" || true
             git push || git pull --rebase && git push
+          fi
 
 
   run-tests-job:
@@ -63,6 +92,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
