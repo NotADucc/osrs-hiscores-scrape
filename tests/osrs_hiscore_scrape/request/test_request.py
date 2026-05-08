@@ -10,7 +10,8 @@ from osrs_hiscore_scrape.exception.records import (IsRateLimited, NotFound,
                                                    RequestFailed, ServerBusy)
 from osrs_hiscore_scrape.request import request
 from osrs_hiscore_scrape.request.dto import HSFilterEntry
-from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 from osrs_hiscore_scrape.request.request import Requests
 

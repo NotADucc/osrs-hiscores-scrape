@@ -1,4 +1,4 @@
-from ..request.hs_types import HSAccountTypes
+from ..request.hs_account_types import HSAccountTypes
 from ..request.records import CategoryRecord, PlayerRecord
 from .records import HSLookupJob
 

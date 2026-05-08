@@ -5,7 +5,8 @@ import pytest
 
 from osrs_hiscore_scrape.job.records import (HSCategoryJob, HSLookupJob,
                                              JobManager, JobQueue)
-from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 
 

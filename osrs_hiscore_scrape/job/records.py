@@ -3,7 +3,8 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Any, Generic, List, TypeVar
 
-from ..request.hs_types import HSAccountTypes, HSType
+from ..request.hs_account_types import HSAccountTypes
+from ..request.hs_types import HSType
 from ..request.records import CategoryRecord, PlayerRecord
 
 

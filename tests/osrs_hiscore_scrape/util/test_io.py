@@ -6,7 +6,8 @@ import tempfile
 import pytest
 
 from osrs_hiscore_scrape.job.records import HSLookupJob
-from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.io import (ENCODING, build_temp_file,
@@ -250,8 +251,8 @@ def test_hs_lookup_formatter():
 def test_build_temp_file():
     file_name = "test.txt"
     account_type = HSAccountTypes.regular
-    hs_type = HSType.sol
+    hs_type = HSType.sol_heredit
 
     temp_file = build_temp_file(
         file_path=file_name, account_type=account_type, hs_type=hs_type)
-    assert temp_file == "test.regular.sol.test_io.temp"
+    assert temp_file == "test.regular.sol_heredit.test_io.temp"

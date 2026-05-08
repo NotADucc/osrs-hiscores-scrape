@@ -1,0 +1,369 @@
+from pathlib import Path
+
+HEADER = '''\
+import difflib
+from dataclasses import dataclass
+from enum import Enum
+
+
+@dataclass
+class HSValue():
+    """ Internal value type to help with 'HSType'. """
+    category: int
+    category_value: int
+    csv_value: int
+
+
+class HSIncrementer():
+    """ Internal incrementer to help with 'HSType'. """
+
+    def __init__(self):
+        self._arr = [0] * 3
+
+    def skill(self) -> HSValue:
+        cat_val, csv_val = self._arr[0], self._arr[2]
+        self._arr[0] += 1
+        self._arr[2] += 1
+        return HSValue(category=0, category_value=cat_val, csv_value=csv_val)
+
+    def activity(self, has_csv_mapping=True) -> HSValue:
+        cat_val, csv_val = self._arr[1], self._arr[2]
+        self._arr[1] += 1
+
+        if not has_csv_mapping:
+            csv_val = -1
+        else:
+            self._arr[2] += 1
+
+        return HSValue(category=1, category_value=cat_val, csv_value=csv_val)
+
+
+HSCategoryMapperIncrementer = HSIncrementer()
+
+# hs categories are split into 2: skills and misc/activities
+# i split it more than that to more accuratly reflect what they are
+# or so they're grouped more logically
+
+
+class HSType(Enum):
+    """ 
+    Enum of OSRS hiscore categories, each value contains data to make hiscore lookup easier.
+    """\
+'''
+
+ENUM_METHODS = '''\
+    def get_category(self) -> int:
+        """ OSRS hiscore category type. """
+        return self.value.category
+
+    def get_category_value(self) -> int:
+        """ OSRS hiscore category type value. """
+        return self.value.category_value
+
+    def get_csv_value(self) -> int:
+        """ OSRS hiscore csv value. """
+        return self.value.csv_value
+
+    def is_skill(self) -> bool:
+        """ Determine whether the OSRS category represents a skill. """
+        return self.get_category() == 0
+
+    def is_activity(self) -> bool:
+        """ Determine whether the OSRS category represents an activity, basically every non skill. """
+        return self.get_category() == 1
+
+    def is_seasonal_mode(self) -> bool:
+        """ Determine whether the OSRS category represents a seasonal gamemode """
+        return self in (HSType.league_points, HSType.grid_points, HSType.deadman_points)
+
+    def is_clue(self) -> bool:
+        """ Determine whether the OSRS category represents a seasonal gamemode """
+        return HSType.clue_all.value.csv_value <= self.value.csv_value <= HSType.clue_master.value.csv_value
+
+    def is_minigame(self) -> bool:
+        """ Determine whether the OSRS category represents a mini game """
+        return self in (
+            HSType.bh_hunter,
+            HSType.bh_rogue,
+            HSType.bh_legacy_hunter,
+            HSType.bh_legacy_rogue,
+            HSType.lms_rank,
+            HSType.pvp_arena_rank,
+            HSType.sw_zeal,
+            HSType.rifts_closed,
+        )
+
+    def is_misc(self) -> bool:
+        """ Misc is really just activities that don't really have a group """
+        return self.is_activity() and not (
+            self.is_skill()
+            or self.is_seasonal_mode()
+            or self.is_clue()
+            or self.is_minigame()
+            or self.is_boss()
+            or self.is_combat()
+        )
+
+    def is_boss(self) -> bool:
+        """ Determine whether the OSRS category represents a boss. """
+        return HSType.abyssal_sire.value.csv_value <= self.value.csv_value <= HSType.zulrah.value.csv_value
+
+    def is_combat(self) -> bool:
+        """ Determine whether the OSRS category represents a combat stat. """
+        return self in {
+            HSType.attack, HSType.defence, HSType.strength, HSType.hitpoints,
+            HSType.ranged, HSType.prayer, HSType.magic, HSType.combat
+        }
+
+    def __str__(self) -> str:
+        return self.name
+
+    @staticmethod
+    def csv_len() -> int:
+        return len([item for item in list(HSType) if item.get_csv_value() != -1])
+
+    @staticmethod
+    def get_csv_types() -> list['HSType']:
+        return [item for item in list(HSType) if item.get_csv_value() != -1]
+
+    @staticmethod
+    def debug() -> list[str]:
+        return [f'{v}: {(v.get_category(), v.get_category_value(), v.get_csv_value())}' for v in HSType]
+
+    @staticmethod
+    def from_string(s: str) -> 'HSType':
+        try:
+            return HSType[s.lower()]
+
+        except KeyError:
+            grouped = {
+                member: tuple(
+                    n for n, m in HSType.__members__.items()
+                    if m is member
+                )
+                for member in set(HSType)
+            }
+
+            matches = [
+                ' | '.join(grouped[HSType.__members__[name]])
+                for name in dict.fromkeys(difflib.get_close_matches(
+                    s.lower(),
+                    HSType.__members__,
+                    n=5,
+                    cutoff=0.5,
+                ))
+            ]
+
+            body = (
+                ["Closest matches:", *(f"  - {m}" for m in matches)]
+                if matches else
+                [
+                    "Valid values:",
+                    *(f"  - {' | '.join(v)}" for v in grouped.values()),
+                ]
+            )
+
+            raise KeyError('\\n'.join([
+                f"Unknown HSType: {s!r}",
+                "",
+                *body,
+            ]))\
+'''
+
+ALL = {
+    "skills": {
+        "data": {
+            "overall": [],
+            "attack": ["att", "atk"],
+            "defence": ["defe"],
+            "strength": ["stre"],
+            "hitpoints": ["hp"],
+            "ranged": ["range"],
+            "prayer": ["pray"],
+            "magic": ["mage"],
+            "cooking": ["cook"],
+            "woodcutting": ["wc"],
+            "fletching": ["fletch"],
+            "fishing": ["fish"],
+            "firemaking": ["fm", "fire"],
+            "crafting": ["craft"],
+            "smithing": ["smith"],
+            "mining": ["mine"],
+            "herblore": ["herb"],
+            "agility": ["agil"],
+            "thieving": ["thiev"],
+            "slayer": ["slay"],
+            "farming": ["farm"],
+            "runecrafting": ["rc", "rune"],
+            "hunter": ["hunt"],
+            "construction": ["con"],
+            "sailing": ["sail"],
+        },
+        "incrementer": "HSCategoryMapperIncrementer.skill()",
+    },
+
+    "seasonal": {
+        "data": {
+            "grid_points": [],
+            "league_points": ["leagues"],
+            "deadman_points": ["dmm"],
+        },
+        "incrementer": "HSCategoryMapperIncrementer.activity()",
+    },
+
+    "minigames": {
+        "data": {
+            "bh_hunter": [],
+            "bh_rogue": [],
+            "bh_legacy_hunter": ["bhl_hunter"],
+            "bh_legacy_rogue": ["bhl_rogue"],
+            "lms_rank": [],
+            "pvp_arena_rank": [],
+            "soulwars_zeal": ["sw_zeal"],
+            "rifts_closed": [],
+        },
+        "incrementer": "HSCategoryMapperIncrementer.activity()",
+    },
+
+    "clues": {
+        "data": {
+            "clue_all": ["cs_all"],
+            "clue_beginner": ["cs_beginner"],
+            "clue_easy": ["cs_easy"],
+            "clue_medium": ["cs_medium"],
+            "clue_hard": ["cs_hard"],
+            "clue_elite": ["cs_elite"],
+            "clue_master": ["cs_master"],
+        },
+        "incrementer": "HSCategoryMapperIncrementer.activity()",
+    },
+
+    "misc": {
+        "data": {
+            "colosseum_glory": ["glory"],
+            "collections_logged": ["clog"],
+        },
+        "incrementer": "HSCategoryMapperIncrementer.activity()",
+    },
+
+    "bosses": {
+        "data": {
+            "abyssal_sire": ["sire"],
+            "alchhemical_hydra": ["hydra"],
+            "amoxliatl": ["amox"],
+            "araxxor": [],
+            "artio": [],
+            "barrows_chests": ["barrows"],
+            "brutus": [],
+            "bryophyta": ["bryo"],
+            "callisto": [],
+            "calvarion": ["calv"],
+            "cerberus": ["cerb"],
+            "chambers_of_xeric": ["cox"],
+            "chambers_of_xeric_challenge_mode": ["raids1", "cox_cm"],
+            "chaos_elemental": ["chaos_ele"],
+            "chaos_fanatic": ["chaos_fan"],
+            "commander_zilyana": ["zily", "saradomin", "sara"],
+            "corporeal_beast": ["corp"],
+            "crazy_archaeologist": ["crazy_arch"],
+            "dagannoth_prime": ["prime"],
+            "dagannoth_rex": ["rex"],
+            "dagannoth_supreme": ["supreme"],
+            "deranged_archaeologist": ["deranged_arch"],
+            "doom_of_mokhaiotl": ["doom"],
+            "duke_sucellus": ["duke"],
+            "general_graardor": ["graardor", "bandos"],
+            "giant_mole": ["mole"],
+            "grotesque_guardians": ["ggs", "dusk"],
+            "hespori": [],
+            "kalphite_queen": ["kq"],
+            "king_black_dragon": ["kbd"],
+            "kraken": [],
+            "kree_arra": ["kree", "armadyl", "arma"],
+            "kril_tsutsaroth": ["kril", "zamorak", "zammy"],
+            "lunar_chests": ["moons"],
+            "mimic": [],
+            "nex": [],
+            "nightmare": ["nm"],
+            "phosanis_nightmare": ["psn", "phosani"],
+            "obor": [],
+            "phantom_muspah": ["pm", "muspah", "grumbler"],
+            "sarachnis": [],
+            "scorpia": [],
+            "scurrius": [],
+            "shellbane_gryphon": ["gryphon"],
+            "skotizo": [],
+            "sol_heredit": ["sol"],
+            "spindel": [],
+            "tempoross": ["fishtodt"],
+            "the_gauntlet": ["gauntlet", "gaunt"],
+            "the_corrupted_gauntlet": ["cg"],
+            "the_hueycoatl": ["hueycoatl", "huey"],
+            "the_leviathan": ["leviathan", "levi"],
+            "the_royal_titans": ["royal_titans", "titans"],
+            "the_whisperer": ["whisperer", "whisp"],
+            "theatre_of_blood": ["raids2", "tob"],
+            "theatre_of_blood_hard_mode": ["hmt"],
+            "thermonuclear_smoke_devil": ["thermy"],
+            "tombs_of_amascut": ["raids3", "toa"],
+            "tombs_of_amascut_expert_mode": ["toa_expert"],
+            "tzkal_zuk": ["zuk", "inferno"],
+            "tztok_jad": ["jad", "fc"],
+            "vardorvis": ["vard"],
+            "venenatis": ["vene"],
+            "vetion": [],
+            "vorkath": ["vork"],
+            "wintertodt": ["wt"],
+            "yama": [],
+            "zalcano": ["zalc"],
+            "zulrah": [],
+        },
+        "incrementer": "HSCategoryMapperIncrementer.activity()",
+    },
+}
+
+
+def append_group(
+    lines: list[str],
+    title: str,
+    values: dict[str, dict[str, list[str]]],
+    incrementer: str,
+):
+    lines.append(f"    # {title}")
+    for canonical, aliases in values.items():
+        lines.append(f"    {canonical} = {incrementer}")
+        for alias in aliases:
+            lines.append(f"    {alias} = {canonical}")
+
+    lines.append("")
+
+
+def generate() -> str:
+    lines: list[str] = [HEADER]
+
+    for group_name, group in ALL.items():
+        append_group(
+            lines,
+            group_name,
+            group["data"],
+            group["incrementer"],
+        )
+
+    lines.extend([
+        "    combat = HSValue(-1, -1, -1)",
+        "",
+    ])
+
+    lines.append(ENUM_METHODS)
+
+    return "\n".join(lines)
+
+
+if __name__ == "__main__":
+    output = generate()
+
+    base_dir = Path(__file__).resolve().parent
+    out_path = (base_dir / "../osrs_hiscore_scrape/request/hs_types.py").resolve()
+    out_path.write_text(output, encoding="utf-8")
+
+    print(f"generated: {out_path}")

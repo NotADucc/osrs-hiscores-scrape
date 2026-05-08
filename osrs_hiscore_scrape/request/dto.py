@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable
 
-from .hs_types import HSAccountTypes, HSType
+from .hs_account_types import HSAccountTypes
+from .hs_types import HSType
 
 
 @dataclass

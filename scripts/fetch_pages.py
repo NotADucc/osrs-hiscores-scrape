@@ -11,7 +11,8 @@ from osrs_hiscore_scrape.job.records import IJob, JobManager, JobQueue
 from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
 from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.request.dto import GetMaxHighscorePageRequest
-from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util.io import read_proxies, write_records
 from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,

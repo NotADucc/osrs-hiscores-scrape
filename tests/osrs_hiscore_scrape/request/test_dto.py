@@ -8,7 +8,8 @@ from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeRequest,
                                              GetMaxHighscorePageRequest,
                                              GetMaxHighscorePageResult,
                                              GetPlayerRequest, HSFilterEntry)
-from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_types import HSType
 
 
 @pytest.mark.parametrize(

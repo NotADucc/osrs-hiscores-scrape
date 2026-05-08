@@ -7,7 +7,7 @@ from osrs_hiscore_scrape.job.job_builder import (_extract_page_nr_from_rank,
                                                  get_hs_page_job)
 from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeResult,
                                              GetMaxHighscorePageResult)
-from osrs_hiscore_scrape.request.hs_types import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
 from osrs_hiscore_scrape.request.request import Requests
 
 

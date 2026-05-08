@@ -7,7 +7,8 @@ from tqdm import tqdm
 
 from ..job.records import HSLookupJob
 from ..log.logger import get_logger
-from ..request.hs_types import HSAccountTypes, HSType
+from ..request.hs_account_types import HSAccountTypes
+from ..request.hs_types import HSType
 from ..request.records import CategoryRecord, PlayerRecord
 from . import json_wrapper
 

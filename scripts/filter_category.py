@@ -22,7 +22,8 @@ from osrs_hiscore_scrape.request.constants import MAX_CATEGORY_SIZE
 from osrs_hiscore_scrape.request.dto import (GetFilteredPageRangeRequest,
                                              GetMaxHighscorePageRequest,
                                              HSFilterEntry)
-from osrs_hiscore_scrape.request.hs_types import HSAccountTypes, HSType
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
+from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util.io import (hs_lookup_formatter,
                                          read_category_records,

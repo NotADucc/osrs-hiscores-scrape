@@ -1,52 +1,6 @@
+import difflib
 from dataclasses import dataclass
 from enum import Enum
-
-
-class HSAccountTypes(Enum):
-    """
-    Enum of OSRS hiscore account types, each type maps to the corresponding hiscore endpoint used to retrieve stats.
-
-    Attributes:
-        regular
-        pure
-        im.
-        uim
-        hc
-        skiller
-    """
-    regular = 'hiscore_oldschool'
-    im = 'hiscore_oldschool_ironman'
-    uim = 'hiscore_oldschool_ultimate'
-    hc = 'hiscore_oldschool_hardcore_ironman'
-    pure = 'hiscore_oldschool_skiller_defence'
-    skiller = 'hiscore_oldschool_skiller'
-    dmm = 'hiscore_oldschool_deadman'
-    leagues = 'hiscore_oldschool_seasonal'
-    tournament = 'hiscore_oldschool_tournament'
-    fsw = 'hiscore_oldschool_fresh_start'
-
-    def lookup_overall(self) -> str:
-        return f'https://secure.runescape.com/m={self.value}/overall'
-
-    def lookup_personal(self) -> str:
-        return f'https://secure.runescape.com/m={self.value}/hiscorepersonal'
-
-    def api_csv(self) -> str:
-        return f'https://secure.runescape.com/m={self.value}/index_lite.ws'
-
-    def api_json(self) -> str:
-        return f'https://secure.runescape.com/m={self.value}/index_lite.json'
-
-    def __str__(self):
-        return self.name
-
-    @staticmethod
-    def from_string(s: str) -> 'HSAccountTypes':
-        try:
-            return HSAccountTypes[s.lower()]
-        except KeyError:
-            valid_values = ', '.join(HSAccountTypes.__members__.keys())
-            raise KeyError(f'value given: {s}, valid values [{valid_values}]')
 
 
 @dataclass
@@ -63,13 +17,13 @@ class HSIncrementer():
     def __init__(self):
         self._arr = [0] * 3
 
-    def skill_increment(self) -> HSValue:
+    def skill(self) -> HSValue:
         cat_val, csv_val = self._arr[0], self._arr[2]
         self._arr[0] += 1
         self._arr[2] += 1
         return HSValue(category=0, category_value=cat_val, csv_value=csv_val)
 
-    def misc_increment(self, has_csv_mapping=True) -> HSValue:
+    def activity(self, has_csv_mapping=True) -> HSValue:
         cat_val, csv_val = self._arr[1], self._arr[2]
         self._arr[1] += 1
 
@@ -92,122 +46,246 @@ class HSType(Enum):
     """ 
     Enum of OSRS hiscore categories, each value contains data to make hiscore lookup easier.
     """
-    overall = HSCategoryMapperIncrementer.skill_increment()
-    attack = HSCategoryMapperIncrementer.skill_increment()
-    defence = HSCategoryMapperIncrementer.skill_increment()
-    strength = HSCategoryMapperIncrementer.skill_increment()
-    hitpoints = HSCategoryMapperIncrementer.skill_increment()
-    ranged = HSCategoryMapperIncrementer.skill_increment()
-    prayer = HSCategoryMapperIncrementer.skill_increment()
-    magic = HSCategoryMapperIncrementer.skill_increment()
-    cooking = HSCategoryMapperIncrementer.skill_increment()
-    woodcutting = HSCategoryMapperIncrementer.skill_increment()
-    fletching = HSCategoryMapperIncrementer.skill_increment()
-    fishing = HSCategoryMapperIncrementer.skill_increment()
-    firemaking = HSCategoryMapperIncrementer.skill_increment()
-    crafting = HSCategoryMapperIncrementer.skill_increment()
-    smithing = HSCategoryMapperIncrementer.skill_increment()
-    mining = HSCategoryMapperIncrementer.skill_increment()
-    herblore = HSCategoryMapperIncrementer.skill_increment()
-    agility = HSCategoryMapperIncrementer.skill_increment()
-    thieving = HSCategoryMapperIncrementer.skill_increment()
-    slayer = HSCategoryMapperIncrementer.skill_increment()
-    farming = HSCategoryMapperIncrementer.skill_increment()
-    runecrafting = HSCategoryMapperIncrementer.skill_increment()
-    hunter = HSCategoryMapperIncrementer.skill_increment()
-    construction = HSCategoryMapperIncrementer.skill_increment()
-    sailing = HSCategoryMapperIncrementer.skill_increment()
-    # start non skilling stuff, for some reason its split up in 2
-    grid_points = HSCategoryMapperIncrementer.misc_increment()
-    league_points = HSCategoryMapperIncrementer.misc_increment()
-    dmm = HSCategoryMapperIncrementer.misc_increment()
-    bh_hunter = HSCategoryMapperIncrementer.misc_increment()
-    bh_rogue = HSCategoryMapperIncrementer.misc_increment()
-    bh_legacy_hunter = HSCategoryMapperIncrementer.misc_increment()
-    bh_legacy_rogue = HSCategoryMapperIncrementer.misc_increment()
-    clue_all = HSCategoryMapperIncrementer.misc_increment()
-    clue_beginner = HSCategoryMapperIncrementer.misc_increment()
-    clue_easy = HSCategoryMapperIncrementer.misc_increment()
-    clue_medium = HSCategoryMapperIncrementer.misc_increment()
-    clue_hard = HSCategoryMapperIncrementer.misc_increment()
-    clue_elite = HSCategoryMapperIncrementer.misc_increment()
-    clue_master = HSCategoryMapperIncrementer.misc_increment()
-    lms_rank = HSCategoryMapperIncrementer.misc_increment()
-    pvp_arena_rank = HSCategoryMapperIncrementer.misc_increment()
-    sw_zeal = HSCategoryMapperIncrementer.misc_increment()
-    rifts_closed = HSCategoryMapperIncrementer.misc_increment()
-    colosseum_glory = HSCategoryMapperIncrementer.misc_increment()
-    collections_logged = HSCategoryMapperIncrementer.misc_increment()
+    # skills
+    overall = HSCategoryMapperIncrementer.skill()
+    attack = HSCategoryMapperIncrementer.skill()
+    att = attack
+    atk = attack
+    defence = HSCategoryMapperIncrementer.skill()
+    defe = defence
+    strength = HSCategoryMapperIncrementer.skill()
+    stre = strength
+    hitpoints = HSCategoryMapperIncrementer.skill()
+    hp = hitpoints
+    ranged = HSCategoryMapperIncrementer.skill()
+    range = ranged
+    prayer = HSCategoryMapperIncrementer.skill()
+    pray = prayer
+    magic = HSCategoryMapperIncrementer.skill()
+    mage = magic
+    cooking = HSCategoryMapperIncrementer.skill()
+    cook = cooking
+    woodcutting = HSCategoryMapperIncrementer.skill()
+    wc = woodcutting
+    fletching = HSCategoryMapperIncrementer.skill()
+    fletch = fletching
+    fishing = HSCategoryMapperIncrementer.skill()
+    fish = fishing
+    firemaking = HSCategoryMapperIncrementer.skill()
+    fm = firemaking
+    fire = firemaking
+    crafting = HSCategoryMapperIncrementer.skill()
+    craft = crafting
+    smithing = HSCategoryMapperIncrementer.skill()
+    smith = smithing
+    mining = HSCategoryMapperIncrementer.skill()
+    mine = mining
+    herblore = HSCategoryMapperIncrementer.skill()
+    herb = herblore
+    agility = HSCategoryMapperIncrementer.skill()
+    agil = agility
+    thieving = HSCategoryMapperIncrementer.skill()
+    thiev = thieving
+    slayer = HSCategoryMapperIncrementer.skill()
+    slay = slayer
+    farming = HSCategoryMapperIncrementer.skill()
+    farm = farming
+    runecrafting = HSCategoryMapperIncrementer.skill()
+    rc = runecrafting
+    rune = runecrafting
+    hunter = HSCategoryMapperIncrementer.skill()
+    hunt = hunter
+    construction = HSCategoryMapperIncrementer.skill()
+    con = construction
+    sailing = HSCategoryMapperIncrementer.skill()
+    sail = sailing
+
+    # seasonal
+    grid_points = HSCategoryMapperIncrementer.activity()
+    league_points = HSCategoryMapperIncrementer.activity()
+    leagues = league_points
+    deadman_points = HSCategoryMapperIncrementer.activity()
+    dmm = deadman_points
+
+    # minigames
+    bh_hunter = HSCategoryMapperIncrementer.activity()
+    bh_rogue = HSCategoryMapperIncrementer.activity()
+    bh_legacy_hunter = HSCategoryMapperIncrementer.activity()
+    bhl_hunter = bh_legacy_hunter
+    bh_legacy_rogue = HSCategoryMapperIncrementer.activity()
+    bhl_rogue = bh_legacy_rogue
+    lms_rank = HSCategoryMapperIncrementer.activity()
+    pvp_arena_rank = HSCategoryMapperIncrementer.activity()
+    soulwars_zeal = HSCategoryMapperIncrementer.activity()
+    sw_zeal = soulwars_zeal
+    rifts_closed = HSCategoryMapperIncrementer.activity()
+
+    # clues
+    clue_all = HSCategoryMapperIncrementer.activity()
+    cs_all = clue_all
+    clue_beginner = HSCategoryMapperIncrementer.activity()
+    cs_beginner = clue_beginner
+    clue_easy = HSCategoryMapperIncrementer.activity()
+    cs_easy = clue_easy
+    clue_medium = HSCategoryMapperIncrementer.activity()
+    cs_medium = clue_medium
+    clue_hard = HSCategoryMapperIncrementer.activity()
+    cs_hard = clue_hard
+    clue_elite = HSCategoryMapperIncrementer.activity()
+    cs_elite = clue_elite
+    clue_master = HSCategoryMapperIncrementer.activity()
+    cs_master = clue_master
+
+    # misc
+    colosseum_glory = HSCategoryMapperIncrementer.activity()
+    glory = colosseum_glory
+    collections_logged = HSCategoryMapperIncrementer.activity()
+    clog = collections_logged
+
     # bosses
-    sire = HSCategoryMapperIncrementer.misc_increment()
-    hydra = HSCategoryMapperIncrementer.misc_increment()
-    amoxliatl = HSCategoryMapperIncrementer.misc_increment()
-    araxxor = HSCategoryMapperIncrementer.misc_increment()
-    artio = HSCategoryMapperIncrementer.misc_increment()
-    barrows_chests = HSCategoryMapperIncrementer.misc_increment()
-    brutus = HSCategoryMapperIncrementer.misc_increment()
-    bryophyta = HSCategoryMapperIncrementer.misc_increment()
-    callisto = HSCategoryMapperIncrementer.misc_increment()
-    calvarion = HSCategoryMapperIncrementer.misc_increment()
-    cerberus = HSCategoryMapperIncrementer.misc_increment()
-    cox = HSCategoryMapperIncrementer.misc_increment()
-    cox_cm = HSCategoryMapperIncrementer.misc_increment()
-    chaos_elemental = HSCategoryMapperIncrementer.misc_increment()
-    chaos_fanatic = HSCategoryMapperIncrementer.misc_increment()
-    saradomin = HSCategoryMapperIncrementer.misc_increment()
-    corp = HSCategoryMapperIncrementer.misc_increment()
-    crazy_archaeologist = HSCategoryMapperIncrementer.misc_increment()
-    dks_prime = HSCategoryMapperIncrementer.misc_increment()
-    dks_rex = HSCategoryMapperIncrementer.misc_increment()
-    dks_supreme = HSCategoryMapperIncrementer.misc_increment()
-    deranged_archaeologist = HSCategoryMapperIncrementer.misc_increment()
-    doom_mokhaiotl = HSCategoryMapperIncrementer.misc_increment()
-    duke = HSCategoryMapperIncrementer.misc_increment()
-    bandos = HSCategoryMapperIncrementer.misc_increment()
-    giant_mole = HSCategoryMapperIncrementer.misc_increment()
-    gg = HSCategoryMapperIncrementer.misc_increment()
-    hespori = HSCategoryMapperIncrementer.misc_increment()
-    kq = HSCategoryMapperIncrementer.misc_increment()
-    kbd = HSCategoryMapperIncrementer.misc_increment()
-    kraken = HSCategoryMapperIncrementer.misc_increment()
-    armadyl = HSCategoryMapperIncrementer.misc_increment()
-    zamorak = HSCategoryMapperIncrementer.misc_increment()
-    lunar_chests = HSCategoryMapperIncrementer.misc_increment()
-    mimic = HSCategoryMapperIncrementer.misc_increment()
-    nex = HSCategoryMapperIncrementer.misc_increment()
-    nightmare = HSCategoryMapperIncrementer.misc_increment()
-    psn = HSCategoryMapperIncrementer.misc_increment()
-    obor = HSCategoryMapperIncrementer.misc_increment()
-    phantom_muspah = HSCategoryMapperIncrementer.misc_increment()
-    sarachnis = HSCategoryMapperIncrementer.misc_increment()
-    scorpia = HSCategoryMapperIncrementer.misc_increment()
-    scurrius = HSCategoryMapperIncrementer.misc_increment()
-    shellbane_gryphon = HSCategoryMapperIncrementer.misc_increment()
-    skotizo = HSCategoryMapperIncrementer.misc_increment()
-    sol = HSCategoryMapperIncrementer.misc_increment()
-    spindel = HSCategoryMapperIncrementer.misc_increment()
-    tempoross = HSCategoryMapperIncrementer.misc_increment()
-    gauntlet = HSCategoryMapperIncrementer.misc_increment()
-    cg = HSCategoryMapperIncrementer.misc_increment()
-    hueycoatl = HSCategoryMapperIncrementer.misc_increment()
-    leviathan = HSCategoryMapperIncrementer.misc_increment()
-    royal_titans = HSCategoryMapperIncrementer.misc_increment()
-    whisperer = HSCategoryMapperIncrementer.misc_increment()
-    tob = HSCategoryMapperIncrementer.misc_increment()
-    hmt = HSCategoryMapperIncrementer.misc_increment()
-    thermy = HSCategoryMapperIncrementer.misc_increment()
-    toa = HSCategoryMapperIncrementer.misc_increment()
-    toa_em = HSCategoryMapperIncrementer.misc_increment()
-    zuk = HSCategoryMapperIncrementer.misc_increment()
-    jad = HSCategoryMapperIncrementer.misc_increment()
-    vardorvis = HSCategoryMapperIncrementer.misc_increment()
-    venenatis = HSCategoryMapperIncrementer.misc_increment()
-    vetion = HSCategoryMapperIncrementer.misc_increment()
-    vorkath = HSCategoryMapperIncrementer.misc_increment()
-    wt = HSCategoryMapperIncrementer.misc_increment()
-    yama = HSCategoryMapperIncrementer.misc_increment()
-    zalcano = HSCategoryMapperIncrementer.misc_increment()
-    zulrah = HSCategoryMapperIncrementer.misc_increment()
+    abyssal_sire = HSCategoryMapperIncrementer.activity()
+    sire = abyssal_sire
+    alchhemical_hydra = HSCategoryMapperIncrementer.activity()
+    hydra = alchhemical_hydra
+    amoxliatl = HSCategoryMapperIncrementer.activity()
+    amox = amoxliatl
+    araxxor = HSCategoryMapperIncrementer.activity()
+    artio = HSCategoryMapperIncrementer.activity()
+    barrows_chests = HSCategoryMapperIncrementer.activity()
+    barrows = barrows_chests
+    brutus = HSCategoryMapperIncrementer.activity()
+    bryophyta = HSCategoryMapperIncrementer.activity()
+    bryo = bryophyta
+    callisto = HSCategoryMapperIncrementer.activity()
+    calvarion = HSCategoryMapperIncrementer.activity()
+    calv = calvarion
+    cerberus = HSCategoryMapperIncrementer.activity()
+    cerb = cerberus
+    chambers_of_xeric = HSCategoryMapperIncrementer.activity()
+    cox = chambers_of_xeric
+    chambers_of_xeric_challenge_mode = HSCategoryMapperIncrementer.activity()
+    raids1 = chambers_of_xeric_challenge_mode
+    cox_cm = chambers_of_xeric_challenge_mode
+    chaos_elemental = HSCategoryMapperIncrementer.activity()
+    chaos_ele = chaos_elemental
+    chaos_fanatic = HSCategoryMapperIncrementer.activity()
+    chaos_fan = chaos_fanatic
+    commander_zilyana = HSCategoryMapperIncrementer.activity()
+    zily = commander_zilyana
+    saradomin = commander_zilyana
+    sara = commander_zilyana
+    corporeal_beast = HSCategoryMapperIncrementer.activity()
+    corp = corporeal_beast
+    crazy_archaeologist = HSCategoryMapperIncrementer.activity()
+    crazy_arch = crazy_archaeologist
+    dagannoth_prime = HSCategoryMapperIncrementer.activity()
+    prime = dagannoth_prime
+    dagannoth_rex = HSCategoryMapperIncrementer.activity()
+    rex = dagannoth_rex
+    dagannoth_supreme = HSCategoryMapperIncrementer.activity()
+    supreme = dagannoth_supreme
+    deranged_archaeologist = HSCategoryMapperIncrementer.activity()
+    deranged_arch = deranged_archaeologist
+    doom_of_mokhaiotl = HSCategoryMapperIncrementer.activity()
+    doom = doom_of_mokhaiotl
+    duke_sucellus = HSCategoryMapperIncrementer.activity()
+    duke = duke_sucellus
+    general_graardor = HSCategoryMapperIncrementer.activity()
+    graardor = general_graardor
+    bandos = general_graardor
+    giant_mole = HSCategoryMapperIncrementer.activity()
+    mole = giant_mole
+    grotesque_guardians = HSCategoryMapperIncrementer.activity()
+    ggs = grotesque_guardians
+    dusk = grotesque_guardians
+    hespori = HSCategoryMapperIncrementer.activity()
+    kalphite_queen = HSCategoryMapperIncrementer.activity()
+    kq = kalphite_queen
+    king_black_dragon = HSCategoryMapperIncrementer.activity()
+    kbd = king_black_dragon
+    kraken = HSCategoryMapperIncrementer.activity()
+    kree_arra = HSCategoryMapperIncrementer.activity()
+    kree = kree_arra
+    armadyl = kree_arra
+    arma = kree_arra
+    kril_tsutsaroth = HSCategoryMapperIncrementer.activity()
+    kril = kril_tsutsaroth
+    zamorak = kril_tsutsaroth
+    zammy = kril_tsutsaroth
+    lunar_chests = HSCategoryMapperIncrementer.activity()
+    moons = lunar_chests
+    mimic = HSCategoryMapperIncrementer.activity()
+    nex = HSCategoryMapperIncrementer.activity()
+    nightmare = HSCategoryMapperIncrementer.activity()
+    nm = nightmare
+    phosanis_nightmare = HSCategoryMapperIncrementer.activity()
+    psn = phosanis_nightmare
+    phosani = phosanis_nightmare
+    obor = HSCategoryMapperIncrementer.activity()
+    phantom_muspah = HSCategoryMapperIncrementer.activity()
+    pm = phantom_muspah
+    muspah = phantom_muspah
+    grumbler = phantom_muspah
+    sarachnis = HSCategoryMapperIncrementer.activity()
+    scorpia = HSCategoryMapperIncrementer.activity()
+    scurrius = HSCategoryMapperIncrementer.activity()
+    shellbane_gryphon = HSCategoryMapperIncrementer.activity()
+    gryphon = shellbane_gryphon
+    skotizo = HSCategoryMapperIncrementer.activity()
+    sol_heredit = HSCategoryMapperIncrementer.activity()
+    sol = sol_heredit
+    spindel = HSCategoryMapperIncrementer.activity()
+    tempoross = HSCategoryMapperIncrementer.activity()
+    fishtodt = tempoross
+    the_gauntlet = HSCategoryMapperIncrementer.activity()
+    gauntlet = the_gauntlet
+    gaunt = the_gauntlet
+    the_corrupted_gauntlet = HSCategoryMapperIncrementer.activity()
+    cg = the_corrupted_gauntlet
+    the_hueycoatl = HSCategoryMapperIncrementer.activity()
+    hueycoatl = the_hueycoatl
+    huey = the_hueycoatl
+    the_leviathan = HSCategoryMapperIncrementer.activity()
+    leviathan = the_leviathan
+    levi = the_leviathan
+    the_royal_titans = HSCategoryMapperIncrementer.activity()
+    royal_titans = the_royal_titans
+    titans = the_royal_titans
+    the_whisperer = HSCategoryMapperIncrementer.activity()
+    whisperer = the_whisperer
+    whisp = the_whisperer
+    theatre_of_blood = HSCategoryMapperIncrementer.activity()
+    raids2 = theatre_of_blood
+    tob = theatre_of_blood
+    theatre_of_blood_hard_mode = HSCategoryMapperIncrementer.activity()
+    hmt = theatre_of_blood_hard_mode
+    thermonuclear_smoke_devil = HSCategoryMapperIncrementer.activity()
+    thermy = thermonuclear_smoke_devil
+    tombs_of_amascut = HSCategoryMapperIncrementer.activity()
+    raids3 = tombs_of_amascut
+    toa = tombs_of_amascut
+    tombs_of_amascut_expert_mode = HSCategoryMapperIncrementer.activity()
+    toa_expert = tombs_of_amascut_expert_mode
+    tzkal_zuk = HSCategoryMapperIncrementer.activity()
+    zuk = tzkal_zuk
+    inferno = tzkal_zuk
+    tztok_jad = HSCategoryMapperIncrementer.activity()
+    jad = tztok_jad
+    fc = tztok_jad
+    vardorvis = HSCategoryMapperIncrementer.activity()
+    vard = vardorvis
+    venenatis = HSCategoryMapperIncrementer.activity()
+    vene = venenatis
+    vetion = HSCategoryMapperIncrementer.activity()
+    vorkath = HSCategoryMapperIncrementer.activity()
+    vork = vorkath
+    wintertodt = HSCategoryMapperIncrementer.activity()
+    wt = wintertodt
+    yama = HSCategoryMapperIncrementer.activity()
+    zalcano = HSCategoryMapperIncrementer.activity()
+    zalc = zalcano
+    zulrah = HSCategoryMapperIncrementer.activity()
+
     combat = HSValue(-1, -1, -1)
 
     def get_category(self) -> int:
@@ -232,11 +310,11 @@ class HSType(Enum):
 
     def is_seasonal_mode(self) -> bool:
         """ Determine whether the OSRS category represents a seasonal gamemode """
-        return self in (HSType.league_points, HSType.grid_points, HSType.dmm)
+        return self in (HSType.league_points, HSType.grid_points, HSType.deadman_points)
 
     def is_clue(self) -> bool:
         """ Determine whether the OSRS category represents a seasonal gamemode """
-        return self.name.startswith("clue_")
+        return HSType.clue_all.value.csv_value <= self.value.csv_value <= HSType.clue_master.value.csv_value
 
     def is_minigame(self) -> bool:
         """ Determine whether the OSRS category represents a mini game """
@@ -264,7 +342,7 @@ class HSType(Enum):
 
     def is_boss(self) -> bool:
         """ Determine whether the OSRS category represents a boss. """
-        return HSType.sire.value.csv_value <= self.value.csv_value <= HSType.zulrah.value.csv_value
+        return HSType.abyssal_sire.value.csv_value <= self.value.csv_value <= HSType.zulrah.value.csv_value
 
     def is_combat(self) -> bool:
         """ Determine whether the OSRS category represents a combat stat. """
@@ -292,6 +370,37 @@ class HSType(Enum):
     def from_string(s: str) -> 'HSType':
         try:
             return HSType[s.lower()]
+
         except KeyError:
-            valid_values = ', '.join(HSType.__members__.keys())
-            raise KeyError(f'value given: {s}, valid values [{valid_values}]')
+            grouped = {
+                member: tuple(
+                    n for n, m in HSType.__members__.items()
+                    if m is member
+                )
+                for member in set(HSType)
+            }
+
+            matches = [
+                ' | '.join(grouped[HSType.__members__[name]])
+                for name in dict.fromkeys(difflib.get_close_matches(
+                    s.lower(),
+                    HSType.__members__,
+                    n=5,
+                    cutoff=0.5,
+                ))
+            ]
+
+            body = (
+                ["Closest matches:", *(f"  - {m}" for m in matches)]
+                if matches else
+                [
+                    "Valid values:",
+                    *(f"  - {' | '.join(v)}" for v in grouped.values()),
+                ]
+            )
+
+            raise KeyError('\n'.join([
+                f"Unknown HSType: {s!r}",
+                "",
+                *body,
+            ]))
