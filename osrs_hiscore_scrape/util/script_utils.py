@@ -10,7 +10,7 @@ def argparse_wrapper(func):
     def wrapped(s: str):
         try:
             return func(s)
-        except KeyError as e:
+        except Exception as e:
             raise argparse.ArgumentTypeError(str(e))
     return wrapped
 

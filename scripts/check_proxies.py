@@ -103,7 +103,7 @@ async def main(proxy_file: str):
             await asyncio.gather(*T, return_exceptions=True)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--proxy-file', required=True,
                         help="Path to the proxy file")
     script_running_in_cmd_guard()

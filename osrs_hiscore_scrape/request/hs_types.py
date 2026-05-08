@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 
+
 @dataclass
 class HSValue():
     """ Internal value type to help with 'HSType'. """
@@ -382,14 +383,15 @@ class HSType(Enum):
 
             matches = [
                 ' | '.join(grouped[HSType.__members__[name]])
-                for name in dict.fromkeys(difflib.get_close_matches(
+                for name in difflib.get_close_matches(
                     s.lower(),
                     HSType.__members__,
                     n=5,
                     cutoff=0.5,
-                ))
+                )
             ]
-
+            matches = list(dict.fromkeys(matches))
+            
             body = (
                 ["Closest matches:", *(f"  - {m}" for m in matches)]
                 if matches else
@@ -399,7 +401,7 @@ class HSType(Enum):
                 ]
             )
 
-            raise KeyError('\n'.join([
+            raise ValueError('\n'.join([
                 f"Unknown HSType: {s!r}",
                 "",
                 *body,

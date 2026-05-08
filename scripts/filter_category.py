@@ -202,7 +202,7 @@ if __name__ == '__main__':
 
         return result
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
     parser.add_argument('--in-file',
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     parser.add_argument('--hs-type', default='overall',
                         type=argparse_wrapper(HSType.from_string),
                         choices=list(HSType), help="Hiscore category it should pull from")
-    parser.add_argument('--filter', type=parse_key_value_pairs, required=True,
+    parser.add_argument('--filter', type=argparse_wrapper(parse_key_value_pairs), required=True,
                         help="Custom filter on what the accounts should have")
     parser.add_argument('--num-workers', default=DEFAULT_WORKER_SIZE, type=int,
                         help="Number of concurrent scraping threads")

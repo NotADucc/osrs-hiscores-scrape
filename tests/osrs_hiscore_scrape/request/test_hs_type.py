@@ -437,7 +437,7 @@ def test_hs_type_from_string_parse(hs_type: str, expected_value: HSType):
     ],
 )
 def test_hs_type_from_string_key_error(account_type: str):
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError):
         HSType.from_string(account_type)
 
 
