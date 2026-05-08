@@ -39,7 +39,8 @@ async def main(account_type: HSAccountTypes, hs_type: HSType):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--account-type', required=True,
                         type=argparse_wrapper(HSAccountTypes.from_string),
                         choices=list(HSAccountTypes), help="Account type it should scout")

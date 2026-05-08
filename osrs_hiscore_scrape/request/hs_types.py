@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-
 @dataclass
 class HSValue():
     """ Internal value type to help with 'HSType'. """
@@ -391,7 +390,7 @@ class HSType(Enum):
                 )
             ]
             matches = list(dict.fromkeys(matches))
-            
+
             body = (
                 ["Closest matches:", *(f"  - {m}" for m in matches)]
                 if matches else

@@ -99,7 +99,7 @@ def test_hs_type_getters_return_expected_types():
 
 def test_hs_type_is_skill():
     test_cases = {
-        HSType.overall, 
+        HSType.overall,
         HSType.attack,
         HSType.defence,
         HSType.strength,
@@ -467,6 +467,7 @@ def test_hs_type_skill_shorthand_names():
     assert HSType.construction == HSType.con
     assert HSType.sailing == HSType.sail
 
+
 def test_hs_type_seasonal_shorthand_names():
     assert HSType.league_points == HSType.leagues
     assert HSType.deadman_points == HSType.dmm
@@ -494,54 +495,54 @@ def test_hs_type_misc_shorthand_names():
 
 
 def test_hs_type_boss_shorthand_names():
-        assert HSType.abyssal_sire == HSType.sire
-        assert HSType.alchhemical_hydra == HSType.hydra
-        assert HSType.amoxliatl == HSType.amox
-        assert HSType.barrows_chests == HSType.barrows
-        assert HSType.bryophyta == HSType.bryo
-        assert HSType.cerberus == HSType.cerb
-        assert HSType.chambers_of_xeric == HSType.cox
-        assert HSType.chambers_of_xeric_challenge_mode == HSType.cox_cm == HSType.raids1
-        assert HSType.chaos_elemental == HSType.chaos_ele
-        assert HSType.chaos_fanatic == HSType.chaos_fan
-        assert HSType.commander_zilyana == HSType.zily == HSType.sara == HSType.saradomin
-        assert HSType.corporeal_beast == HSType.corp
-        assert HSType.crazy_archaeologist == HSType.crazy_arch
-        assert HSType.dagannoth_prime == HSType.prime
-        assert HSType.dagannoth_rex == HSType.rex
-        assert HSType.dagannoth_supreme == HSType.supreme
-        assert HSType.deranged_archaeologist == HSType.deranged_arch
-        assert HSType.doom_of_mokhaiotl == HSType.doom
-        assert HSType.duke_sucellus == HSType.duke
-        assert HSType.general_graardor == HSType.graardor == HSType.bandos
-        assert HSType.giant_mole == HSType.mole
-        assert HSType.grotesque_guardians == HSType.ggs == HSType.dusk
-        assert HSType.kalphite_queen == HSType.kq
-        assert HSType.king_black_dragon == HSType.kbd
-        assert HSType.kree_arra == HSType.kree == HSType.arma == HSType.armadyl
-        assert HSType.kril_tsutsaroth == HSType.kril == HSType.zammy == HSType.zamorak
-        assert HSType.lunar_chests == HSType.moons
-        assert HSType.nightmare == HSType.nm
-        assert HSType.phosanis_nightmare == HSType.psn == HSType.phosani
-        assert HSType.phantom_muspah == HSType.muspah == HSType.grumbler == HSType.pm
-        assert HSType.shellbane_gryphon == HSType.gryphon
-        assert HSType.sol_heredit == HSType.sol
-        assert HSType.tempoross == HSType.fishtodt
-        assert HSType.the_gauntlet == HSType.gauntlet == HSType.gaunt
-        assert HSType.the_corrupted_gauntlet == HSType.cg
-        assert HSType.the_hueycoatl == HSType.hueycoatl == HSType.huey
-        assert HSType.the_leviathan == HSType.leviathan == HSType.levi
-        assert HSType.the_royal_titans == HSType.royal_titans == HSType.titans
-        assert HSType.the_whisperer == HSType.whisperer == HSType.whisp
-        assert HSType.theatre_of_blood == HSType.tob == HSType.raids2
-        assert HSType.theatre_of_blood_hard_mode == HSType.hmt
-        assert HSType.thermonuclear_smoke_devil == HSType.thermy
-        assert HSType.tombs_of_amascut == HSType.toa == HSType.raids3
-        assert HSType.tombs_of_amascut_expert_mode == HSType.toa_expert
-        assert HSType.tzkal_zuk == HSType.zuk == HSType.inferno
-        assert HSType.tztok_jad == HSType.jad == HSType.fc
-        assert HSType.vardorvis == HSType.vard
-        assert HSType.venenatis == HSType.vene
-        assert HSType.vorkath == HSType.vork
-        assert HSType.wintertodt == HSType.wt
-        assert HSType.zalcano == HSType.zalc
+    assert HSType.abyssal_sire == HSType.sire
+    assert HSType.alchhemical_hydra == HSType.hydra
+    assert HSType.amoxliatl == HSType.amox
+    assert HSType.barrows_chests == HSType.barrows
+    assert HSType.bryophyta == HSType.bryo
+    assert HSType.cerberus == HSType.cerb
+    assert HSType.chambers_of_xeric == HSType.cox
+    assert HSType.chambers_of_xeric_challenge_mode == HSType.cox_cm == HSType.raids1
+    assert HSType.chaos_elemental == HSType.chaos_ele
+    assert HSType.chaos_fanatic == HSType.chaos_fan
+    assert HSType.commander_zilyana == HSType.zily == HSType.sara == HSType.saradomin
+    assert HSType.corporeal_beast == HSType.corp
+    assert HSType.crazy_archaeologist == HSType.crazy_arch
+    assert HSType.dagannoth_prime == HSType.prime
+    assert HSType.dagannoth_rex == HSType.rex
+    assert HSType.dagannoth_supreme == HSType.supreme
+    assert HSType.deranged_archaeologist == HSType.deranged_arch
+    assert HSType.doom_of_mokhaiotl == HSType.doom
+    assert HSType.duke_sucellus == HSType.duke
+    assert HSType.general_graardor == HSType.graardor == HSType.bandos
+    assert HSType.giant_mole == HSType.mole
+    assert HSType.grotesque_guardians == HSType.ggs == HSType.dusk
+    assert HSType.kalphite_queen == HSType.kq
+    assert HSType.king_black_dragon == HSType.kbd
+    assert HSType.kree_arra == HSType.kree == HSType.arma == HSType.armadyl
+    assert HSType.kril_tsutsaroth == HSType.kril == HSType.zammy == HSType.zamorak
+    assert HSType.lunar_chests == HSType.moons
+    assert HSType.nightmare == HSType.nm
+    assert HSType.phosanis_nightmare == HSType.psn == HSType.phosani
+    assert HSType.phantom_muspah == HSType.muspah == HSType.grumbler == HSType.pm
+    assert HSType.shellbane_gryphon == HSType.gryphon
+    assert HSType.sol_heredit == HSType.sol
+    assert HSType.tempoross == HSType.fishtodt
+    assert HSType.the_gauntlet == HSType.gauntlet == HSType.gaunt
+    assert HSType.the_corrupted_gauntlet == HSType.cg
+    assert HSType.the_hueycoatl == HSType.hueycoatl == HSType.huey
+    assert HSType.the_leviathan == HSType.leviathan == HSType.levi
+    assert HSType.the_royal_titans == HSType.royal_titans == HSType.titans
+    assert HSType.the_whisperer == HSType.whisperer == HSType.whisp
+    assert HSType.theatre_of_blood == HSType.tob == HSType.raids2
+    assert HSType.theatre_of_blood_hard_mode == HSType.hmt
+    assert HSType.thermonuclear_smoke_devil == HSType.thermy
+    assert HSType.tombs_of_amascut == HSType.toa == HSType.raids3
+    assert HSType.tombs_of_amascut_expert_mode == HSType.toa_expert
+    assert HSType.tzkal_zuk == HSType.zuk == HSType.inferno
+    assert HSType.tztok_jad == HSType.jad == HSType.fc
+    assert HSType.vardorvis == HSType.vard
+    assert HSType.venenatis == HSType.vene
+    assert HSType.vorkath == HSType.vork
+    assert HSType.wintertodt == HSType.wt
+    assert HSType.zalcano == HSType.zalc

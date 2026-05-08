@@ -146,7 +146,8 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--name', required=True,
                         help="Name that you want info about.")
     parser.add_argument('--account-type', default='regular',

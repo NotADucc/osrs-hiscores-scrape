@@ -364,7 +364,8 @@ if __name__ == "__main__":
     output = generate()
 
     base_dir = Path(__file__).resolve().parent
-    out_path = (base_dir / "../osrs_hiscore_scrape/request/hs_types.py").resolve()
+    out_path = (
+        base_dir / "../osrs_hiscore_scrape/request/hs_types.py").resolve()
     out_path.write_text(output, encoding="utf-8")
 
     print(f"generated: {out_path}")

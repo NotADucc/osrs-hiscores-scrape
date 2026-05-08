@@ -202,7 +202,8 @@ if __name__ == '__main__':
 
         return result
 
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--out-file', required=True,
                         help="Path to the output file")
     parser.add_argument('--in-file',
