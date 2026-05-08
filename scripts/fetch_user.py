@@ -136,8 +136,14 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
             json_output = json_output.replace(
                 f'"__{section}__"', format_section(convert[section]))
 
+        HIGHLIGHT_PATTERNS = (
+            '"score": 0',
+            '"score": -1',
+            '"xp": 0',
+        )
+
         colored_text = [
-            f"\x1b[31;20m{line}\x1b[0m" if '"score": 0' in line or '"xp": 0' in line
+            f"\x1b[31;20m{line}\x1b[0m" if any(pattern in line for pattern in HIGHLIGHT_PATTERNS) 
             else line
             for line in json_output.splitlines()
         ]
