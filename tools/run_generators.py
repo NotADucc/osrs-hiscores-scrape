@@ -1,6 +1,7 @@
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
+
 
 def main():
     generator_scripts = sorted(

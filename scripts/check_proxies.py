@@ -106,7 +106,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument(
-        '--proxy-file', 
+        '--proxy-file',
         help="Path to the proxy file"
     )
 

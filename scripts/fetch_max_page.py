@@ -42,17 +42,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument(
-        '--account-type', 
+        '--account-type',
         default='regular',
         type=argparse_wrapper(HSAccountTypes.from_string),
-        choices=list(HSAccountTypes), 
+        choices=list(HSAccountTypes),
         help="Account type it should scout (default: 'regular')"
     )
     parser.add_argument(
-        '--hs-type', 
+        '--hs-type',
         default='overall',
         type=argparse_wrapper(HSType.from_string),
-        choices=list(HSType), 
+        choices=list(HSType),
         help="Hiscore category it should scout (default: 'overall')"
     )
 

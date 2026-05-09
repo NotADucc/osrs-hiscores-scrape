@@ -396,7 +396,7 @@ class HSType(Enum):
                 )
             ]
             matches = list(dict.fromkeys(matches))
-            
+
             body = (
                 ["Closest matches:", *(f"  - {m}" for m in matches)]
                 if matches else
