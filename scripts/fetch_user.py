@@ -154,13 +154,24 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--name', required=True,
-                        help="Name that you want info about.")
-    parser.add_argument('--account-type', default='regular',
-                        type=argparse_wrapper(HSAccountTypes.from_string),
-                        choices=list(HSAccountTypes), help="Account type it should look at (default: 'regular')")
-    parser.add_argument('--hs-type', type=argparse_wrapper(HSType.from_string),
-                        choices=list(HSType), help="Filter on specific hiscore category")
+    parser.add_argument(
+        '--name',
+        required=True,
+        help="Name that you want info about."
+    )
+    parser.add_argument(
+        '--account-type',
+        default='regular',
+        type=argparse_wrapper(HSAccountTypes.from_string),
+        choices=list(HSAccountTypes),
+        help="Account type it should pull from (default: 'regular')"
+    )
+    parser.add_argument(
+        '--hs-type',
+        type=argparse_wrapper(HSType.from_string),
+        choices=list(HSType),
+        help="Filter on specific hiscore category (default: 'overall')"
+    )
 
     script_running_in_cmd_guard()
     args = parser.parse_args()

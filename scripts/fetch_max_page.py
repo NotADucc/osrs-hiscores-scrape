@@ -41,11 +41,20 @@ async def main(account_type: HSAccountTypes, hs_type: HSType):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--account-type', required=True,
-                        type=argparse_wrapper(HSAccountTypes.from_string),
-                        choices=list(HSAccountTypes), help="Account type it should scout")
-    parser.add_argument('--hs-type', type=argparse_wrapper(HSType.from_string), required=True,
-                        choices=list(HSType), help="Highscore Category it should scout")
+    parser.add_argument(
+        '--account-type', 
+        default='regular',
+        type=argparse_wrapper(HSAccountTypes.from_string),
+        choices=list(HSAccountTypes), 
+        help="Account type it should scout (default: 'regular')"
+    )
+    parser.add_argument(
+        '--hs-type', 
+        default='overall',
+        type=argparse_wrapper(HSType.from_string),
+        choices=list(HSType), 
+        help="Hiscore category it should scout (default: 'overall')"
+    )
 
     script_running_in_cmd_guard()
     args = parser.parse_args()

@@ -75,21 +75,47 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--out-file', required=True,
-                        help="Path to the output file")
-    parser.add_argument('--proxy-file', help="Path to the proxy file")
-    parser.add_argument('--account-type', default='regular',
-                        type=argparse_wrapper(HSAccountTypes.from_string),
-                        choices=list(HSAccountTypes), help="Account type it should pull from (default: 'regular')")
-    parser.add_argument('--hs-type', default='overall',
-                        type=argparse_wrapper(HSType.from_string),
-                        choices=list(HSType), help="Hiscore category it should pull from (default: 'overall')")
-    parser.add_argument('--rank-start', default=1, type=int,
-                        help="Hiscore rank number it should start at (default: 1)")
-    parser.add_argument('--rank-end', default=-1, type=int,
-                        help="Hiscore rank number it should end at (default: end of category)")
-    parser.add_argument('--num-workers', default=DEFAULT_WORKER_SIZE, type=int,
-                        help="Number of concurrent scraping threads (default: 15)")
+    parser.add_argument(
+        '--out-file', 
+        required=True,
+        help="Path to the output file"
+    )
+    parser.add_argument(
+        '--proxy-file', 
+        help="Path to the proxy file"
+    )
+    parser.add_argument(
+        '--account-type', 
+        default='regular',
+        type=argparse_wrapper(HSAccountTypes.from_string),
+        choices=list(HSAccountTypes), 
+        help="Account type it should pull from (default: 'regular')"
+    )
+    parser.add_argument(
+        '--hs-type', 
+        default='overall',
+        type=argparse_wrapper(HSType.from_string),
+        choices=list(HSType), 
+        help="Hiscore category it should pull from (default: 'overall')"
+    )
+    parser.add_argument(
+        '--rank-start', 
+        default=1, 
+        type=int,
+        help="Hiscore rank number it should start at (default: 1)"
+    )
+    parser.add_argument(
+        '--rank-end', 
+        default=-1, 
+        type=int,
+        help="Hiscore rank number it should end at (default: end of category)"
+    )
+    parser.add_argument(
+        '--num-workers', 
+        default=DEFAULT_WORKER_SIZE, 
+        type=int,
+        help=f"Number of concurrent scraping threads (default: {DEFAULT_WORKER_SIZE})"
+    )
 
     script_running_in_cmd_guard()
     args = parser.parse_args()
