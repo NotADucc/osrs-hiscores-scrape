@@ -89,9 +89,9 @@ class PlayerRecordSkillInfo(PlayerRecordInfo):
 
     def to_dict(self) -> dict:
         return {
-            "rank": self.rank,
             "lvl": self.lvl,
-            "xp": self.xp
+            "xp": self.xp,
+            "rank": self.rank,
         }
 
     def _compare_value(self) -> int:
@@ -112,8 +112,8 @@ class PlayerRecordActivityInfo(PlayerRecordInfo):
 
     def to_dict(self) -> dict:
         return {
+            "score": self.score,
             "rank": self.rank,
-            "score": self.score
         }
 
     def _compare_value(self) -> int:
