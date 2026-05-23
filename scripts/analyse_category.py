@@ -20,10 +20,11 @@ from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util.io import (build_temp_file,
                                          read_category_records, read_proxies,
                                          write_record, write_records)
-from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
+from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
 from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE
 from osrs_hiscore_scrape.worker.records import create_workers
+from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 
 logger = get_logger(__name__)
 
@@ -100,43 +101,20 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
+    parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        '--out-file',
-        required=True,
-        help="Path to the output file"
-    )
-    parser.add_argument(
-        '--proxy-file',
-        help="Path to the proxy file"
-    )
-    parser.add_argument(
-        '--account-type',
-        default='regular',
-        type=argparse_wrapper(HSAccountTypes.from_string),
-        choices=list(HSAccountTypes),
-        help="Account type it should pull from (default: 'regular')"
-    )
-    parser.add_argument(
-        '--hs-type',
-        default='overall',
-        type=argparse_wrapper(HSType.from_string),
-        choices=list(HSType),
-        help="Hiscore category it should pull from (default: 'overall')"
-    )
-    parser.add_argument(
-        '--num-workers',
-        default=DEFAULT_WORKER_SIZE,
-        type=int,
-        help=f"Number of concurrent scraping threads (default: {DEFAULT_WORKER_SIZE})"
-    )
+    
+    parser.output_file() \
+        .proxy_file() \
+        .account_type(required=True, default=None) \
+        .hs_type(required=True, default=None) \
+        .num_workers()
 
     script_running_in_cmd_guard()
     args = parser.parse_args()
 
     try:
-        asyncio.run(main(args.out_file, args.proxy_file,
+        asyncio.run(main(args.output_file, args.proxy_file,
                     args.account_type, args.hs_type, args.num_workers))
     except Exception as e:
         logger.error(str(e))

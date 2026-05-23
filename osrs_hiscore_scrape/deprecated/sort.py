@@ -3,7 +3,7 @@ import json
 import sys
 
 from ..log.logger import get_logger
-from ..util.script_utils import script_running_in_cmd_guard
+from ..cli.helpers import script_running_in_cmd_guard
 
 logger = get_logger(__name__)
 

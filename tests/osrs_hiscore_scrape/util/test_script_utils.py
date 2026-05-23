@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
+from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
 
 

@@ -4,6 +4,7 @@ import sys
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.exception.records import NotFound
 from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
 from osrs_hiscore_scrape.log.logger import get_logger
@@ -14,8 +15,7 @@ from osrs_hiscore_scrape.request.records import PlayerRecord
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.retry_handler import retry
-from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
-                                                   script_running_in_cmd_guard)
+from osrs_hiscore_scrape.cli.helpers import (script_running_in_cmd_guard)
 
 logger = get_logger(__name__)
 
@@ -34,17 +34,17 @@ def format_section(section):
 
 @log_lifecycle
 @profile_execution
-async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
+async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSType | None):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
 
         base_routines = {
-            lookup_account_type: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=lookup_account_type)),
+            lookup_account_type: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=lookup_account_type)),
         }
 
         if lookup_account_type == HSAccountTypes.regular:
             base_routines[HSAccountTypes.im] = retry(req.get_user_stats, player_req=GetPlayerRequest(
-                username=name, account_type=HSAccountTypes.im), suppress_logger=True)
+                username=username, account_type=HSAccountTypes.im), suppress_logger=True)
 
         temp_results = await asyncio.gather(*base_routines.values(), return_exceptions=True)
         results = dict(zip(base_routines.keys(), temp_results))
@@ -58,9 +58,9 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
 
         if has_iron_result:
             extra_iron_routines = {
-                HSAccountTypes.uim: retry(req.get_user_stats, player_req=GetPlayerRequest(username=name, account_type=HSAccountTypes.uim), suppress_logger=True),
+                HSAccountTypes.uim: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=HSAccountTypes.uim), suppress_logger=True),
                 HSAccountTypes.hc: retry(req.get_user_stats, player_req=GetPlayerRequest(
-                    username=name, account_type=HSAccountTypes.hc), suppress_logger=True)
+                    username=username, account_type=HSAccountTypes.hc), suppress_logger=True)
             }
             temp_results = await asyncio.gather(*extra_iron_routines.values(), return_exceptions=True)
             results.update(dict(zip(extra_iron_routines.keys(), temp_results)))
@@ -128,13 +128,15 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
         sections = ["skills", "seasonal_modes",
                     "misc", "minigames", "clues", "bosses"]
         for section in sections:
-            convert_copy[section] = f'__{section}__'
+            if section in convert_copy:
+                convert_copy[section] = f'__{section}__'
 
         json_output = json_wrapper.to_json(convert_copy, indent=1)
 
         for section in sections:
-            json_output = json_output.replace(
-                f'"__{section}__"', format_section(convert[section]))
+            if section in convert:
+                json_output = json_output.replace(
+                    f'"__{section}__"', format_section(convert[section]))
 
         HIGHLIGHT_PATTERNS = (
             '"score": 0',
@@ -152,32 +154,18 @@ async def main(name: str, lookup_account_type: HSAccountTypes, hs_type: HSType):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
+    parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        '--name',
-        required=True,
-        help="Name that you want info about."
-    )
-    parser.add_argument(
-        '--account-type',
-        default='regular',
-        type=argparse_wrapper(HSAccountTypes.from_string),
-        choices=list(HSAccountTypes),
-        help="Account type it should pull from (default: 'regular')"
-    )
-    parser.add_argument(
-        '--hs-type',
-        type=argparse_wrapper(HSType.from_string),
-        choices=list(HSType),
-        help="Filter on specific hiscore category (default: 'overall')"
-    )
+    
+    parser.username(required=True) \
+        .account_type() \
+        .hs_type(default=None)
 
     script_running_in_cmd_guard()
     args = parser.parse_args()
 
     try:
-        asyncio.run(main(args.name, args.account_type, args.hs_type))
+        asyncio.run(main(args.username, args.account_type, args.hs_type))
     except NotFound:
         sys.exit(0)
     except Exception as e:

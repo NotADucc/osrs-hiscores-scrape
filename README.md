@@ -40,16 +40,17 @@ py .\scripts\filter_category.py --out-file output.txt --filter 'ranged=50,attack
 py .\scripts\filter_category.py --out-file output.txt --filter 'ranged>50 , attack>=50'
 py .\scripts\filter_category.py --out-file output.txt --filter 'ranged<=50, attack=50' 
 ```
-| Argument                                              | Required | Default Value | Description                                                               |
-| ----------------------------------------------------- | -------- | ------------- | ------------------------------------------------------------------------- |
-| `--out-file`                                          | Yes      | —             | Path to the output file                                                   |
-| `--in-file`                                           | No       | `highscores`  | Path to the input file. Reads from `highscores` if omitted                |
-| `--proxy-file`                                        | No       | —             | Path to the proxy file                                                    |
-| [`--account-type`](./HSAccountTypes.md)               | No       | `regular`     | OSRS account type to scrape hiscores from                                 |
-| [`--hs-type`](./HSTypes.md)                           | No       | `overall`     | OSRS hiscore category to scrape from                                      |
-| `--filter`                                            | Yes      | —             | Custom filter used to match accounts                                      |
-| `--rank-start`                                        | No       | `1`           | Starting rank number for scraping/filtering                               |
-| `--num-workers`                                       | No       | `15`          | Number of concurrent scraping workers/threads                             |
+| Argument                                              | Required | Default Value     | Description                                                               |
+| ----------------------------------------------------- | -------- | -------------     | ------------------------------------------------------------------------- |
+| `--out-file`                                          | Yes      | —                 | Path to the output file                                                   |
+| `--in-file`                                           | No       | `highscores`      | Path to the input file. Reads from `highscores` if omitted                |
+| `--proxy-file`                                        | No       | —                 | Path to the proxy file                                                    |
+| [`--account-type`](./HSAccountTypes.md)               | No       | `regular`         | OSRS account type to scrape hiscores from                                 |
+| [`--hs-type`](./HSTypes.md)                           | Yes      | —                 | OSRS hiscore category to scrape from                                      |
+| `--filter`                                            | Yes      | —                 | Custom filter used to match accounts                                      |
+| `--start-rank`                                        | No       | `1`               | Starting hiscore rank to scrape from                                      |
+| `--end-rank`                                          | No       | `end of category` | Ending hiscore rank to scrape to                                          |
+| `--num-workers`                                       | No       | `15`              | Number of concurrent scraping workers/threads                             |
 
 ## analyse_category.py
 
@@ -58,13 +59,13 @@ Aggregate hiscore data; saves total count, total kc/xp, first rank, and last ran
 ```console
 py .\scripts\analyse_category.py --out-file output.txt --hs-type zuk --account-type hc
 ```
-| Argument                                | Required | Default Value | Description                          |
-| --------------------------------------- | -------- | ------------- | ------------------------------------ |
-| `--out-file`                            | Yes      | —             | Path to the output file              |
-| `--proxy-file`                          | No       | —             | Path to the proxy file               |
-| [`--hs-type`](./HSTypes.md)             | Yes      | `overall`     | OSRS hiscore category to scrape from |
-| [`--account-type`](./HSAccountTypes.md) | Yes      | `regular`     | OSRS account type to scrape from     |
-
+| Argument                                | Required | Default Value | Description                                   |
+| --------------------------------------- | -------- | ------------- | ------------------------------------          |
+| `--out-file`                            | Yes      | —             | Path to the output file                       |
+| `--proxy-file`                          | No       | —             | Path to the proxy file                        |
+| [`--account-type`](./HSAccountTypes.md) | Ye       | —             | OSRS account type to scrape from              |
+| [`--hs-type`](./HSTypes.md)             | Ye       | —             | OSRS hiscore category to scrape from          |
+| `--num-workers`                         | No       | `15`          | Number of concurrent scraping workers/threads   |
 
 ## fetch_pages.py
 
@@ -77,7 +78,7 @@ py .\scripts\fetch_pages.py --out-file output.txt --account-type pure --hs-type 
 | --------------------------------------- | -------- | ----------------- | -------------------------------------- |
 | `--out-file`                            | Yes      | —                 | Path to the output file                |
 | `--proxy-file`                          | No       | —                 | Path to the proxy file                 |
-| [`--account-type`](./HSAccountTypes.md) | Yes      | `regular`         | OSRS account type to scrape from       |
+| [`--account-type`](./HSAccountTypes.md) | No       | `regular`         | OSRS account type to scrape from       |
 | [`--hs-type`](./HSTypes.md)             | No       | `overall`         | OSRS hiscore category to scrape from   |
 | `--rank-start`                          | No       | `1`               | Starting hiscore rank to scrape from   |
 | `--rank-end`                            | No       | `end of category` | Ending hiscore rank to scrape to       |
@@ -93,8 +94,8 @@ py .\scripts\fetch_user.py --name Cow1337Killer
 | Argument                                | Required | Default Value | Description                          |
 | --------------------------------------- | -------- | ------------- | ------------------------------------ |
 | `--name`                                | Yes      | —             | OSRS player name to lookup           |
-| [`--account-type`](./HSAccountTypes.md) | Yes      | `regular`     | OSRS account type to scrape from     |
-| [`--hs-type`](./HSTypes.md)             | No       | `overall`     | Filter results by hiscore category   |
+| [`--account-type`](./HSAccountTypes.md) | No       | `regular`     | OSRS account type to scrape from     |
+| [`--hs-type`](./HSTypes.md)             | No       | —             | Filter results by hiscore category   |
 
 
 ## fetch_max_page.py
@@ -106,8 +107,8 @@ py .\scripts\fetch_max_page.py --account-type hc --hs-type zuk
 ```
 | Argument                                | Required | Default Value | Description                          |
 | --------------------------------------- | -------- | ------------- | ------------------------------------ |
-| [`--account-type`](./HSAccountTypes.md) | Yes      | `regular`     | OSRS account type to scrape from     |
-| [`--hs-type`](./HSTypes.md)             | Yes      | `overall`     | OSRS hiscore category to scrape from |
+| [`--account-type`](./HSAccountTypes.md) | Yes      | —             | OSRS account type to scrape from     |
+| [`--hs-type`](./HSTypes.md)             | Yes      | —             | OSRS hiscore category to scrape from |
 
 
 ## check_proxies.py

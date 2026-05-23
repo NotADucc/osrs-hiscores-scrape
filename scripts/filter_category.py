@@ -6,6 +6,7 @@ from functools import partial
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.job.job_builder import (get_hs_filtered_job,
                                                  get_hs_page_job)
 from osrs_hiscore_scrape.job.job_handlers import (enqueue_page_usernames,
@@ -29,7 +30,7 @@ from osrs_hiscore_scrape.util.io import (hs_lookup_formatter,
                                          read_category_records,
                                          read_player_records, read_proxies,
                                          write_records)
-from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
+from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
 from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE
 from osrs_hiscore_scrape.worker.records import create_workers
@@ -39,7 +40,7 @@ N_SCRAPE_WORKERS = 2
 N_SCRAPE_SIZE = 100
 
 
-async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
+async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, end_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry]) -> tuple[list[HSCategoryJob], int, JobQueue[IJob]]:
     """ Prepares the scraping job list and export queue based if theres an in-file or not. """
     potential_records = map_category_records_to_lookup_jobs(
         account_type=account_type, input=list(read_category_records(in_file)))
@@ -63,7 +64,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
         for entry in filtered_entries:
             temp_joblist = await get_hs_filtered_job(req=req,
                                                      start_rank=start_rank,
-                                                     end_rank=-1,
+                                                     end_rank=end_rank,
                                                      page_range_req=GetFilteredPageRangeRequest(
                                                          filter_entry=entry,
                                                          account_type=account_type)
@@ -94,7 +95,7 @@ async def prepare_scrape_jobs(req: Requests, in_file: str, start_rank: int, acco
 
 @log_lifecycle
 @profile_execution
-async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry], num_workers: int):
+async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, end_rank: int, account_type: HSAccountTypes, hs_type: HSType, hs_filter: list[HSFilterEntry], num_workers: int):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session, proxy_list=read_proxies(proxy_file))
 
@@ -102,6 +103,7 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             req=req,
             in_file=in_file,
             start_rank=start_rank,
+            end_rank=end_rank,
             account_type=account_type,
             hs_type=hs_type,
             hs_filter=hs_filter
@@ -166,95 +168,23 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, ac
             await asyncio.gather(*T, return_exceptions=True)
 
 if __name__ == '__main__':
-    def parse_key_value_pairs(arg) -> list[HSFilterEntry]:
-        kv_pairs = arg.split(',')
-        result = []
-
-        for pair in kv_pairs:
-            match = re.match(r'\s*(.*?)\s*(<=|>=|=|<|>)\s*(.*?)\s*$', pair)
-            if not match:
-                raise ValueError(f"Invalid pair format: '{pair}'")
-
-            key_str, op, value_str = match.groups()
-            key = HSType.from_string(key_str.strip())
-            value_str = value_str.strip()
-            try:
-                value = float(value_str)
-                if value.is_integer():
-                    value = int(value)
-            except ValueError:
-                raise ValueError(f"Invalid number: {value_str}")
-
-            if op == '=':
-                def func(x, v=value): return x == v
-            elif op == '<':
-                def func(x, v=value): return x < v
-            elif op == '>':
-                def func(x, v=value): return x > v
-            elif op == '<=':
-                def func(x, v=value): return x <= v
-            elif op == '>=':
-                def func(x, v=value): return x >= v
-            else:
-                raise ValueError(f"Unsupported operator: '{op}'")
-
-            result.append(HSFilterEntry(hstype=key, predicate=func))
-
-        return result
-
-    parser = argparse.ArgumentParser(
+    parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        '--out-file',
-        required=True,
-        help="Path to the output file"
-    )
-    parser.add_argument(
-        '--in-file',
-        help="Path to the in file, reads from highscores if this argument is missing."
-    )
-    parser.add_argument(
-        '--proxy-file',
-        help="Path to the proxy file"
-    )
-    parser.add_argument(
-        '--account-type',
-        default='regular',
-        type=argparse_wrapper(HSAccountTypes.from_string),
-        choices=list(HSAccountTypes),
-        help="Account type it should pull from (default: 'regular')"
-    )
-    parser.add_argument(
-        '--hs-type',
-        default='overall',
-        type=argparse_wrapper(HSType.from_string),
-        choices=list(HSType),
-        help="Hiscore category it should pull from (default: 'overall')"
-    )
-    parser.add_argument(
-        '--filter',
-        type=argparse_wrapper(parse_key_value_pairs),
-        required=True,
-        help="Custom filter on what the accounts should have"
-    )
-    parser.add_argument(
-        '--rank-start',
-        default=1,
-        type=int,
-        help="Rank number that it should start filtering at (default: 1)"
-    )
-    parser.add_argument(
-        '--num-workers',
-        default=DEFAULT_WORKER_SIZE,
-        type=int,
-        help=f"Number of concurrent scraping threads (default: {DEFAULT_WORKER_SIZE})"
-    )
+    
+    parser.output_file(required=True) \
+        .input_file() \
+        .proxy_file() \
+        .rank_range() \
+        .account_type() \
+        .hs_type(required=True, default=None) \
+        .filter(required=True) \
+        .num_workers()
 
     script_running_in_cmd_guard()
     args = parser.parse_args()
 
     try:
-        asyncio.run(main(args.out_file, args.in_file, args.proxy_file, args.rank_start,
+        asyncio.run(main(args.output_file, args.input_file, args.proxy_file, args.start_rank, args.end_rank,
                     args.account_type, args.hs_type, args.filter, args.num_workers))
     except Exception as e:
         logger.error(str(e))

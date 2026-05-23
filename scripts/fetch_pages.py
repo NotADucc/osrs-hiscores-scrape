@@ -4,6 +4,7 @@ import sys
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.job.job_builder import get_hs_page_job
 from osrs_hiscore_scrape.job.job_handlers import (enqueue_hs_page,
                                                   request_hs_page)
@@ -15,7 +16,7 @@ from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
 from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util.io import read_proxies, write_records
-from osrs_hiscore_scrape.util.script_utils import (argparse_wrapper,
+from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
                                                    script_running_in_cmd_guard)
 from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE
 from osrs_hiscore_scrape.worker.records import create_workers
@@ -73,56 +74,22 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
+    parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        '--out-file',
-        required=True,
-        help="Path to the output file"
-    )
-    parser.add_argument(
-        '--proxy-file',
-        help="Path to the proxy file"
-    )
-    parser.add_argument(
-        '--account-type',
-        default='regular',
-        type=argparse_wrapper(HSAccountTypes.from_string),
-        choices=list(HSAccountTypes),
-        help="Account type it should pull from (default: 'regular')"
-    )
-    parser.add_argument(
-        '--hs-type',
-        default='overall',
-        type=argparse_wrapper(HSType.from_string),
-        choices=list(HSType),
-        help="Hiscore category it should pull from (default: 'overall')"
-    )
-    parser.add_argument(
-        '--rank-start',
-        default=1,
-        type=int,
-        help="Hiscore rank number it should start at (default: 1)"
-    )
-    parser.add_argument(
-        '--rank-end',
-        default=-1,
-        type=int,
-        help="Hiscore rank number it should end at (default: end of category)"
-    )
-    parser.add_argument(
-        '--num-workers',
-        default=DEFAULT_WORKER_SIZE,
-        type=int,
-        help=f"Number of concurrent scraping threads (default: {DEFAULT_WORKER_SIZE})"
-    )
-
+    
+    parser.output_file(required=True) \
+        .proxy_file() \
+        .account_type() \
+        .hs_type() \
+        .rank_range() \
+        .num_workers()
+    
     script_running_in_cmd_guard()
     args = parser.parse_args()
 
     try:
-        asyncio.run(main(args.out_file, args.proxy_file,
-                         args.account_type, args.hs_type, args.rank_start, args.rank_end, args.num_workers))
+        asyncio.run(main(args.output_file, args.proxy_file,
+                         args.account_type, args.hs_type, args.start_rank, args.end_rank, args.num_workers))
     except Exception as e:
         logger.error(str(e))
         sys.exit(2)
