@@ -160,7 +160,7 @@ ENUM_METHODS = '''\
                 )
             ]
             matches = list(dict.fromkeys(matches))
-            
+
             body = (
                 ["Closest matches:", *(f"  - {m}" for m in matches)]
                 if matches else
@@ -175,6 +175,7 @@ ENUM_METHODS = '''\
                 "",
                 *body,
             ]))\
+
 '''
 
 ALL = {
@@ -345,7 +346,7 @@ def append_group(
     lines.append("")
 
 
-def generate() -> str:
+def generate_py() -> str:
     lines: list[str] = [HEADER]
 
     for group_name, group in ALL.items():
@@ -366,12 +367,50 @@ def generate() -> str:
     return "\n".join(lines)
 
 
+def generate_markdown() -> str:
+    lines: list[str] = [
+        "## Hiscore Type Reference List",
+        "",
+    ]
+
+    for group_name, group in ALL.items():
+        lines.extend([
+            f"### {group_name.title()}",
+            "",
+            "| Hiscore Type | Param |",
+            "|--------------|-------|",
+        ])
+
+        for canonical, aliases in group["data"].items():
+            formatted_name = canonical.replace("_", " ").title()
+            params = [canonical, *aliases]
+            lines.append(
+                f"| {formatted_name} | {', '.join(f"`{p}`" for p in params)} |"
+            )
+        lines.append("")
+
+    lines.extend([
+        f"### Extra (Non Official)",
+        "",
+        "| Hiscore Type | Param |",
+        "|--------------|-------|",
+        "| Combat | `combat` |"
+    ])
+
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
-    output = generate()
-
     base_dir = Path(__file__).resolve().parent
-    out_path = (
-        base_dir / "../osrs_hiscore_scrape/request/hs_types.py").resolve()
-    out_path.write_text(output, encoding="utf-8")
 
-    print(f"generated: {out_path}")
+    py_output = generate_py()
+    py_out_path = (
+        base_dir / "../osrs_hiscore_scrape/request/hs_types.py").resolve()
+    py_out_path.write_text(py_output, encoding="utf-8")
+
+    md_output = generate_markdown()
+    md_out_path = (
+        base_dir / "../HSTypes.md").resolve()
+    md_out_path.write_text(md_output, encoding="utf-8")
+
+    print(f"generated: {py_out_path} and {md_out_path}")
