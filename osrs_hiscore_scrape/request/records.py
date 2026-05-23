@@ -152,10 +152,6 @@ class PlayerRecord:
 
             splitted = [int(x) for x in csv[csv_val].split(',')]
 
-            # if it ever gets too cluttered
-            #    can add flags to simplify the output
-            #    like only showing rank + lvl for skills
-            #    only display misc/bosses where the player has a score
             if hs_type.is_skill():
                 self.skills[hs_type.name] = PlayerRecordSkillInfo(
                     rank=splitted[0],
@@ -163,9 +159,6 @@ class PlayerRecord:
                     xp=splitted[2]
                 )
             else:
-                # if splitted[1] <= 0:
-                #     continue
-
                 bucket = _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP[hs_type.name]
                 getattr(self, bucket)[hs_type.name] = PlayerRecordActivityInfo(
                     rank=splitted[0],
