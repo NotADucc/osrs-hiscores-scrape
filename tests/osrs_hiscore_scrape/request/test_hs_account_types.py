@@ -9,7 +9,7 @@ def tests_are_unique():
 
 
 ACCOUNT_TYPE_TEST_CASES = [
-    (HSAccountTypes.regular, "hiscore_oldschool"),
+    (HSAccountTypes.main, "hiscore_oldschool"),
     (HSAccountTypes.pure, "hiscore_oldschool_skiller_defence"),
     (HSAccountTypes.im, "hiscore_oldschool_ironman"),
     (HSAccountTypes.uim, "hiscore_oldschool_ultimate"),
@@ -58,7 +58,7 @@ def test_api_json(account_type, expected_path):
 @pytest.mark.parametrize(
     "account_type, expected_value",
     [
-        ("regular", HSAccountTypes.regular),
+        ("main", HSAccountTypes.main),
         ("pure", HSAccountTypes.pure),
         ("im", HSAccountTypes.im),
         ("uim", HSAccountTypes.uim),
@@ -78,6 +78,7 @@ def test_from_string_parse(account_type: str, expected_value: HSAccountTypes):
     "account_type",
     [
         ("reular"),
+        ("man"),
         ("pue"),
         ("test"),
     ],

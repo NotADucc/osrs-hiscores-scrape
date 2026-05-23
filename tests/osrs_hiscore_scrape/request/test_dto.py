@@ -29,7 +29,7 @@ def test_hs_filter_entry_value(hs_type: HSType, predicate: Callable[[int | float
 @pytest.mark.parametrize(
     "hs_type, account_type",
     [
-        (HSType.agility, HSAccountTypes.regular),
+        (HSType.agility, HSAccountTypes.main),
         (HSType.combat,  HSAccountTypes.pure),
     ],
 )
@@ -63,7 +63,7 @@ def test_get_max_hs_result_value(page_nr: int, rank_nr: int):
     "filter_entry, account_type",
     [
         (HSFilterEntry(hstype=HSType.agility,
-         predicate=lambda val: val > 50), HSAccountTypes.regular),
+         predicate=lambda val: val > 50), HSAccountTypes.main),
     ],
 )
 def test_get_filtered_page_range_request_value(filter_entry: HSFilterEntry, account_type: HSAccountTypes):
@@ -98,9 +98,9 @@ def test_get_filtered_page_range_result_value(start_page: int, start_rank: int, 
 @pytest.mark.parametrize(
     "page_num, hs_type, account_type",
     [
-        (-1, HSType.overall, HSAccountTypes.regular),
-        (0, HSType.overall, HSAccountTypes.regular),
-        (1, HSType.overall, HSAccountTypes.regular),
+        (-1, HSType.overall, HSAccountTypes.main),
+        (0, HSType.overall, HSAccountTypes.main),
+        (1, HSType.overall, HSAccountTypes.main),
     ],
 )
 def test_get_hs_page_request_value(page_num: int, hs_type: HSType, account_type: HSAccountTypes):
@@ -115,13 +115,13 @@ def test_get_hs_page_request_value(page_num: int, hs_type: HSType, account_type:
 @pytest.mark.parametrize(
     "username, account_type",
     [
-        ("", HSAccountTypes.regular),
-        (" ", HSAccountTypes.regular),
-        ("\n", HSAccountTypes.regular),
-        ("\t", HSAccountTypes.regular),
-        ("test", HSAccountTypes.regular),
-        ("1234567890", HSAccountTypes.regular),
-        ("abcdefghijklmnopqrstuvwxyz", HSAccountTypes.regular),
+        ("", HSAccountTypes.main),
+        (" ", HSAccountTypes.main),
+        ("\n", HSAccountTypes.main),
+        ("\t", HSAccountTypes.main),
+        ("test", HSAccountTypes.main),
+        ("1234567890", HSAccountTypes.main),
+        ("abcdefghijklmnopqrstuvwxyz", HSAccountTypes.main),
     ],
 )
 def test_get_player_request_value(username: str, account_type: HSAccountTypes):

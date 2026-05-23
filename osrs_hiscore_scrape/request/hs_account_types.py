@@ -6,14 +6,18 @@ class HSAccountTypes(Enum):
     Enum of OSRS hiscore account types, each type maps to the corresponding hiscore endpoint used to retrieve stats.
 
     Attributes:
-        regular
+        main
         pure
-        im.
+        im
         uim
         hc
         skiller
+        dmm
+        leagues
+        tournament
+        fsw
     """
-    regular = 'hiscore_oldschool'
+    main = 'hiscore_oldschool' # default/global hiscores (not a separate account type (gotta love how HS work))
     im = 'hiscore_oldschool_ironman'
     uim = 'hiscore_oldschool_ultimate'
     hc = 'hiscore_oldschool_hardcore_ironman'

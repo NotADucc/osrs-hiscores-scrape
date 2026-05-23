@@ -42,7 +42,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
             lookup_account_type: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=lookup_account_type)),
         }
 
-        if lookup_account_type == HSAccountTypes.regular:
+        if lookup_account_type == HSAccountTypes.main:
             base_routines[HSAccountTypes.im] = retry(req.get_user_stats, player_req=GetPlayerRequest(
                 username=username, account_type=HSAccountTypes.im), suppress_logger=True)
 
@@ -68,7 +68,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
         # it's needed for linter even though we do notfound check
         assert isinstance(player_record, PlayerRecord)
 
-        predicted_account_type = HSAccountTypes.regular
+        predicted_account_type = HSAccountTypes.main
         downgraded_statuses = {
             "de_ironed": {
                 "account_type": None,  # skip in loop

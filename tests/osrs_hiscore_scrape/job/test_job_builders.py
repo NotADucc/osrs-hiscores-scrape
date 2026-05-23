@@ -16,7 +16,7 @@ async def test_get_hs_page_job(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
     mock_max_page_req = MagicMock()
-    mock_max_page_req.account_type = HSAccountTypes.regular
+    mock_max_page_req.account_type = HSAccountTypes.main
     res = GetMaxHighscorePageResult(page_nr=2, rank_nr=50)
 
     with (
@@ -30,7 +30,7 @@ async def test_get_hs_page_job(sample_fake_client_session):
     mock_extract.assert_called_once_with(start_rank=1, end_rank=-1)
 
     assert len(result) == 2
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 1
@@ -38,7 +38,7 @@ async def test_get_hs_page_job(sample_fake_client_session):
     assert result[0].start_idx == 0
     assert result[0].end_idx == 25
 
-    assert result[1].account_type == HSAccountTypes.regular
+    assert result[1].account_type == HSAccountTypes.main
     assert result[1].priority == 2
     assert result[1].page_num == 2
     assert result[1].start_rank == 26
@@ -52,7 +52,7 @@ async def test_get_hs_page_job_end_rank_given(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
     mock_max_page_req = MagicMock()
-    mock_max_page_req.account_type = HSAccountTypes.regular
+    mock_max_page_req.account_type = HSAccountTypes.main
     res = GetMaxHighscorePageResult(page_nr=2, rank_nr=50)
 
     with (
@@ -66,7 +66,7 @@ async def test_get_hs_page_job_end_rank_given(sample_fake_client_session):
     mock_extract.assert_called_once_with(start_rank=1, end_rank=25)
 
     assert len(result) == 1
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 1
@@ -80,7 +80,7 @@ async def test_get_hs_page_job_end_rank_adjusted(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
     mock_max_page_req = MagicMock()
-    mock_max_page_req.account_type = HSAccountTypes.regular
+    mock_max_page_req.account_type = HSAccountTypes.main
     res = GetMaxHighscorePageResult(page_nr=2, rank_nr=40)
 
     with (
@@ -94,7 +94,7 @@ async def test_get_hs_page_job_end_rank_adjusted(sample_fake_client_session):
     mock_extract.assert_called_once_with(start_rank=1, end_rank=50)
 
     assert len(result) == 2
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 1
@@ -102,7 +102,7 @@ async def test_get_hs_page_job_end_rank_adjusted(sample_fake_client_session):
     assert result[0].start_idx == 0
     assert result[0].end_idx == 25
 
-    assert result[1].account_type == HSAccountTypes.regular
+    assert result[1].account_type == HSAccountTypes.main
     assert result[1].priority == 2
     assert result[1].page_num == 2
     assert result[1].start_rank == 26
@@ -116,7 +116,7 @@ async def test_get_hs_page_job_start_rank_equals_end_rank(sample_fake_client_ses
     req = Requests(sample_fake_client_session)
 
     mock_max_page_req = MagicMock()
-    mock_max_page_req.account_type = HSAccountTypes.regular
+    mock_max_page_req.account_type = HSAccountTypes.main
     res = GetMaxHighscorePageResult(page_nr=1, rank_nr=25)
 
     with (
@@ -130,7 +130,7 @@ async def test_get_hs_page_job_start_rank_equals_end_rank(sample_fake_client_ses
     mock_extract.assert_called_once_with(start_rank=25, end_rank=-1)
 
     assert len(result) == 1
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 25
@@ -144,7 +144,7 @@ async def test_get_hs_page_job_start_rank_greater_than_end_rank_returns_empty(sa
     req = Requests(sample_fake_client_session)
 
     mock_max_page_req = MagicMock()
-    mock_max_page_req.account_type = HSAccountTypes.regular
+    mock_max_page_req.account_type = HSAccountTypes.main
     res = GetMaxHighscorePageResult(page_nr=2, rank_nr=50)
 
     with (
@@ -165,7 +165,7 @@ async def test_get_hs_filtered_job(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
     mock_page_req = MagicMock()
-    mock_page_req.account_type = HSAccountTypes.regular
+    mock_page_req.account_type = HSAccountTypes.main
     res = GetFilteredPageRangeResult(
         start_rank=1, end_rank=50, start_page=1, end_page=2)
 
@@ -180,7 +180,7 @@ async def test_get_hs_filtered_job(sample_fake_client_session):
     mock_extract.assert_called_once_with(start_rank=1, end_rank=-1)
 
     assert len(result) == 2
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 1
@@ -188,7 +188,7 @@ async def test_get_hs_filtered_job(sample_fake_client_session):
     assert result[0].start_idx == 0
     assert result[0].end_idx == 25
 
-    assert result[1].account_type == HSAccountTypes.regular
+    assert result[1].account_type == HSAccountTypes.main
     assert result[1].priority == 2
     assert result[1].page_num == 2
     assert result[1].start_rank == 26
@@ -202,7 +202,7 @@ async def test_get_hs_filtered_job_end_rank_given(sample_fake_client_session):
     req = Requests(sample_fake_client_session)
 
     mock_page_req = MagicMock()
-    mock_page_req.account_type = HSAccountTypes.regular
+    mock_page_req.account_type = HSAccountTypes.main
     res = GetFilteredPageRangeResult(
         start_rank=1, end_rank=50, start_page=1, end_page=2)
 
@@ -217,7 +217,7 @@ async def test_get_hs_filtered_job_end_rank_given(sample_fake_client_session):
     mock_extract.assert_called_once_with(start_rank=1, end_rank=25)
 
     assert len(result) == 1
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 1
@@ -231,7 +231,7 @@ async def test_get_hs_filtered_job_start_rank_adjusted(sample_fake_client_sessio
     req = Requests(sample_fake_client_session)
 
     mock_page_req = MagicMock()
-    mock_page_req.account_type = HSAccountTypes.regular
+    mock_page_req.account_type = HSAccountTypes.main
     res = GetFilteredPageRangeResult(
         start_rank=2, end_rank=50, start_page=1, end_page=2)
 
@@ -246,7 +246,7 @@ async def test_get_hs_filtered_job_start_rank_adjusted(sample_fake_client_sessio
     mock_extract.assert_called_once_with(start_rank=1, end_rank=-1)
 
     assert len(result) == 2
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 2
@@ -254,7 +254,7 @@ async def test_get_hs_filtered_job_start_rank_adjusted(sample_fake_client_sessio
     assert result[0].start_idx == 1
     assert result[0].end_idx == 25
 
-    assert result[1].account_type == HSAccountTypes.regular
+    assert result[1].account_type == HSAccountTypes.main
     assert result[1].priority == 2
     assert result[1].page_num == 2
     assert result[1].start_rank == 26
@@ -268,7 +268,7 @@ async def test_get_hs_filtered_job_end_rank_adjusted(sample_fake_client_session)
     req = Requests(sample_fake_client_session)
 
     mock_page_req = MagicMock()
-    mock_page_req.account_type = HSAccountTypes.regular
+    mock_page_req.account_type = HSAccountTypes.main
     res = GetFilteredPageRangeResult(
         start_rank=1, end_rank=40, start_page=1, end_page=2)
 
@@ -283,7 +283,7 @@ async def test_get_hs_filtered_job_end_rank_adjusted(sample_fake_client_session)
     mock_extract.assert_called_once_with(start_rank=1, end_rank=50)
 
     assert len(result) == 2
-    assert result[0].account_type == HSAccountTypes.regular
+    assert result[0].account_type == HSAccountTypes.main
     assert result[0].priority == 1
     assert result[0].page_num == 1
     assert result[0].start_rank == 1
@@ -291,7 +291,7 @@ async def test_get_hs_filtered_job_end_rank_adjusted(sample_fake_client_session)
     assert result[0].start_idx == 0
     assert result[0].end_idx == 25
 
-    assert result[1].account_type == HSAccountTypes.regular
+    assert result[1].account_type == HSAccountTypes.main
     assert result[1].priority == 2
     assert result[1].page_num == 2
     assert result[1].start_rank == 26
@@ -305,7 +305,7 @@ async def test_get_hs_filtered_job_start_rank_greater_than_end_rank_returns_empt
     req = Requests(sample_fake_client_session)
 
     mock_page_req = MagicMock()
-    mock_page_req.account_type = HSAccountTypes.regular
+    mock_page_req.account_type = HSAccountTypes.main
     res = GetFilteredPageRangeResult(
         start_rank=2, end_rank=2, start_page=1, end_page=1)
 

@@ -405,7 +405,7 @@ async def test_get_max_page(sample_fake_client_session):
 
     max_page_range_req = MagicMock()
     max_page_range_req.hs_type = HSType.overall
-    max_page_range_req.account_type = HSAccountTypes.regular
+    max_page_range_req.account_type = HSAccountTypes.main
 
     with (
         patch("osrs_hiscore_scrape.request.request.retry", new=AsyncMock(return_val=1)) as retry_mock,
@@ -427,7 +427,7 @@ async def test_get_filtered_page_range_less_than(sample_fake_client_session, sam
     page_range_req = MagicMock()
     page_range_req.filter_entry = HSFilterEntry(
         hstype=HSType.overall, predicate=lambda v: v < 50)
-    page_range_req.account_type = HSAccountTypes.regular
+    page_range_req.account_type = HSAccountTypes.main
 
     with (
         patch("osrs_hiscore_scrape.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
@@ -458,7 +458,7 @@ async def test_get_filtered_page_range_less_than_or_equal(sample_fake_client_ses
     page_range_req = MagicMock()
     page_range_req.filter_entry = HSFilterEntry(
         hstype=HSType.overall, predicate=lambda v: v <= 50)
-    page_range_req.account_type = HSAccountTypes.regular
+    page_range_req.account_type = HSAccountTypes.main
 
     with (
         patch("osrs_hiscore_scrape.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
@@ -489,7 +489,7 @@ async def test_get_filtered_page_range_equal(sample_fake_client_session, sample_
     page_range_req = MagicMock()
     page_range_req.filter_entry = HSFilterEntry(
         hstype=HSType.overall, predicate=lambda v: v == 50)
-    page_range_req.account_type = HSAccountTypes.regular
+    page_range_req.account_type = HSAccountTypes.main
 
     with (
         patch("osrs_hiscore_scrape.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
@@ -518,7 +518,7 @@ async def test_get_filtered_page_range_greater_than(sample_fake_client_session, 
     page_range_req = MagicMock()
     page_range_req.filter_entry = HSFilterEntry(
         hstype=HSType.overall, predicate=lambda v: v > 50)
-    page_range_req.account_type = HSAccountTypes.regular
+    page_range_req.account_type = HSAccountTypes.main
 
     with (
         patch("osrs_hiscore_scrape.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,
@@ -547,7 +547,7 @@ async def test_get_filtered_page_range_greater_than_or_equal(sample_fake_client_
     page_range_req = MagicMock()
     page_range_req.filter_entry = HSFilterEntry(
         hstype=HSType.overall, predicate=lambda v: v >= 50)
-    page_range_req.account_type = HSAccountTypes.regular
+    page_range_req.account_type = HSAccountTypes.main
 
     with (
         patch("osrs_hiscore_scrape.request.request.retry", new=AsyncMock(return_value=sample_category_records)) as retry_mock,

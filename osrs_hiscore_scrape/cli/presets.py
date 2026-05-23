@@ -53,7 +53,7 @@ class OSRSArgumentParser(ArgumentParser):
         )
         return self
 
-    def account_type(self, required: bool = False, default: HSAccountTypes | None = HSAccountTypes.regular) -> 'OSRSArgumentParser':
+    def account_type(self, required: bool = False, default: HSAccountTypes | None = HSAccountTypes.main) -> 'OSRSArgumentParser':
         self.add_argument(
             '--account-type',
             '--account',

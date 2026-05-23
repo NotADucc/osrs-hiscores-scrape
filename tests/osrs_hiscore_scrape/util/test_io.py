@@ -189,7 +189,7 @@ def test_read_player_records():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
-                      account_type=HSAccountTypes.regular, result=record)
+                      account_type=HSAccountTypes.main, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.flush()
@@ -202,7 +202,7 @@ def test_read_player_records_with_false_data():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
-                      account_type=HSAccountTypes.regular, result=record)
+                      account_type=HSAccountTypes.main, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.flush()
@@ -216,7 +216,7 @@ def test_read_player_records_with_false_data_inline():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
-                      account_type=HSAccountTypes.regular, result=record)
+                      account_type=HSAccountTypes.main, result=record)
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(hs_lookup_formatter(job).encode(encoding=ENCODING))
         file.write(b'false data')
@@ -241,7 +241,7 @@ def test_hs_lookup_formatter():
     record = PlayerRecord(username="test", csv=[
                           "-1,-1,-1"], ts=datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc))
     job = HSLookupJob(priority=-1, username=record.username,
-                      account_type=HSAccountTypes.regular, result=record)
+                      account_type=HSAccountTypes.main, result=record)
 
     json = hs_lookup_formatter(job)
     assert json == json_wrapper.to_json(
@@ -250,9 +250,9 @@ def test_hs_lookup_formatter():
 
 def test_build_temp_file():
     file_name = "test.txt"
-    account_type = HSAccountTypes.regular
+    account_type = HSAccountTypes.main
     hs_type = HSType.sol_heredit
 
     temp_file = build_temp_file(
         file_path=file_name, account_type=account_type, hs_type=hs_type)
-    assert temp_file == "test.regular.sol_heredit.test_io.temp"
+    assert temp_file == "test.main.sol_heredit.test_io.temp"

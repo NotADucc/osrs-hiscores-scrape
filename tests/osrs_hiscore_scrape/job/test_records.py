@@ -12,11 +12,11 @@ from osrs_hiscore_scrape.request.records import CategoryRecord, PlayerRecord
 
 def test_hslookupjob_initialization_defaults():
     job = HSLookupJob(priority=1, username="alice",
-                      account_type=HSAccountTypes.regular)
+                      account_type=HSAccountTypes.main)
 
     assert job.priority == 1
     assert job.username == "alice"
-    assert job.account_type == HSAccountTypes.regular
+    assert job.account_type == HSAccountTypes.main
     assert job.result is None  # default should be None
 
 
@@ -30,9 +30,9 @@ def test_hslookupjob_with_result(sample_player_record: PlayerRecord):
 
 def test_hslookupjob_ordering_by_priority():
     job1 = HSLookupJob(priority=1, username="bob",
-                       account_type=HSAccountTypes.regular)
+                       account_type=HSAccountTypes.main)
     job2 = HSLookupJob(priority=2, username="carol",
-                       account_type=HSAccountTypes.regular)
+                       account_type=HSAccountTypes.main)
 
     assert job1 < job2
     assert sorted([job2, job1]) == [job1, job2]
@@ -68,7 +68,7 @@ def test_hscategoryjob_with_result(sample_category_records: list[CategoryRecord]
         start_rank=26,
         end_rank=50,
         hs_type=HSType.overall,
-        account_type=HSAccountTypes.regular,
+        account_type=HSAccountTypes.main,
         start_idx=25,
         end_idx=50,
         result=sample_category_records,
@@ -81,12 +81,12 @@ def test_hscategoryjob_with_result(sample_category_records: list[CategoryRecord]
 def test_hscategoryjob_ordering_by_priority():
     job1 = HSCategoryJob(
         priority=1, page_num=1, start_rank=1, end_rank=25,
-        hs_type=HSType.overall, account_type=HSAccountTypes.regular,
+        hs_type=HSType.overall, account_type=HSAccountTypes.main,
         start_idx=0, end_idx=25,
     )
     job2 = HSCategoryJob(
         priority=2, page_num=2, start_rank=26, end_rank=50,
-        hs_type=HSType.overall, account_type=HSAccountTypes.regular,
+        hs_type=HSType.overall, account_type=HSAccountTypes.main,
         start_idx=25, end_idx=50,
     )
 
