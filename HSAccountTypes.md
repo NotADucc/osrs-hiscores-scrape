@@ -1,3 +1,5 @@
+## Account Type Reference List
+
 | Game mode          | Param         |
 | ------------------ | --------------|
 | Regular/Main       | `regular`     |
