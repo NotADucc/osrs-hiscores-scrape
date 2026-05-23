@@ -1,14 +1,15 @@
-from argparse import ArgumentParser
 import re
+from argparse import ArgumentParser
 
+from osrs_hiscore_scrape.cli.helpers import argparse_wrapper
 from osrs_hiscore_scrape.request.dto import HSFilterEntry
 from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
 from osrs_hiscore_scrape.request.hs_types import HSType
-from osrs_hiscore_scrape.cli.helpers import argparse_wrapper
 from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE
 
+
 class OSRSArgumentParser(ArgumentParser):
-    
+
     def proxy_file(self, required: bool = False) -> 'OSRSArgumentParser':
         self.add_argument(
             "--proxy-file",
@@ -19,7 +20,6 @@ class OSRSArgumentParser(ArgumentParser):
             help="Path to the proxy file"
         )
         return self
-
 
     def output_file(self, required: bool = False) -> 'OSRSArgumentParser':
         self.add_argument(
@@ -123,7 +123,6 @@ class OSRSArgumentParser(ArgumentParser):
         )
 
         return self
-    
 
 
 def _parse_key_value_pairs(arg) -> list[HSFilterEntry]:

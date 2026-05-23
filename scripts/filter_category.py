@@ -1,11 +1,11 @@
 import argparse
 import asyncio
-import re
 import sys
 from functools import partial
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.helpers import script_running_in_cmd_guard
 from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.job.job_builder import (get_hs_filtered_job,
                                                  get_hs_page_job)
@@ -30,9 +30,6 @@ from osrs_hiscore_scrape.util.io import (hs_lookup_formatter,
                                          read_category_records,
                                          read_player_records, read_proxies,
                                          write_records)
-from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
-                                                   script_running_in_cmd_guard)
-from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE
 from osrs_hiscore_scrape.worker.records import create_workers
 
 logger = get_logger(__name__)
@@ -170,7 +167,7 @@ async def main(out_file: str, in_file: str, proxy_file: str, start_rank: int, en
 if __name__ == '__main__':
     parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    
+
     parser.output_file(required=True) \
         .input_file() \
         .proxy_file() \

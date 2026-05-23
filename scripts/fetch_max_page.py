@@ -5,6 +5,7 @@ import sys
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.helpers import script_running_in_cmd_guard
 from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
 from osrs_hiscore_scrape.log.logger import get_logger
@@ -14,8 +15,6 @@ from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.retry_handler import retry
-from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
-                                                   script_running_in_cmd_guard)
 
 logger = get_logger(__name__)
 
@@ -42,10 +41,10 @@ async def main(account_type: HSAccountTypes, hs_type: HSType):
 if __name__ == '__main__':
     parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    
+
     parser.account_type(required=True, default=None) \
         .hs_type(required=True, default=None)
-    
+
     script_running_in_cmd_guard()
     args = parser.parse_args()
 

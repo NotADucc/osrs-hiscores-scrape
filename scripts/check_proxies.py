@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.helpers import script_running_in_cmd_guard
 from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.exception.records import RequestFailed
 from osrs_hiscore_scrape.job.records import IJob, JobManager, JobQueue
@@ -12,7 +13,6 @@ from osrs_hiscore_scrape.log.decorators import log_lifecycle
 from osrs_hiscore_scrape.log.logger import get_logger
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util.io import read_proxies, write_records
-from osrs_hiscore_scrape.cli.helpers import script_running_in_cmd_guard
 from osrs_hiscore_scrape.worker.records import create_workers
 
 logger = get_logger(__name__)
@@ -106,7 +106,7 @@ async def main(proxy_file: str):
 if __name__ == '__main__':
     parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    
+
     parser.proxy_file(required=True)
 
     script_running_in_cmd_guard()

@@ -2,8 +2,8 @@ import argparse
 import json
 import sys
 
-from ..log.logger import get_logger
 from ..cli.helpers import script_running_in_cmd_guard
+from ..log.logger import get_logger
 
 logger = get_logger(__name__)
 

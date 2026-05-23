@@ -4,6 +4,7 @@ import sys
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.helpers import script_running_in_cmd_guard
 from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.job.job_builder import get_hs_page_job
 from osrs_hiscore_scrape.job.job_handlers import (enqueue_hs_page,
@@ -16,9 +17,6 @@ from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
 from osrs_hiscore_scrape.request.hs_types import HSType
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util.io import read_proxies, write_records
-from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
-                                                   script_running_in_cmd_guard)
-from osrs_hiscore_scrape.worker.constants import DEFAULT_WORKER_SIZE
 from osrs_hiscore_scrape.worker.records import create_workers
 
 logger = get_logger(__name__)
@@ -76,14 +74,14 @@ async def main(out_file: str, proxy_file: str | None, account_type: HSAccountTyp
 if __name__ == '__main__':
     parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    
+
     parser.output_file(required=True) \
         .proxy_file() \
         .account_type() \
         .hs_type() \
         .rank_range() \
         .num_workers()
-    
+
     script_running_in_cmd_guard()
     args = parser.parse_args()
 

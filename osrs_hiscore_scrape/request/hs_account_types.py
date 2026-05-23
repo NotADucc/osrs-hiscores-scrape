@@ -17,7 +17,7 @@ class HSAccountTypes(Enum):
         tournament
         fsw
     """
-    main = 'hiscore_oldschool' # default/global hiscores (not a separate account type (gotta love how HS work))
+    main = 'hiscore_oldschool'  # default/global hiscores (not a separate account type (gotta love how HS work))
     im = 'hiscore_oldschool_ironman'
     uim = 'hiscore_oldschool_ultimate'
     hc = 'hiscore_oldschool_hardcore_ironman'

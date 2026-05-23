@@ -4,6 +4,7 @@ import sys
 
 import aiohttp
 
+from osrs_hiscore_scrape.cli.helpers import script_running_in_cmd_guard
 from osrs_hiscore_scrape.cli.presets import OSRSArgumentParser
 from osrs_hiscore_scrape.exception.records import NotFound
 from osrs_hiscore_scrape.log.decorators import log_lifecycle, profile_execution
@@ -15,7 +16,6 @@ from osrs_hiscore_scrape.request.records import PlayerRecord
 from osrs_hiscore_scrape.request.request import Requests
 from osrs_hiscore_scrape.util import json_wrapper
 from osrs_hiscore_scrape.util.retry_handler import retry
-from osrs_hiscore_scrape.cli.helpers import (script_running_in_cmd_guard)
 
 logger = get_logger(__name__)
 
@@ -156,7 +156,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
 if __name__ == '__main__':
     parser = OSRSArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    
+
     parser.username(required=True) \
         .account_type() \
         .hs_type(default=None)

@@ -4,7 +4,7 @@ import sys
 import pytest
 
 from osrs_hiscore_scrape.cli.helpers import (argparse_wrapper,
-                                                   script_running_in_cmd_guard)
+                                             script_running_in_cmd_guard)
 
 
 def test_argparse_wrapper():
