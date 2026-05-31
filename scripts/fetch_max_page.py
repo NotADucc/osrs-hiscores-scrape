@@ -29,6 +29,8 @@ async def main(account_type: HSAccountTypes, hs_type: HSType):
         max_page_res = await retry(req.get_max_page, max_page_req=GetMaxHighscorePageRequest(account_type=account_type, hs_type=hs_type))
 
         convert = {
+            "account_type": account_type.name,
+            "category": hs_type.name,
             "max_page": max_page_res.page_nr,
             "max_rank": max_page_res.rank_nr,
             "timestamp": timestamp,
