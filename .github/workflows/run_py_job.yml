@@ -28,7 +28,7 @@ jobs:
           python-version: '3.x'
 
       - name: Run generators
-        run: python tools/run_generators.py
+        run: PYTHONPATH=$PWD python -m tools.run_generators
 
       - name: Commit and push generated files
         run: |
