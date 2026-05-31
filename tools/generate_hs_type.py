@@ -178,6 +178,23 @@ ENUM_METHODS = '''\
 
 '''
 
+HS_BUCKET = '''\
+def _bucket_builder():
+    return {
+        hs.name: (
+            'skills' if hs.is_skill()
+            else 'seasonal_modes' if hs.is_seasonal_mode()
+            else 'clues' if hs.is_clue()
+            else 'minigames' if hs.is_minigame()
+            else 'bosses' if hs.is_boss()
+            else 'misc'
+        )
+        for hs in HSType
+    }
+HS_TYPE_BUCKET_MAP = _bucket_builder()\
+
+'''
+
 ALL = {
     "skills": {
         "data": {
@@ -210,31 +227,15 @@ ALL = {
         "incrementer": "HSCategoryMapperIncrementer.skill()",
     },
 
-    "seasonal": {
+    "activities": {
         "data": {
             "grid_points": [],
             "league_points": ["leagues"],
             "deadman_points": ["dmm"],
-        },
-        "incrementer": "HSCategoryMapperIncrementer.activity()",
-    },
-
-    "minigames": {
-        "data": {
             "bh_hunter": [],
             "bh_rogue": [],
             "bh_legacy_hunter": ["bhl_hunter"],
             "bh_legacy_rogue": ["bhl_rogue"],
-            "lms_rank": [],
-            "pvp_arena_rank": [],
-            "soulwars_zeal": ["sw_zeal"],
-            "rifts_closed": [],
-        },
-        "incrementer": "HSCategoryMapperIncrementer.activity()",
-    },
-
-    "clues": {
-        "data": {
             "clue_all": ["cs_all"],
             "clue_beginner": ["cs_beginner"],
             "clue_easy": ["cs_easy"],
@@ -242,22 +243,14 @@ ALL = {
             "clue_hard": ["cs_hard"],
             "clue_elite": ["cs_elite"],
             "clue_master": ["cs_master"],
-        },
-        "incrementer": "HSCategoryMapperIncrementer.activity()",
-    },
-
-    "misc": {
-        "data": {
+            "lms_rank": [],
+            "pvp_arena_rank": [],
+            "soulwars_zeal": ["sw_zeal"],
+            "rifts_closed": [],
             "colosseum_glory": ["glory"],
             "collections_logged": ["clog"],
-        },
-        "incrementer": "HSCategoryMapperIncrementer.activity()",
-    },
-
-    "bosses": {
-        "data": {
             "abyssal_sire": ["sire"],
-            "alchhemical_hydra": ["hydra"],
+            "alchemical_hydra": ["hydra"],
             "amoxliatl": ["amox"],
             "araxxor": [],
             "artio": [],
@@ -363,38 +356,68 @@ def generate_py() -> str:
     ])
 
     lines.append(ENUM_METHODS)
+    lines.append(HS_BUCKET)
 
     return "\n".join(lines)
 
 
+from collections import defaultdict
+
+
 def generate_markdown() -> str:
-    lines: list[str] = [
+    from osrs_hiscore_scrape.request.hs_types import HS_TYPE_BUCKET_MAP # type: ignore
+    lines = [
         "## Hiscore Type Reference List",
         "",
     ]
 
-    for group_name, group in ALL.items():
+    aliases_by_canonical = {}
+
+    for group in ALL.values():
+        aliases_by_canonical.update(group["data"])
+
+    buckets = defaultdict(list)
+
+    for canonical, aliases in aliases_by_canonical.items():
+        bucket = HS_TYPE_BUCKET_MAP[canonical]
+        buckets[bucket].append((canonical, aliases))
+
+    for bucket in (
+        "skills",
+        "seasonal_modes",
+        "minigames",
+        "clues",
+        "misc",
+        "bosses",
+    ):
+        if bucket not in buckets:
+            continue
+        
+        bucket_title = bucket.replace("_", " ").title()
+
         lines.extend([
-            f"### {group_name.title()}",
+            f"### {bucket_title}",
             "",
             "| Hiscore Type | Param |",
             "|--------------|-------|",
         ])
 
-        for canonical, aliases in group["data"].items():
+        for canonical, aliases in buckets[bucket]:
             formatted_name = canonical.replace("_", " ").title()
             params = [canonical, *aliases]
+
             lines.append(
-                f"| {formatted_name} | {', '.join(f"`{p}`" for p in params)} |"
+                f"| {formatted_name} | {', '.join(f'`{p}`' for p in params)} |"
             )
+
         lines.append("")
 
     lines.extend([
-        f"### Extra (Non Official)",
+        "### Extra (Non Official)",
         "",
         "| Hiscore Type | Param |",
         "|--------------|-------|",
-        "| Combat | `combat` |"
+        "| Combat | `combat` |",
     ])
 
     return "\n".join(lines)

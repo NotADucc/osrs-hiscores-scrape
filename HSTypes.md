@@ -30,7 +30,7 @@
 | Construction | `construction`, `con` |
 | Sailing | `sailing`, `sail` |
 
-### Seasonal
+### Seasonal Modes
 
 | Hiscore Type | Param |
 |--------------|-------|
@@ -75,7 +75,7 @@
 | Hiscore Type | Param |
 |--------------|-------|
 | Abyssal Sire | `abyssal_sire`, `sire` |
-| Alchhemical Hydra | `alchhemical_hydra`, `hydra` |
+| Alchemical Hydra | `alchemical_hydra`, `hydra` |
 | Amoxliatl | `amoxliatl`, `amox` |
 | Araxxor | `araxxor` |
 | Artio | `artio` |

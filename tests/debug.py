@@ -10,7 +10,6 @@ def main():
     hs_debug = HSType.debug()
     logger.debug('\n'.join(hs_debug))
     logger.debug(str(len(hs_debug)))
-    print(HSType.from_string("at"))
     input()
 
 

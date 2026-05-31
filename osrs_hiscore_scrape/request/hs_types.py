@@ -106,27 +106,18 @@ class HSType(Enum):
     sailing = HSCategoryMapperIncrementer.skill()
     sail = sailing
 
-    # seasonal
+    # activities
     grid_points = HSCategoryMapperIncrementer.activity()
     league_points = HSCategoryMapperIncrementer.activity()
     leagues = league_points
     deadman_points = HSCategoryMapperIncrementer.activity()
     dmm = deadman_points
-
-    # minigames
     bh_hunter = HSCategoryMapperIncrementer.activity()
     bh_rogue = HSCategoryMapperIncrementer.activity()
     bh_legacy_hunter = HSCategoryMapperIncrementer.activity()
     bhl_hunter = bh_legacy_hunter
     bh_legacy_rogue = HSCategoryMapperIncrementer.activity()
     bhl_rogue = bh_legacy_rogue
-    lms_rank = HSCategoryMapperIncrementer.activity()
-    pvp_arena_rank = HSCategoryMapperIncrementer.activity()
-    soulwars_zeal = HSCategoryMapperIncrementer.activity()
-    sw_zeal = soulwars_zeal
-    rifts_closed = HSCategoryMapperIncrementer.activity()
-
-    # clues
     clue_all = HSCategoryMapperIncrementer.activity()
     cs_all = clue_all
     clue_beginner = HSCategoryMapperIncrementer.activity()
@@ -141,18 +132,19 @@ class HSType(Enum):
     cs_elite = clue_elite
     clue_master = HSCategoryMapperIncrementer.activity()
     cs_master = clue_master
-
-    # misc
+    lms_rank = HSCategoryMapperIncrementer.activity()
+    pvp_arena_rank = HSCategoryMapperIncrementer.activity()
+    soulwars_zeal = HSCategoryMapperIncrementer.activity()
+    sw_zeal = soulwars_zeal
+    rifts_closed = HSCategoryMapperIncrementer.activity()
     colosseum_glory = HSCategoryMapperIncrementer.activity()
     glory = colosseum_glory
     collections_logged = HSCategoryMapperIncrementer.activity()
     clog = collections_logged
-
-    # bosses
     abyssal_sire = HSCategoryMapperIncrementer.activity()
     sire = abyssal_sire
-    alchhemical_hydra = HSCategoryMapperIncrementer.activity()
-    hydra = alchhemical_hydra
+    alchemical_hydra = HSCategoryMapperIncrementer.activity()
+    hydra = alchemical_hydra
     amoxliatl = HSCategoryMapperIncrementer.activity()
     amox = amoxliatl
     araxxor = HSCategoryMapperIncrementer.activity()
@@ -411,3 +403,17 @@ class HSType(Enum):
                 "",
                 *body,
             ]))
+
+def _bucket_builder():
+    return {
+        hs.name: (
+            'skills' if hs.is_skill()
+            else 'seasonal_modes' if hs.is_seasonal_mode()
+            else 'clues' if hs.is_clue()
+            else 'minigames' if hs.is_minigame()
+            else 'bosses' if hs.is_boss()
+            else 'misc'
+        )
+        for hs in HSType
+    }
+HS_TYPE_BUCKET_MAP = _bucket_builder()

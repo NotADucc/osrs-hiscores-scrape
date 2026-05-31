@@ -7,24 +7,7 @@ from typing import Any, List
 from ..statistic.calculators import calc_combat_level
 from ..util import json_wrapper
 from .dto import HSFilterEntry
-from .hs_types import HSType
-
-
-def _player_record_bucket_builder():
-    return {
-        hs.name: (
-            'skills' if hs.is_skill()
-            else 'seasonal_modes' if hs.is_seasonal_mode()
-            else 'clues' if hs.is_clue()
-            else 'minigames' if hs.is_minigame()
-            else 'bosses' if hs.is_boss()
-            else 'misc'
-        )
-        for hs in HSType
-    }
-
-
-_PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP = _player_record_bucket_builder()
+from .hs_types import HS_TYPE_BUCKET_MAP, HSType
 
 
 class PlayerRecordInfo(ABC):
@@ -159,7 +142,7 @@ class PlayerRecord:
                     xp=splitted[2]
                 )
             else:
-                bucket = _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP[hs_type.name]
+                bucket = HS_TYPE_BUCKET_MAP[hs_type.name]
                 getattr(self, bucket)[hs_type.name] = PlayerRecordActivityInfo(
                     rank=splitted[0],
                     score=splitted[1]
@@ -187,7 +170,7 @@ class PlayerRecord:
             val = self.skills.get(
                 hs_type.name, PlayerRecordSkillInfo(rank=-1, lvl=-1, xp=-1))
         else:
-            bucket = _PLAYER_RECORD_ATTRIBUTE_BUCKET_MAP[hs_type.name]
+            bucket = HS_TYPE_BUCKET_MAP[hs_type.name]
             val = getattr(self, bucket).get(
                 hs_type.name, PlayerRecordActivityInfo(rank=-1, score=-1))
 
