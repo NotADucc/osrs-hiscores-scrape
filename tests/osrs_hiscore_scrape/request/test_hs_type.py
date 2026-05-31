@@ -667,6 +667,6 @@ def test_hiscore_enum_ordering():
     ]
 
     actual = [member.name for member in HSType]
-    actual.pop(-1) # remove combat
+    actual.pop(-1)  # remove combat
 
     assert actual == expected

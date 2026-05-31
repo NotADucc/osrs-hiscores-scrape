@@ -404,6 +404,7 @@ class HSType(Enum):
                 *body,
             ]))
 
+
 def _bucket_builder():
     return {
         hs.name: (
@@ -416,4 +417,6 @@ def _bucket_builder():
         )
         for hs in HSType
     }
+
+
 HS_TYPE_BUCKET_MAP = _bucket_builder()

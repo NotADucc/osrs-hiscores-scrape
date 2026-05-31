@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 
 HEADER = '''\
@@ -179,6 +180,7 @@ ENUM_METHODS = '''\
 '''
 
 HS_BUCKET = '''\
+
 def _bucket_builder():
     return {
         hs.name: (
@@ -191,6 +193,8 @@ def _bucket_builder():
         )
         for hs in HSType
     }
+
+
 HS_TYPE_BUCKET_MAP = _bucket_builder()\
 
 '''
@@ -361,11 +365,9 @@ def generate_py() -> str:
     return "\n".join(lines)
 
 
-from collections import defaultdict
-
-
 def generate_markdown() -> str:
-    from osrs_hiscore_scrape.request.hs_types import HS_TYPE_BUCKET_MAP # type: ignore
+    from osrs_hiscore_scrape.request.hs_types import \
+        HS_TYPE_BUCKET_MAP  # type: ignore
     lines = [
         "## Hiscore Type Reference List",
         "",
@@ -392,7 +394,7 @@ def generate_markdown() -> str:
     ):
         if bucket not in buckets:
             continue
-        
+
         bucket_title = bucket.replace("_", " ").title()
 
         lines.extend([
