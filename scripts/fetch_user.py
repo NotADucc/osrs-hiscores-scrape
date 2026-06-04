@@ -37,16 +37,22 @@ def format_section(section):
 async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSType | None):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
+        main_game_lookup = lookup_account_type not in (HSAccountTypes.dmm, HSAccountTypes.leagues, HSAccountTypes.tournament, HSAccountTypes.fsw)
 
-        base_routines = {
-            lookup_account_type: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=lookup_account_type)),
-        }
+        if main_game_lookup:
+            predicted_account_type = [HSAccountTypes.main]
+            base_routines = {
+                HSAccountTypes.main: lambda: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=HSAccountTypes.main), suppress_logger=True),
+                HSAccountTypes.im: lambda: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=HSAccountTypes.im), suppress_logger=True),
+            }
+        else:
+            predicted_account_type = [lookup_account_type]
+            base_routines = {}
 
-        if lookup_account_type == HSAccountTypes.main:
-            base_routines[HSAccountTypes.im] = retry(req.get_user_stats, player_req=GetPlayerRequest(
-                username=username, account_type=HSAccountTypes.im), suppress_logger=True)
+        base_routines[lookup_account_type] = lambda: retry(
+            req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=lookup_account_type))
 
-        temp_results = await asyncio.gather(*base_routines.values(), return_exceptions=True)
+        temp_results = await asyncio.gather(*(fn() for fn in base_routines.values()), return_exceptions=True)
         results = dict(zip(base_routines.keys(), temp_results))
 
         player_record = results[lookup_account_type]
@@ -56,7 +62,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
         im_result = results.get(HSAccountTypes.im, None)
         has_iron_result = isinstance(im_result, PlayerRecord)
 
-        if has_iron_result:
+        if has_iron_result and lookup_account_type in (HSAccountTypes.main, HSAccountTypes.im, HSAccountTypes.skiller, HSAccountTypes.pure):
             extra_iron_routines = {
                 HSAccountTypes.uim: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=HSAccountTypes.uim), suppress_logger=True),
                 HSAccountTypes.hc: retry(req.get_user_stats, player_req=GetPlayerRequest(
@@ -68,7 +74,6 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
         # it's needed for linter even though we do notfound check
         assert isinstance(player_record, PlayerRecord)
 
-        predicted_account_type = HSAccountTypes.main
         downgraded_statuses = {
             "de_ironed": {
                 "account_type": None,  # skip in loop
@@ -82,16 +87,28 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
                 "account_type": HSAccountTypes.hc,
                 "value": None,
             },
+            "ruined_pure": {
+                "account_type": HSAccountTypes.pure,
+                "value": None,
+            },
+            "ruined_skiller": {
+                "account_type": HSAccountTypes.skiller,
+                "value": None,
+            },
         }
 
-        if has_iron_result:
-            im_overall = im_result.get_stat(HSType.overall)
-            main_overall = player_record.get_stat(HSType.overall)
+        if main_game_lookup:
+            main_result = results.get(HSAccountTypes.main, None)
+            assert isinstance(main_result, PlayerRecord)
 
-            downgraded_statuses["de_ironed"]["value"] = im_overall < main_overall
+            main_overall = main_result.get_stat(HSType.overall)
 
-            if not downgraded_statuses["de_ironed"]["value"]:
-                predicted_account_type = HSAccountTypes.im
+            if has_iron_result:
+                im_overall = im_result.get_stat(HSType.overall)
+                downgraded_statuses["de_ironed"]["value"] = im_overall < main_overall
+
+                if not downgraded_statuses["de_ironed"]["value"]:
+                    predicted_account_type.append(HSAccountTypes.im)
 
             for _, info in downgraded_statuses.items():
                 account_type = info["account_type"]
@@ -102,7 +119,15 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
                 if isinstance(r, PlayerRecord):
                     info["value"] = r.get_stat(HSType.overall) < main_overall
                     if not info["value"]:
-                        predicted_account_type = account_type
+                        predicted_account_type.append(account_type)
+
+        if any(t in predicted_account_type for t in (HSAccountTypes.im, HSAccountTypes.pure, HSAccountTypes.skiller)):
+            if HSAccountTypes.main in predicted_account_type:
+                predicted_account_type.remove(HSAccountTypes.main)
+
+        if any(t in predicted_account_type for t in (HSAccountTypes.uim, HSAccountTypes.hc)):
+            if HSAccountTypes.im in predicted_account_type:
+                predicted_account_type.remove(HSAccountTypes.im)
 
         base = player_record.to_dict() if not hs_type else \
             {
@@ -117,7 +142,8 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
             convert[k] = v
 
             if k == "username":
-                convert["account_type"] = predicted_account_type.name
+                convert["source_account_type"] = lookup_account_type.name
+                convert["predicted_account_type"] = [item.name for item in predicted_account_type]
 
                 for k, v in downgraded_statuses.items():
                     if v["value"] is not None:
@@ -131,12 +157,19 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
             if section in convert_copy:
                 convert_copy[section] = f'__{section}__'
 
+        convert_copy["predicted_account_type"] = "__PREDICTED__"
+
         json_output = json_wrapper.to_json(convert_copy, indent=1)
 
         for section in sections:
             if section in convert:
                 json_output = json_output.replace(
                     f'"__{section}__"', format_section(convert[section]))
+
+        json_output = json_output.replace(
+            '"__PREDICTED__"',
+            json_wrapper.to_json(convert["predicted_account_type"])
+        )
 
         HIGHLIGHT_PATTERNS = (
             '"score": 0',
@@ -151,6 +184,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
         ]
 
         print("\n".join(colored_text))
+        return convert
 
 
 if __name__ == '__main__':
