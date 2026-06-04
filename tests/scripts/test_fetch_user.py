@@ -1,4 +1,4 @@
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -6,10 +6,12 @@ from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
 from osrs_hiscore_scrape.request.records import PlayerRecord
 from scripts.fetch_user import main
 
+
 @pytest.fixture
 def patch_hiscore():
     with patch("osrs_hiscore_scrape.request.request.Requests.get_user_stats") as mock:
         yield mock
+
 
 def make_player(overall):
     record = Mock(spec=PlayerRecord)
@@ -18,6 +20,7 @@ def make_player(overall):
         "username": "bob",
     }
     return record
+
 
 def make_fake_backend(overrides):
     async def fake_get_user_stats(*args, **kwargs):
@@ -425,7 +428,7 @@ def build_results(**kwargs):
         (
             HSAccountTypes.pure,
             build_results(main=100, im=100, pure=100, skiller=100),
-            {HSAccountTypes.im.name, HSAccountTypes.pure.name}, 
+            {HSAccountTypes.im.name, HSAccountTypes.pure.name},
         ),
         (
             HSAccountTypes.skiller,
@@ -477,33 +480,35 @@ def build_results(**kwargs):
         # edge cases
         (
             HSAccountTypes.pure,
-            build_results(main=100, im=80, pure=100, skiller=100), # currently only the acc type gets displayed
-            {HSAccountTypes.pure.name}, 
+            # currently only the acc type gets displayed
+            build_results(main=100, im=80, pure=100, skiller=100),
+            {HSAccountTypes.pure.name},
         ),
         (
             HSAccountTypes.skiller,
-            build_results(main=100, im=80, pure=100, skiller=100), # currently only the acc type gets displayed
+            # currently only the acc type gets displayed
+            build_results(main=100, im=80, pure=100, skiller=100),
             {HSAccountTypes.skiller.name},
         ),
         (
             HSAccountTypes.pure,
             build_results(main=100, im=80, hc=50, pure=100),
-            {HSAccountTypes.pure.name}, 
+            {HSAccountTypes.pure.name},
         ),
         (
             HSAccountTypes.pure,
             build_results(main=100, im=80, uim=50, pure=100),
-            {HSAccountTypes.pure.name}, 
+            {HSAccountTypes.pure.name},
         ),
         (
             HSAccountTypes.skiller,
             build_results(main=100, im=80, hc=50, skiller=100),
-            {HSAccountTypes.skiller.name}, 
+            {HSAccountTypes.skiller.name},
         ),
         (
             HSAccountTypes.skiller,
             build_results(main=100, im=80, uim=50, skiller=100),
-            {HSAccountTypes.skiller.name}, 
+            {HSAccountTypes.skiller.name},
         ),
     ],
 )

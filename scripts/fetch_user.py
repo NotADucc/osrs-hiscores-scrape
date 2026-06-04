@@ -37,7 +37,8 @@ def format_section(section):
 async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSType | None):
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
-        main_game_lookup = lookup_account_type not in (HSAccountTypes.dmm, HSAccountTypes.leagues, HSAccountTypes.tournament, HSAccountTypes.fsw)
+        main_game_lookup = lookup_account_type not in (
+            HSAccountTypes.dmm, HSAccountTypes.leagues, HSAccountTypes.tournament, HSAccountTypes.fsw)
 
         if main_game_lookup:
             predicted_account_type = [HSAccountTypes.main]
@@ -143,7 +144,8 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
 
             if k == "username":
                 convert["source_account_type"] = lookup_account_type.name
-                convert["predicted_account_type"] = [item.name for item in predicted_account_type]
+                convert["predicted_account_type"] = [
+                    item.name for item in predicted_account_type]
 
                 for k, v in downgraded_statuses.items():
                     if v["value"] is not None:
