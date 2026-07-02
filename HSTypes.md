@@ -1,75 +1,5 @@
 ## Hiscore Type Reference List
 
-### Skills
-
-| Hiscore Type | Param |
-|--------------|-------|
-| Overall | `overall` |
-| Attack | `attack`, `att`, `atk` |
-| Defence | `defence`, `defe` |
-| Strength | `strength`, `stre` |
-| Hitpoints | `hitpoints`, `hp` |
-| Ranged | `ranged`, `range` |
-| Prayer | `prayer`, `pray` |
-| Magic | `magic`, `mage` |
-| Cooking | `cooking`, `cook` |
-| Woodcutting | `woodcutting`, `wc` |
-| Fletching | `fletching`, `fletch` |
-| Fishing | `fishing`, `fish` |
-| Firemaking | `firemaking`, `fm`, `fire` |
-| Crafting | `crafting`, `craft` |
-| Smithing | `smithing`, `smith` |
-| Mining | `mining`, `mine` |
-| Herblore | `herblore`, `herb` |
-| Agility | `agility`, `agil` |
-| Thieving | `thieving`, `thiev` |
-| Slayer | `slayer`, `slay` |
-| Farming | `farming`, `farm` |
-| Runecrafting | `runecrafting`, `rc`, `rune` |
-| Hunter | `hunter`, `hunt` |
-| Construction | `construction`, `con` |
-| Sailing | `sailing`, `sail` |
-
-### Seasonal Modes
-
-| Hiscore Type | Param |
-|--------------|-------|
-| Grid Points | `grid_points` |
-| League Points | `league_points`, `leagues` |
-| Deadman Points | `deadman_points`, `dmm` |
-
-### Minigames
-
-| Hiscore Type | Param |
-|--------------|-------|
-| Bh Hunter | `bh_hunter` |
-| Bh Rogue | `bh_rogue` |
-| Bh Legacy Hunter | `bh_legacy_hunter`, `bhl_hunter` |
-| Bh Legacy Rogue | `bh_legacy_rogue`, `bhl_rogue` |
-| Lms Rank | `lms_rank` |
-| Pvp Arena Rank | `pvp_arena_rank` |
-| Soulwars Zeal | `soulwars_zeal`, `sw_zeal` |
-| Rifts Closed | `rifts_closed` |
-
-### Clues
-
-| Hiscore Type | Param |
-|--------------|-------|
-| Clue All | `clue_all`, `cs_all` |
-| Clue Beginner | `clue_beginner`, `cs_beginner` |
-| Clue Easy | `clue_easy`, `cs_easy` |
-| Clue Medium | `clue_medium`, `cs_medium` |
-| Clue Hard | `clue_hard`, `cs_hard` |
-| Clue Elite | `clue_elite`, `cs_elite` |
-| Clue Master | `clue_master`, `cs_master` |
-
-### Misc
-
-| Hiscore Type | Param |
-|--------------|-------|
-| Colosseum Glory | `colosseum_glory`, `glory` |
-| Collections Logged | `collections_logged`, `clog` |
-
 ### Bosses
 
 | Hiscore Type | Param |
@@ -109,6 +39,7 @@
 | Kril Tsutsaroth | `kril_tsutsaroth`, `kril`, `zamorak`, `zammy` |
 | Lunar Chests | `lunar_chests`, `moons` |
 | Mimic | `mimic` |
+| Maggot King | `maggot_king`, `mk` |
 | Nex | `nex` |
 | Nightmare | `nightmare`, `nm` |
 | Phosanis Nightmare | `phosanis_nightmare`, `psn`, `phosani` |
@@ -143,6 +74,76 @@
 | Yama | `yama` |
 | Zalcano | `zalcano`, `zalc` |
 | Zulrah | `zulrah` |
+
+### Clues
+
+| Hiscore Type | Param |
+|--------------|-------|
+| Clue All | `clue_all`, `cs_all` |
+| Clue Beginner | `clue_beginner`, `cs_beginner` |
+| Clue Easy | `clue_easy`, `cs_easy` |
+| Clue Medium | `clue_medium`, `cs_medium` |
+| Clue Hard | `clue_hard`, `cs_hard` |
+| Clue Elite | `clue_elite`, `cs_elite` |
+| Clue Master | `clue_master`, `cs_master` |
+
+### Minigames
+
+| Hiscore Type | Param |
+|--------------|-------|
+| Bh Hunter | `bh_hunter` |
+| Bh Rogue | `bh_rogue` |
+| Bh Legacy Hunter | `bh_legacy_hunter`, `bhl_hunter` |
+| Bh Legacy Rogue | `bh_legacy_rogue`, `bhl_rogue` |
+| Lms Rank | `lms_rank` |
+| Pvp Arena Rank | `pvp_arena_rank` |
+| Soulwars Zeal | `soulwars_zeal`, `sw_zeal` |
+| Rifts Closed | `rifts_closed` |
+
+### Misc
+
+| Hiscore Type | Param |
+|--------------|-------|
+| Colosseum Glory | `colosseum_glory`, `glory` |
+| Collections Logged | `collections_logged`, `clog` |
+
+### Seasonal Modes
+
+| Hiscore Type | Param |
+|--------------|-------|
+| Grid Points | `grid_points` |
+| League Points | `league_points`, `leagues` |
+| Deadman Points | `deadman_points`, `dmm` |
+
+### Skills
+
+| Hiscore Type | Param |
+|--------------|-------|
+| Overall | `overall` |
+| Attack | `attack`, `att`, `atk` |
+| Defence | `defence`, `defe` |
+| Strength | `strength`, `stre` |
+| Hitpoints | `hitpoints`, `hp` |
+| Ranged | `ranged`, `range` |
+| Prayer | `prayer`, `pray` |
+| Magic | `magic`, `mage` |
+| Cooking | `cooking`, `cook` |
+| Woodcutting | `woodcutting`, `wc` |
+| Fletching | `fletching`, `fletch` |
+| Fishing | `fishing`, `fish` |
+| Firemaking | `firemaking`, `fm`, `fire` |
+| Crafting | `crafting`, `craft` |
+| Smithing | `smithing`, `smith` |
+| Mining | `mining`, `mine` |
+| Herblore | `herblore`, `herb` |
+| Agility | `agility`, `agil` |
+| Thieving | `thieving`, `thiev` |
+| Slayer | `slayer`, `slay` |
+| Farming | `farming`, `farm` |
+| Runecrafting | `runecrafting`, `rc`, `rune` |
+| Hunter | `hunter`, `hunt` |
+| Construction | `construction`, `con` |
+| Sailing | `sailing`, `sail` |
 
 ### Extra (Non Official)
 

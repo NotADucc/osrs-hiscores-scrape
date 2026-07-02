@@ -213,6 +213,8 @@ class HSType(Enum):
     lunar_chests = HSCategoryMapperIncrementer.activity()
     moons = lunar_chests
     mimic = HSCategoryMapperIncrementer.activity()
+    maggot_king = HSCategoryMapperIncrementer.activity()
+    mk = maggot_king
     nex = HSCategoryMapperIncrementer.activity()
     nightmare = HSCategoryMapperIncrementer.activity()
     nm = nightmare

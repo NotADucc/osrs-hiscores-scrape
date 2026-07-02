@@ -288,6 +288,7 @@ ALL = {
             "kril_tsutsaroth": ["kril", "zamorak", "zammy"],
             "lunar_chests": ["moons"],
             "mimic": [],
+            "maggot_king": ["mk"],
             "nex": [],
             "nightmare": ["nm"],
             "phosanis_nightmare": ["psn", "phosani"],
@@ -384,14 +385,7 @@ def generate_markdown() -> str:
         bucket = HS_TYPE_BUCKET_MAP[canonical]
         buckets[bucket].append((canonical, aliases))
 
-    for bucket in (
-        "skills",
-        "seasonal_modes",
-        "minigames",
-        "clues",
-        "misc",
-        "bosses",
-    ):
+    for bucket in (sorted(set(HS_TYPE_BUCKET_MAP.values()))):
         if bucket not in buckets:
             continue
 

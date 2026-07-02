@@ -124,6 +124,7 @@ def test_initialization():
         "21849,500",
         "259159,25",
         "346878,161",
+        "12312,1",
     ]
 
     player_record = PlayerRecord("TestUser", csv, datetime(2025, 11, 16))
