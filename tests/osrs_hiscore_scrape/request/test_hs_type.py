@@ -188,6 +188,7 @@ def test_hs_type_is_activity():
         HSType.kril_tsutsaroth,
         HSType.lunar_chests,
         HSType.mimic,
+        HSType.mad_angel,
         HSType.maggot_king,
         HSType.nex,
         HSType.nightmare,
@@ -332,6 +333,7 @@ def test_hs_type_is_boss():
         HSType.kril_tsutsaroth,
         HSType.lunar_chests,
         HSType.mimic,
+        HSType.mad_angel,
         HSType.maggot_king,
         HSType.nex,
         HSType.nightmare,
@@ -406,7 +408,7 @@ def test_hs_type_combat_special_case():
 
 
 def test_hs_type_csv_len():
-    assert HSType.csv_len() == 115  # run api to see count
+    assert HSType.csv_len() == 116  # run api to see count
 
 
 def test_hs_type_get_csv_types():
@@ -632,6 +634,7 @@ def test_hiscore_enum_ordering():
         "kril_tsutsaroth",
         "lunar_chests",
         "mimic",
+        "mad_angel",
         "maggot_king",
         "nex",
         "nightmare",

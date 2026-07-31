@@ -39,6 +39,7 @@
 | Kril Tsutsaroth | `kril_tsutsaroth`, `kril`, `zamorak`, `zammy` |
 | Lunar Chests | `lunar_chests`, `moons` |
 | Mimic | `mimic` |
+| Mad Angel | `mad_angel` |
 | Maggot King | `maggot_king`, `mk` |
 | Nex | `nex` |
 | Nightmare | `nightmare`, `nm` |

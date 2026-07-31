@@ -288,6 +288,7 @@ ALL = {
             "kril_tsutsaroth": ["kril", "zamorak", "zammy"],
             "lunar_chests": ["moons"],
             "mimic": [],
+            "mad_angel": [],
             "maggot_king": ["mk"],
             "nex": [],
             "nightmare": ["nm"],
