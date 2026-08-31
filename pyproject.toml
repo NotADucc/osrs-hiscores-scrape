@@ -25,3 +25,8 @@ include = ["osrs_hiscore_scrape*"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests that require external services",
+]

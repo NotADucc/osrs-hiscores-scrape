@@ -1,7 +1,9 @@
+import aiohttp
 import pytest
 
+from osrs_hiscore_scrape.request.hs_account_types import HSAccountTypes
 from osrs_hiscore_scrape.request.hs_types import HSIncrementer, HSType, HSValue
-
+from osrs_hiscore_scrape.request.request import Requests
 
 @pytest.mark.parametrize(
     "category, category_value, csv_value",
@@ -407,8 +409,19 @@ def test_hs_type_combat_special_case():
     assert combat.get_csv_value() == -1
 
 
-def test_hs_type_csv_len():
-    assert HSType.csv_len() == 116  # run api to see count
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_hs_type_csv_len():
+    url = HSAccountTypes.main.api_csv()
+    username = "bar" # hope he doesn't get banned
+
+    async with aiohttp.ClientSession() as session:
+        req = Requests(session=session)
+        resp = await req.https_request(url, {'player': username})
+
+    rows = [line for line in resp.splitlines() if line]
+
+    assert HSType.csv_len() == len(rows)
 
 
 def test_hs_type_get_csv_types():
