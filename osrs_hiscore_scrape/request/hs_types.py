@@ -260,6 +260,9 @@ class HSType(Enum):
     tob = theatre_of_blood
     theatre_of_blood_hard_mode = HSCategoryMapperIncrementer.activity()
     hmt = theatre_of_blood_hard_mode
+    the_fractured_archive = HSCategoryMapperIncrementer.activity()
+    raids4 = the_fractured_archive
+    tfa = the_fractured_archive
     thermonuclear_smoke_devil = HSCategoryMapperIncrementer.activity()
     thermy = thermonuclear_smoke_devil
     tombs_of_amascut = HSCategoryMapperIncrementer.activity()

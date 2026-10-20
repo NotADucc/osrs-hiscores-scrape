@@ -62,6 +62,7 @@
 | The Whisperer | `the_whisperer`, `whisperer`, `whisp` |
 | Theatre Of Blood | `theatre_of_blood`, `raids2`, `tob` |
 | Theatre Of Blood Hard Mode | `theatre_of_blood_hard_mode`, `hmt` |
+| The Fractured Archive | `the_fractured_archive`, `raids4`, `tfa` |
 | Thermonuclear Smoke Devil | `thermonuclear_smoke_devil`, `thermy` |
 | Tombs Of Amascut | `tombs_of_amascut`, `raids3`, `toa` |
 | Tombs Of Amascut Expert Mode | `tombs_of_amascut_expert_mode`, `toa_expert` |

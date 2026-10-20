@@ -311,6 +311,7 @@ ALL = {
             "the_whisperer": ["whisperer", "whisp"],
             "theatre_of_blood": ["raids2", "tob"],
             "theatre_of_blood_hard_mode": ["hmt"],
+            "the_fractured_archive": ["raids4", "tfa"],
             "thermonuclear_smoke_devil": ["thermy"],
             "tombs_of_amascut": ["raids3", "toa"],
             "tombs_of_amascut_expert_mode": ["toa_expert"],
