@@ -10,10 +10,11 @@ def tests_are_unique():
 
 ACCOUNT_TYPE_TEST_CASES = [
     (HSAccountTypes.main, "hiscore_oldschool"),
+    (HSAccountTypes.hc, "hiscore_oldschool_hardcore_mains"),
     (HSAccountTypes.pure, "hiscore_oldschool_skiller_defence"),
     (HSAccountTypes.im, "hiscore_oldschool_ironman"),
     (HSAccountTypes.uim, "hiscore_oldschool_ultimate"),
-    (HSAccountTypes.hc, "hiscore_oldschool_hardcore_ironman"),
+    (HSAccountTypes.hcim, "hiscore_oldschool_hardcore_ironman"),
     (HSAccountTypes.skiller, "hiscore_oldschool_skiller"),
     (HSAccountTypes.dmm, "hiscore_oldschool_deadman"),
     (HSAccountTypes.leagues, "hiscore_oldschool_seasonal"),

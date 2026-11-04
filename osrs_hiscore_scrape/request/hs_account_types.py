@@ -18,9 +18,10 @@ class HSAccountTypes(Enum):
         fsw
     """
     main = 'hiscore_oldschool'  # default/global hiscores (not a separate account type (gotta love how HS work))
+    hc = 'hiscore_oldschool_hardcore_mains'
     im = 'hiscore_oldschool_ironman'
     uim = 'hiscore_oldschool_ultimate'
-    hc = 'hiscore_oldschool_hardcore_ironman'
+    hcim = 'hiscore_oldschool_hardcore_ironman'
     pure = 'hiscore_oldschool_skiller_defence'
     skiller = 'hiscore_oldschool_skiller'
     dmm = 'hiscore_oldschool_deadman'
