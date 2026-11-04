@@ -24,6 +24,8 @@ python -m pip install -r requirements.txt -e . # editable mode if u plan on modi
 - Fetch an individual's stats from OSRS hiscores.
 - Fetch maximum page of a hiscore category.
 - Check if proxies are valid.
+> [!Warning]
+> Does not support GIM related queries, more specifically group
 
 > [!Note]
 > Use apostrophes (single quotes) or double quotes (depending on what shell u use) when you have an argument value that contains a space.
