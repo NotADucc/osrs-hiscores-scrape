@@ -38,7 +38,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
     async with aiohttp.ClientSession(cookie_jar=aiohttp.DummyCookieJar()) as session:
         req = Requests(session=session)
         main_game_lookup = lookup_account_type not in (
-            HSAccountTypes.dmm, HSAccountTypes.leagues, HSAccountTypes.tournament, HSAccountTypes.fsw)
+            HSAccountTypes.dmm, HSAccountTypes.leagues, HSAccountTypes.tournament, HSAccountTypes.fsw, HSAccountTypes.hc)
 
         if main_game_lookup:
             predicted_account_type = [HSAccountTypes.main]
@@ -66,8 +66,8 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
         if has_iron_result and lookup_account_type in (HSAccountTypes.main, HSAccountTypes.im, HSAccountTypes.skiller, HSAccountTypes.pure):
             extra_iron_routines = {
                 HSAccountTypes.uim: retry(req.get_user_stats, player_req=GetPlayerRequest(username=username, account_type=HSAccountTypes.uim), suppress_logger=True),
-                HSAccountTypes.hc: retry(req.get_user_stats, player_req=GetPlayerRequest(
-                    username=username, account_type=HSAccountTypes.hc), suppress_logger=True)
+                HSAccountTypes.hcim: retry(req.get_user_stats, player_req=GetPlayerRequest(
+                    username=username, account_type=HSAccountTypes.hcim), suppress_logger=True)
             }
             temp_results = await asyncio.gather(*extra_iron_routines.values(), return_exceptions=True)
             results.update(dict(zip(extra_iron_routines.keys(), temp_results)))
@@ -85,7 +85,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
                 "value": None,
             },
             "dead_hc": {
-                "account_type": HSAccountTypes.hc,
+                "account_type": HSAccountTypes.hcim,
                 "value": None,
             },
             "ruined_pure": {
@@ -126,7 +126,7 @@ async def main(username: str, lookup_account_type: HSAccountTypes, hs_type: HSTy
             if HSAccountTypes.main in predicted_account_type:
                 predicted_account_type.remove(HSAccountTypes.main)
 
-        if any(t in predicted_account_type for t in (HSAccountTypes.uim, HSAccountTypes.hc)):
+        if any(t in predicted_account_type for t in (HSAccountTypes.uim, HSAccountTypes.hcim)):
             if HSAccountTypes.im in predicted_account_type:
                 predicted_account_type.remove(HSAccountTypes.im)
 

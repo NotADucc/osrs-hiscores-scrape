@@ -60,10 +60,11 @@ def test_api_json(account_type, expected_path):
     "account_type, expected_value",
     [
         ("main", HSAccountTypes.main),
+        ("hc", HSAccountTypes.hc),
         ("pure", HSAccountTypes.pure),
         ("im", HSAccountTypes.im),
+        ("hcim", HSAccountTypes.hcim),
         ("uim", HSAccountTypes.uim),
-        ("hc", HSAccountTypes.hc),
         ("skiller", HSAccountTypes.skiller),
         ("dmm", HSAccountTypes.dmm),
         ("leagues", HSAccountTypes.leagues),

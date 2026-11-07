@@ -275,21 +275,21 @@ async def test_uim_deironed(patch_hiscore, account_type):
     [
         HSAccountTypes.main,
         HSAccountTypes.im,
-        HSAccountTypes.hc,
+        HSAccountTypes.hcim,
     ],
 )
 async def test_hc_prediction(patch_hiscore, account_type):
     patch_hiscore.side_effect = make_fake_backend({
         HSAccountTypes.main: make_player(2000),
         HSAccountTypes.im: make_player(2000),
-        HSAccountTypes.hc: make_player(2000),
+        HSAccountTypes.hcim: make_player(2000),
     })
 
     result = await main("bob", account_type, None)
 
     assert result["source_account_type"] == account_type.name
     assert set(result["predicted_account_type"]) == {
-        HSAccountTypes.hc.name,
+        HSAccountTypes.hcim.name,
     }
     assert result["de_ironed"] is False
     assert "de_ulted" not in result
@@ -304,14 +304,14 @@ async def test_hc_prediction(patch_hiscore, account_type):
     [
         HSAccountTypes.main,
         HSAccountTypes.im,
-        HSAccountTypes.hc,
+        HSAccountTypes.hcim,
     ],
 )
 async def test_hc_deironed(patch_hiscore, account_type):
     patch_hiscore.side_effect = make_fake_backend({
         HSAccountTypes.main: make_player(2000),
         HSAccountTypes.im: make_player(1950),
-        HSAccountTypes.hc: make_player(1900),
+        HSAccountTypes.hcim: make_player(1900),
     })
 
     result = await main("bob", account_type, None)
@@ -333,14 +333,14 @@ async def test_hc_deironed(patch_hiscore, account_type):
     [
         HSAccountTypes.main,
         HSAccountTypes.im,
-        HSAccountTypes.hc,
+        HSAccountTypes.hcim,
     ],
 )
 async def test_dead_hc_still_iron(patch_hiscore, account_type):
     patch_hiscore.side_effect = make_fake_backend({
         HSAccountTypes.main: make_player(2000),
         HSAccountTypes.im: make_player(2000),
-        HSAccountTypes.hc: make_player(1900),
+        HSAccountTypes.hcim: make_player(1900),
     })
 
     result = await main("bob", account_type, None)
@@ -364,6 +364,7 @@ async def test_dead_hc_still_iron(patch_hiscore, account_type):
         HSAccountTypes.leagues,
         HSAccountTypes.tournament,
         HSAccountTypes.fsw,
+        HSAccountTypes.hc,
     ],
 )
 async def test_alternate_gamemodes(patch_hiscore, account_type):
@@ -392,9 +393,10 @@ def build_results(**kwargs):
 
     mapping = {
         "main": HSAccountTypes.main,
-        "im": HSAccountTypes.im,
-        "uim": HSAccountTypes.uim,
         "hc": HSAccountTypes.hc,
+        "im": HSAccountTypes.im,
+        "hcim": HSAccountTypes.hcim,
+        "uim": HSAccountTypes.uim,
         "pure": HSAccountTypes.pure,
         "skiller": HSAccountTypes.skiller,
         "dmm": HSAccountTypes.dmm,
@@ -459,23 +461,23 @@ def build_results(**kwargs):
         # multiple predicted accounts with hc
         (
             HSAccountTypes.skiller,
-            build_results(main=100, im=100, hc=100, skiller=100),
-            {HSAccountTypes.hc.name, HSAccountTypes.skiller.name},
+            build_results(main=100, im=100, hcim=100, skiller=100),
+            {HSAccountTypes.hcim.name, HSAccountTypes.skiller.name},
         ),
         (
             HSAccountTypes.pure,
-            build_results(main=100, im=100, hc=100, pure=100),
-            {HSAccountTypes.hc.name, HSAccountTypes.pure.name},
+            build_results(main=100, im=100, hcim=100, pure=100),
+            {HSAccountTypes.hcim.name, HSAccountTypes.pure.name},
         ),
         (
             HSAccountTypes.pure,
-            build_results(main=100, im=100, hc=100, pure=100, skiller=100),
-            {HSAccountTypes.hc.name, HSAccountTypes.pure.name},
+            build_results(main=100, im=100, hcim=100, pure=100, skiller=100),
+            {HSAccountTypes.hcim.name, HSAccountTypes.pure.name},
         ),
         (
             HSAccountTypes.skiller,
-            build_results(main=100, im=100, hc=100, pure=100, skiller=100),
-            {HSAccountTypes.hc.name, HSAccountTypes.skiller.name},
+            build_results(main=100, im=100, hcim=100, pure=100, skiller=100),
+            {HSAccountTypes.hcim.name, HSAccountTypes.skiller.name},
         ),
         # edge cases
         (
